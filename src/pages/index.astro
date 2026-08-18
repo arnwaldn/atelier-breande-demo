@@ -4,8 +4,8 @@ import RealisationCard from '../components/RealisationCard.astro';
 import { realisations } from '../data/realisations';
 ---
 <BaseLayout
-  title="Atelier Bréande — Luminaires sur mesure, artisanat lyonnais"
-  description="Atelier Bréande façonne à la main des luminaires sur mesure à Lyon : création, restauration et conseil éclairage."
+  title="Atelier Bréande — luminaires sur mesure, Lyon (site de démonstration)"
+  description="Site de démonstration : Atelier Bréande est un atelier fictif. Création, restauration et conseil éclairage — vitrine réalisée par Arnaud Porcel pour montrer ce que contient un site vitrine livré."
   heroPleinEcran
 >
   <section class="allumage relative -mx-4 overflow-hidden md:rounded-b-2xl" aria-label="L'atelier">
@@ -49,6 +49,10 @@ import { realisations } from '../data/realisations';
           class="rounded border border-breande-amber/60 px-8 py-3 font-semibold text-breande-amber transition-colors hover:border-breande-amber hover:bg-breande-amber/10"
         >Voir nos services</a>
       </div>
+      <p class="mt-8 max-w-md text-xs leading-relaxed text-breande-paper/55">
+        Image produite par intelligence artificielle. Atelier Bréande n’existe pas :
+        ni ce lieu, ni ces objets, ni cette scène ne sont réels.
+      </p>
     </div>
   </section>
 
@@ -56,7 +60,7 @@ import { realisations } from '../data/realisations';
     <div class="lueur inline-block">
       <h2 id="titre-realisations" class="text-3xl md:text-4xl">Nos réalisations</h2>
     </div>
-    <p class="mt-3 text-breande-muted">Trois pièces récentes, du dessin à la pose — photographiées le soir, quand la lumière travaille.</p>
+    <p class="mt-3 text-breande-muted">Trois pièces récentes, du dessin à la pose.</p>
     {/*
       Mention de fiction, posée AVANT les cartes : les trois réalisations sont inventées
       pour la démonstration. Même idiome visuel que la mention du formulaire de contact
