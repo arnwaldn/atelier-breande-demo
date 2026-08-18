@@ -1,0 +1,13 @@
+---
+import type { Service } from '../data/services';
+
+interface Props {
+  service: Service;
+}
+const { service } = Astro.props;
+---
+<article class="carte-breande rounded-xl border border-breande-brass/40 bg-breande-coal p-6">
+  <h2 class="text-xl font-semibold text-breande-amber">{service.titre}</h2>
+  <p class="mt-3">{service.description}</p>
+  <p class="mt-3 text-breande-muted"><strong class="text-breande-paper">Ce que cela vous apporte :</strong> {service.apport}</p>
+</article>

@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RealisationCard from '../components/RealisationCard.astro';
+import { realisations } from '../data/realisations';
+---
+<BaseLayout
+  title="Atelier Bréande — Luminaires sur mesure, artisanat lyonnais"
+  description="Atelier Bréande façonne à la main des luminaires sur mesure à Lyon : création, restauration et conseil éclairage."
+  heroPleinEcran
+>
+  <section class="allumage relative -mx-4 overflow-hidden md:rounded-b-2xl" aria-label="L'atelier">
+    {/* La photo devient une couche de fond : c'est le texte qui donne sa hauteur au hero. */}
+    <img
+      src="/images/hero-atelier.webp"
+      alt="L'établi de l'atelier le soir : pièces de laiton, globes de verre soufflé et une suspension allumée qui éclaire le plan de travail"
+      width="2048"
+      height="1152"
+      loading="eager"
+      fetchpriority="high"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-breande-night via-breande-night/45 to-breande-night/10"
+      aria-hidden="true"
+    ></div>
+    {/*
+      Le texte reste dans le flux (plus de `absolute bottom-0`) : sur écran étroit, un
+      titre qui s'allonge faisait grandir le bloc vers le HAUT, passait sous l'en-tête
+      superposé et sa première ligne était rognée par `overflow-hidden`.
+      `pt-40` réserve la hauteur de l'en-tête (deux rangées sous 640 px) et `justify-end`
+      replaque le texte en bas dès qu'il reste de la place — l'effet d'origine.
+    */}
+    <div class="relative mx-auto flex min-h-[max(72vh,480px)] max-w-5xl flex-col justify-end px-4 pt-40 pb-12 sm:pt-32 md:pb-16">
+      <p class="matieres mb-4">Lyon — atelier de création lumière</p>
+      <h1 class="max-w-3xl text-3xl leading-tight text-breande-paper sm:text-4xl md:text-6xl">
+        Chaque luminaire naît à l'établi : dessiné pour votre intérieur, façonné pour durer.
+      </h1>
+      <p class="mt-5 max-w-2xl text-base text-breande-paper/85 sm:text-lg">
+        L'Atelier Bréande crée, restaure et met en scène des luminaires sur mesure,
+        pour les particuliers comme pour les architectes d'intérieur.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-4">
+        <a
+          href="/contact"
+          class="rounded bg-breande-amber px-8 py-3 font-semibold text-breande-night transition-colors hover:bg-breande-paper"
+        >Nous contacter</a>
+        <a
+          href="/services"
+          class="rounded border border-breande-amber/60 px-8 py-3 font-semibold text-breande-amber transition-colors hover:border-breande-amber hover:bg-breande-amber/10"
+        >Voir nos services</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 md:py-20" aria-labelledby="titre-realisations">
+    <div class="lueur inline-block">
+      <h2 id="titre-realisations" class="text-3xl md:text-4xl">Nos réalisations</h2>
+    </div>
+    <p class="mt-3 text-breande-muted">Trois pièces récentes, du dessin à la pose — photographiées le soir, quand la lumière travaille.</p>
+    {/*
+      Mention de fiction, posée AVANT les cartes : les trois réalisations sont inventées
+      pour la démonstration. Même idiome visuel que la mention du formulaire de contact
+      (filet de laiton à gauche, texte discret) — la démonstration annonce sa limite au
+      moment où elle pourrait être prise pour une référence.
+    */}
+    <p class="mt-6 max-w-xl border-l-2 border-breande-brass/60 pl-4 text-sm text-breande-muted">
+      Réalisations de démonstration : les trois pièces présentées sont illustratives —
+      l'Atelier Bréande est un atelier fictif.
+    </p>
+    <div class="mt-10 grid gap-8 md:grid-cols-3">
+      {realisations.map((realisation, index) => (
+        <RealisationCard realisation={realisation} index={index} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

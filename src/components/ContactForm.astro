@@ -1,0 +1,85 @@
+<noscript>
+  <p class="mb-6 rounded border border-breande-brass/50 bg-breande-coal p-4">
+    Ce formulaire nécessite JavaScript. Il s'agit de toute façon d'un formulaire de
+    démonstration : l'envoi est désactivé et l'adresse contact@atelier-breande.fr est fictive.
+  </p>
+</noscript>
+
+<!--
+  Mention visible AVANT toute interaction : ce site est une démonstration, rien n'est
+  transmis. Elle est référencée par le bouton d'envoi (aria-describedby) pour que les
+  lecteurs d'écran l'annoncent au moment où le geste d'envoi est proposé.
+-->
+<p
+  id="contact-demo-mention"
+  class="mb-8 max-w-xl border-l-2 border-breande-brass/60 pl-4 text-sm text-breande-muted"
+>
+  Formulaire de démonstration : l'envoi est désactivé sur ce site fictif — aucun message
+  n'est transmis.
+</p>
+
+<form id="contact-form" novalidate class="max-w-xl space-y-6">
+  <div class="hp-field" aria-hidden="true">
+    <label for="site-web">Ne remplissez pas ce champ</label>
+    <input type="text" id="site-web" name="website" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="champ">
+    <label for="nom" class="mb-1 block font-semibold">Nom <span aria-hidden="true">*</span></label>
+    <input
+      type="text" id="nom" name="nom" required autocomplete="name"
+      aria-describedby="nom-erreur"
+      class="w-full rounded border border-breande-brass/50 bg-breande-coal px-3 py-3 text-breande-paper"
+    />
+    <p id="nom-erreur" class="erreur mt-1 text-breande-error" hidden></p>
+  </div>
+
+  <div class="champ">
+    <label for="email" class="mb-1 block font-semibold">Email <span aria-hidden="true">*</span></label>
+    <input
+      type="email" id="email" name="email" required autocomplete="email"
+      aria-describedby="email-erreur"
+      class="w-full rounded border border-breande-brass/50 bg-breande-coal px-3 py-3 text-breande-paper"
+    />
+    <p id="email-erreur" class="erreur mt-1 text-breande-error" hidden></p>
+  </div>
+
+  <div class="champ">
+    <label for="message" class="mb-1 block font-semibold">Message <span aria-hidden="true">*</span></label>
+    <textarea
+      id="message" name="message" required minlength="10" rows="6"
+      aria-describedby="message-erreur"
+      class="w-full rounded border border-breande-brass/50 bg-breande-coal px-3 py-3 text-breande-paper"
+    ></textarea>
+    <p id="message-erreur" class="erreur mt-1 text-breande-error" hidden></p>
+  </div>
+
+  <button
+    type="submit"
+    aria-describedby="contact-demo-mention"
+    class="rounded bg-breande-amber px-8 py-3 text-base font-semibold text-breande-night transition-colors hover:bg-breande-paper"
+  >
+    Envoyer
+  </button>
+</form>
+
+<!--
+  État affiché à la place d'une confirmation d'envoi. Aucun message de succès n'existe
+  dans cette page : le site est une démonstration sans destinataire, une confirmation
+  serait un faux succès.
+-->
+<div
+  id="contact-demo-etat"
+  role="status"
+  aria-live="polite"
+  tabindex="-1"
+  hidden
+  class="mt-8 max-w-xl rounded-xl border border-breande-brass/50 bg-breande-coal p-6"
+>
+  <p class="text-breande-paper">
+    Formulaire de démonstration — l'envoi est volontairement désactivé sur ce site fictif.
+    Sur un site livré, la délivrance des messages est vérifiée avant la remise.
+  </p>
+</div>
+
+<script src="../scripts/contact-form.ts"></script>

@@ -1,0 +1,29 @@
+---
+import type { Realisation } from '../data/realisations';
+
+interface Props {
+  realisation: Realisation;
+  index: number;
+}
+const { realisation, index } = Astro.props;
+const dimensions = realisation.ratio === 'portrait'
+  ? { width: 1024, height: 1536 }
+  : { width: 1536, height: 1024 };
+---
+<article class="carte-breande overflow-hidden rounded-xl border border-breande-brass/40 bg-breande-coal">
+  <div class="aspect-[4/3] overflow-hidden">
+    <img
+      src={realisation.image}
+      alt={realisation.alt}
+      width={dimensions.width}
+      height={dimensions.height}
+      loading={index === 0 ? 'eager' : 'lazy'}
+      class="h-full w-full object-cover"
+    />
+  </div>
+  <div class="p-6">
+    <p class="matieres">{realisation.matieres.join('  ·  ')}</p>
+    <h3 class="mt-2 text-lg font-semibold text-breande-paper">{realisation.titre}</h3>
+    <p class="mt-2 text-breande-muted">{realisation.description}</p>
+  </div>
+</article>

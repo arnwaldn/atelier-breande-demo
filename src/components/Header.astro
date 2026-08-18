@@ -1,0 +1,46 @@
+---
+interface Props {
+  surImage?: boolean; // true : header posé sur le hero plein écran (accueil)
+}
+const { surImage = false } = Astro.props;
+const liens = [
+  { href: '/', libelle: 'Accueil' },
+  { href: '/services', libelle: 'Services' },
+  { href: '/contact', libelle: 'Contact' },
+];
+const cheminCourant = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+<header
+  class:list={[
+    surImage ? 'absolute inset-x-0 top-0 z-40' : 'border-b border-breande-brass/30',
+  ]}
+>
+  <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-4 py-5">
+    <a href="/" class="font-display text-2xl font-semibold tracking-wide text-breande-paper">
+      Atelier <span class="text-breande-amber">Bréande</span>
+    </a>
+    <nav aria-label="Navigation principale">
+      <ul class="flex gap-2">
+        {liens.map((lien) => {
+          const actif = cheminCourant === lien.href;
+          return (
+            <li>
+              <a
+                href={lien.href}
+                aria-current={actif ? 'page' : undefined}
+                class:list={[
+                  'inline-block rounded px-4 py-3 text-base transition-colors',
+                  actif
+                    ? 'actif font-semibold text-breande-amber underline underline-offset-8'
+                    : 'text-breande-paper hover:text-breande-amber',
+                ]}
+              >
+                {lien.libelle}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  </div>
+</header>

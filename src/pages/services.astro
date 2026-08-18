@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import { services } from '../data/services';
+---
+<BaseLayout
+  title="Nos services — Atelier Bréande"
+  description="Création sur mesure, restauration de luminaires anciens et conseil éclairage pour particuliers et architectes d'intérieur."
+>
+  <section class="py-12">
+    <h1 class="text-4xl">Nos services</h1>
+    <p class="mt-4 max-w-2xl text-lg text-breande-muted">
+      Trois façons de travailler ensemble, toujours avec la même exigence : une lumière juste,
+      des matières durables, un objet qui vous ressemble.
+    </p>
+    <div class="mt-10 grid gap-6 md:grid-cols-3">
+      {services.map((service) => <ServiceCard service={service} />)}
+    </div>
+    <div class="mt-12">
+      <a
+        href="/contact"
+        class="inline-block rounded bg-breande-amber px-8 py-3 font-semibold text-breande-night transition-colors hover:bg-breande-paper"
+      >Parler de votre projet</a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContactForm from '../components/ContactForm.astro';
+---
+<BaseLayout
+  title="Contact — Atelier Bréande"
+  description="Contactez l'Atelier Bréande à Lyon pour un projet de luminaire sur mesure, une restauration ou un conseil éclairage."
+>
+  <section class="py-12">
+    <h1 class="text-4xl">Contact</h1>
+    <p class="mt-4 max-w-xl text-lg text-breande-muted">
+      Parlez-nous de votre projet : une pièce à créer, un luminaire à restaurer,
+      une ambiance à composer. Nous vous répondons rapidement.
+    </p>
+    <div class="mt-10">
+      <ContactForm />
+    </div>
+  </section>
+</BaseLayout>
