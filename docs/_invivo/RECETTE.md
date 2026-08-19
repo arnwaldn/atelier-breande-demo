@@ -138,3 +138,55 @@ Le halo `.lueur` est à 0,28 d'opacité. La direction artistique plafonne à
 **0,18** tout halo traversé par du texte. Le texte principal est à 14,9:1 sur
 fond nu, donc largement au-dessus du seuil même sous le halo — ce n'est pas un
 défaut, c'est un réglage à reprendre avec la nouvelle palette.
+
+---
+
+## Lots 2-3 — Vague A : contenu, visuels, coquille · 2026-08-19, 03h50 → 05h00
+
+Trois équipes en parallèle, périmètres disjoints, contrat d'interface posé
+avant le départ (`src/content.config.ts` + structures documentées).
+
+### Typographie (orchestrateur)
+
+| Contrôle | Résultat |
+|---|---|
+| Bascule API Fonts → déclaration manuelle en feuille externe | l'API Fonts émettait les `@font-face` en `<style>` inline, refusé par la CSP — **attrapé par notre garde de livrable** (8 échecs explicites) |
+| Poids | 2 fichiers, 69,87 Ko servis (contre 123 Ko produits avant, dont 55 jamais téléchargés) |
+| Vérification en ligne | `document.fonts` : Fraunces + Archivo `loaded`, variables définies |
+| Fraunces `wonk` | même poids que `wght` (36,6 Ko), l'axe WONK gratuit |
+
+### Contenu (rédacteur)
+
+| Contrôle | Résultat |
+|---|---|
+| `astro check` | 0 erreur |
+| Volumes | toutes pages dans les cibles du PRD (accueil 609, atelier 1 105, services 1 634, contact 663, fiches 203-221) |
+| Interdits | 0 « lumen », 0 formule répétée, 0 apostrophe droite, 1 seul téléphone (plage ARCEP), 0 personne nommée |
+| Arbitrage rendu | l'adresse e-mail fictive du repli sans JS retirée — un mailto vers un domaine non enregistré est une porte |
+
+### Visuels (graphiste)
+
+| Contrôle | Résultat |
+|---|---|
+| Livraison | 32 fichiers, 7,1 Mo, JPEG q82, `-strip`, 0 métadonnée (échantillon vérifié) |
+| Rejets QC | filaments Edison ×3, silhouette lampe Gras ×2, cadres blancs ×2 |
+| Planche contact | examinée par l'orchestrateur AVANT commit |
+| Réserves tracées | encorbellement à revalider par le DA ; ambiance du larmier incohérente avec sa principale |
+| Incident d'outillage | MCP nanobanana non chargeable en sous-agent → API Gemini directe, même moteur, même clé. À vérifier côté configuration du poste |
+
+### Coquille (webdesigner)
+
+| Contrôle | Résultat |
+|---|---|
+| Tests | **103 passés, 1 ignoré, 0 échec** — contre-vérifiés par l'orchestrateur |
+| Gardes | 4 vertes (CSS 7,16/14 Ko, JS critique 1,07/8, polices 69,87/95) |
+| Bugs réels trouvés en recette | collision de spécificité sur le CTA à 360 px ; seuil desktop 768→1024 px |
+| Doutes remontés au DA | CTA mobile dans le panneau plutôt que la barre ; la signature de l'accent en approximation typographique |
+
+### Socle de mouvement et scène 3D (orchestrateur)
+
+| Contrôle | Résultat |
+|---|---|
+| Fragment 3D bundlé (esbuild, minifié, gzip 9) | **134,1 Ko** — budget 140, référence frère 181 |
+| Types | 0 erreur sur tout le périmètre |
+| Décisions | pas de Lenis ; verre en double coque sans `transmission` ; gouverneur au 95e centile ; imports nommés de Three |
