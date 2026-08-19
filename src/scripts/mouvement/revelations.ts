@@ -41,7 +41,41 @@ function estDansLaFenetre(element: Element): boolean {
   return boite.top < window.innerHeight && boite.bottom > 0;
 }
 
+/** L'écouteur d'armement différé — retenu pour que arreterRevelations() puisse
+ *  le débrancher si la préférence de mouvement bascule AVANT la première
+ *  visibilité (sinon il armerait un dispositif qu'on vient d'éteindre). */
+let armementDiffere: (() => void) | null = null;
+
 export function demarrerRevelations(): void {
+  // GARANTIE N° 5, payée au bêta-test in vivo du 19/08 : ON NE MASQUE QUE CE
+  // QUE QUELQU'UN REGARDE. Chargée dans un onglet d'arrière-plan (clic du
+  // milieu, restauration de session, série d'onglets ouverts pour comparer),
+  // la page posait `html.mouvement` puis attendait un IntersectionObserver
+  // que le navigateur GÈLE tant que l'onglet est caché — dix blocs sur quinze
+  // restaient à opacité zéro, et le visiteur revenait sur une page aux deux
+  // tiers vide. Aucun harnais automatique ne pouvait le voir : Playwright et
+  // Lighthouse gardent toujours leur onglet actif.
+  //
+  // La règle de fer n° 1 (« rien n'est caché sans ce script ») s'étend donc
+  // au temps : tant que la page n'a JAMAIS été visible, rien n'est masqué —
+  // le dispositif ne s'arme qu'à la première visibilité réelle, et c'est à ce
+  // moment-là que la garantie n° 2 (marquer l'écran courant) prend son sens.
+  if (document.visibilityState === 'hidden') {
+    const surVisibilite = (): void => {
+      if (document.visibilityState !== 'visible') return;
+      document.removeEventListener('visibilitychange', surVisibilite);
+      armementDiffere = null;
+      armer();
+    };
+    armementDiffere = () =>
+      document.removeEventListener('visibilitychange', surVisibilite);
+    document.addEventListener('visibilitychange', surVisibilite);
+    return;
+  }
+  armer();
+}
+
+function armer(): void {
   const racine = document.documentElement;
   const elements = Array.from(document.querySelectorAll(SELECTEUR));
 
@@ -77,7 +111,25 @@ export function demarrerRevelations(): void {
       observateur.observe(element);
     }
   }
+
+  // Ceinture de la garantie n° 5 : à CHAQUE retour de visibilité, ce qui est
+  // dans la fenêtre est marqué immédiatement, sans attendre la livraison de
+  // l'observateur (le navigateur la diffère parfois d'un cycle après un gel
+  // prolongé). Idempotent, et toujours définitif.
+  rattrapage = (): void => {
+    if (document.visibilityState !== 'visible') return;
+    for (const element of document.querySelectorAll(SELECTEUR)) {
+      if (!element.hasAttribute(MARQUE) && estDansLaFenetre(element)) {
+        element.setAttribute(MARQUE, '');
+        observateur?.unobserve(element);
+      }
+    }
+  };
+  document.addEventListener('visibilitychange', rattrapage);
 }
+
+/** L'écouteur de rattrapage à la re-visibilité — retenu pour le démontage. */
+let rattrapage: (() => void) | null = null;
 
 /** Démontage — ne sert qu'à la bascule de `prefers-reduced-motion` en cours
  *  de session : chaque navigation est un document neuf (pas de ClientRouter,
@@ -85,6 +137,14 @@ export function demarrerRevelations(): void {
 export function arreterRevelations(): void {
   observateur?.disconnect();
   observateur = null;
+  // Si le dispositif attendait encore sa première visibilité, on débranche
+  // l'armement : il ne doit pas rallumer un mécanisme qu'on vient d'éteindre.
+  armementDiffere?.();
+  armementDiffere = null;
+  if (rattrapage) {
+    document.removeEventListener('visibilitychange', rattrapage);
+    rattrapage = null;
+  }
   // Tout ce qui n'était pas encore révélé le devient : on n'abandonne jamais
   // un bloc invisible derrière soi.
   for (const element of document.querySelectorAll(SELECTEUR)) {

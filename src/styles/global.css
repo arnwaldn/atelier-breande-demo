@@ -222,6 +222,20 @@
        reste posée pour la raison documentée juste à côté (anti-conflit
        ancre + Lenis), même si elle ne fait plus que confirmer ce défaut. */
   }
+  /* LE DOCUMENT NE S'ÉLARGIT JAMAIS — bêta-test in vivo du 19/08 au soir.
+     La réparation du halo de survol des cartes (son overflow:hidden rognant
+     retiré l'après-midi même) a libéré un ::after à inset négatif qui
+     élargissait le document de 22 px : barre de défilement horizontale sur
+     tout le site. Un halo qui sort de l'écran n'a jamais besoin d'élargir la
+     page. `clip` et non `hidden` : hidden ferait de la racine un conteneur
+     de défilement et tuerait le position:sticky du ruban ; clip coupe sans
+     rien créer. Défense en profondeur : la règle vaut pour tout futur calque
+     décoratif qui déborderait — c'est le bord de l'écran qui coupe, pas
+     chaque composant qui doit y penser. */
+  html,
+  body {
+    overflow-x: clip;
+  }
 
   body {
     /* LE VARIATEUR, BRANCHÉ (recette DA du 19/08 au soir, geste 0) :
