@@ -84,10 +84,13 @@ function textureHalo(): CanvasTexture {
   const ctx = canevas.getContext('2d');
   if (ctx) {
     const d = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-    d.addColorStop(0, 'rgba(255, 190, 120, 0.9)');
-    d.addColorStop(0.3, 'rgba(255, 160, 80, 0.35)');
-    d.addColorStop(0.7, 'rgba(255, 140, 60, 0.08)');
-    d.addColorStop(1, 'rgba(255, 140, 60, 0)');
+    // Douze arrets sur une decroissance quadratique : quatre arrets se
+    // lisaient en anneaux durs sous l'accumulation additive.
+    for (let i = 0; i <= 11; i++) {
+      const p = i / 11;
+      const a = 0.55 * (1 - p) * (1 - p);
+      d.addColorStop(p, 'rgba(255, 169, 88, ' + a.toFixed(3) + ')');
+    }
     ctx.fillStyle = d;
     ctx.fillRect(0, 0, 128, 128);
   }
@@ -313,7 +316,7 @@ async function monterScene(
       .copy(teinteEteinte)
       .lerp(teinteCourante, t);
     verreExterieur.opacity = 0.22 + t * 0.08;
-    (halo.material as SpriteMaterial).opacity = t * 0.55;
+    (halo.material as SpriteMaterial).opacity = t * 0.4;
     scene.environmentIntensity = 0.55 + t * 0.45;
   };
   appliquer();
