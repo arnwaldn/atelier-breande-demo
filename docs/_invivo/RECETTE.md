@@ -190,3 +190,71 @@ avant le départ (`src/content.config.ts` + structures documentées).
 | Fragment 3D bundlé (esbuild, minifié, gzip 9) | **134,1 Ko** — budget 140, référence frère 181 |
 | Types | 0 erreur sur tout le périmètre |
 | Décisions | pas de Lenis ; verre en double coque sans `transmission` ; gouverneur au 95e centile ; imports nommés de Three |
+
+---
+
+## Lots 4-9 — Assemblage, recette et clôture · 2026-08-19, 05h00 → 09h00
+
+### La vague B (assemblage) puis la recette à trois regards
+
+Six pages assemblées, mouvement branché, scène 3D vivante. Puis trois recettes
+indépendantes : le directeur artistique (contre sa propre direction écrite),
+le bêta-testeur (deux personas, à contexte frais), et les mesures.
+
+**Verdict du DA : GO avec corrections** — « la direction est là, et elle est
+bonne […] Ce site ne ressemble à rien d'autre du poste. » Cinq bloquants,
+seize corrections. **Tous soldés le jour même.**
+
+**Le bêta-test a trouvé le bug que ni 147 tests ni le DA n'avaient vu** : la
+molette émettait une température que le moteur consommait comme une intensité —
+la lampe s'éteignait au premier geste, définitivement. « J'ai cru que j'avais
+cassé quelque chose. » Corrigé : la lampe reste allumée, sa couleur suit la
+molette sur la courbe du corps noir.
+
+### Les bloquants du DA, soldés sur preuves
+
+| Bloquant | Correction | Preuve |
+|---|---|---|
+| B1 — texte collé au bord, jauge sur les mots | le débord porte sur la cellule d'image, jamais sur la section | 3 pages corrigées, campagne verte |
+| B2 — cadres blancs (marqueur Vaubrune) | recadrage + contrôle de luminance des 4 bords | < 30 de luminance partout |
+| B3 — l'ambiance du larmier montrait un autre produit | image écartée — un manque coûte moins qu'un faux | galerie à 1 entrée valide |
+| B4 — bouton « Envoyer » trompeur | « Envoi désactivé », filet, encre éteinte | tests contact verts |
+| B5 — repli froid éteint (« sinon on ne livre pas ») | suspension ALLUMÉE à 2 700 K, profil fidèle à la scène | 45 Ko, en ligne |
+
+Plus : l'accent du logo remplacé par le vrai glyphe de Fraunces clippé (le mot
+se lisait « Breande ») ; la mesure ramenée à 34 rem ; l'air en trois valeurs ;
+le halo de la scène adouci (12 arrêts quadratiques — les 4 arrêts se lisaient
+en anneaux durs, vus par extraction du canevas via `?scene-capture`).
+
+### LES QUATRE NOTES FINALES — site complet, en ligne, 19/08
+
+| Note | Mesure | Détail |
+|---|---|---|
+| Accessibilité | **100** | |
+| Bonnes pratiques | **100** | 0 message console, 0 violation CSP |
+| Référencement | **100** | |
+| **Performance (mobile bridé)** | **99 · 99 · 99 — plancher 99** | LCP 2,06 s · TBT ≤ 12 ms · **CLS 0,000** |
+
+Relevés : `mesures/lighthouse-2026-08-19-final-t*.json`. **La fiche portfolio
+publie 95** — le chiffre tenu à chaque tirage, décision d'Arnaud du 19/08.
+
+### Chiffres de sortie du chantier
+
+- **6 pages** (contre 3), ~6 000 mots (contre ~550), 31 visuels en ligne
+- **147 tests**, 2 profils, 5 gardes de construction, CI bloquante 4 notes
+- Fragment 3D : **134 Ko gz** (budget 140, référence précédente 181)
+- Chemin critique : ~38 Ko — HTML+CSS+scripts
+- Dépôt public : `github.com/arnwaldn/atelier-breande-demo`
+- Portfolio répercuté (lot 8) : fiche, captures, offre, redirection 308
+
+### Restes à faire, tracés
+
+- **Geste d'Arnaud** : « Atelier Lumen » dans MARQUES_INTERDITES du portfolio
+  (.env + secret CI) ; test du site sur son Samsung réel (molette au doigt,
+  sélection de texte, rendu de la scène).
+- Marques TMview (classes 11, 20, 35) et réseaux sociaux pour clore les six
+  canaux sur « Bréande ».
+- Deux pièces du PRD en réserve (meneau, vasistas) — s'ajoutent sans réécrire.
+- Le MCP nanobanana n'est pas chargeable en sous-agent — configuration du
+  poste à vérifier.
+- Supprimer le projet Vercel redirecteur atelier-lumen-demo dans six mois.
