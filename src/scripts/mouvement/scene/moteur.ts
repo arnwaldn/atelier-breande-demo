@@ -166,10 +166,17 @@ async function monterScene(
   const hauteur = zoneMesure.clientHeight;
 
   // --- Tranche 1 : le contexte graphique -------------------------------
+  // ?scene-capture : outil de RECETTE — sans preserveDrawingBuffer, une
+  // capture d'ecran headless rend un canevas vide (le tampon est recycle
+  // apres composition). Le parametre n'existe que pour produire l'image de
+  // repli depuis la vraie scene ; en usage normal il est absent et ne coute
+  // rien.
+  const capture = new URLSearchParams(window.location.search).has('scene-capture');
   const rendu = new WebGLRenderer({
     antialias: contrat.antialias,
     alpha: true,
     powerPreference: 'low-power',
+    preserveDrawingBuffer: capture,
   });
   rendu.setSize(largeur, hauteur);
   rendu.setPixelRatio(
