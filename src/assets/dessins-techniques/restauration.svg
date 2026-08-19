@@ -1,0 +1,9 @@
+<svg viewBox="0 0 170 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M65,8 L95,8" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M80,8 L80,70" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M45,70 L115,70 L120,82 L40,82 Z" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M40,82 C40,110 55,140 80,140 C105,140 120,110 120,82" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M128,89 m-6,0 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0" />
+  <path class="dessin-technique__cote" pathLength="1" stroke-width="1" d="M150,8 L154,8 M152,8 L152,140 M150,140 L154,140" />
+  <path class="dessin-technique__cote" pathLength="1" stroke-width="1" d="M40,152 L40,156 M40,154 L120,154 M120,152 L120,156" />
+</svg>

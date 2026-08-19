@@ -9,6 +9,32 @@ import AppelAction from '../../components/AppelAction.astro';
 import Visuel from '../../components/Visuel.astro';
 import { services } from '../../data/services';
 
+// LA COTE QUI SE POSE (lot « lumière » du 19/08 au soir) — une élévation au
+// trait PAR FAMILLE, pas par pièce (sept fiches, cinq familles réellement
+// utilisées) : source en fichier .svg (jamais data:, refusé par
+// img-src 'self'), importée en texte brut (?raw, suffixe Vite) pour rester
+// INLINE dans le document — c'est ce qui permet à stroke-dashoffset et à
+// [data-trait-trace] de la piloter (voir demarrerDessinTechnique(),
+// effets-scroll.ts, et .dessin-technique__trait, global.css). Une balise
+// <img src="…svg"> ne l'aurait pas permis : ses <path> internes ne sont
+// alors plus atteignables ni par CSS ni par script.
+import dessinSuspension from '../../assets/dessins-techniques/suspension.svg?raw';
+import dessinLampeAPoser from '../../assets/dessins-techniques/lampe-a-poser.svg?raw';
+import dessinLampadaire from '../../assets/dessins-techniques/lampadaire.svg?raw';
+import dessinApplique from '../../assets/dessins-techniques/applique.svg?raw';
+import dessinRestauration from '../../assets/dessins-techniques/restauration.svg?raw';
+
+const DESSINS_PAR_FAMILLE: Partial<Record<string, string>> = {
+  suspension: dessinSuspension,
+  'lampe-a-poser': dessinLampeAPoser,
+  lampadaire: dessinLampadaire,
+  applique: dessinApplique,
+  restauration: dessinRestauration,
+  // 'plafonnier' : aucune pièce publiée ne porte cette typologie — pas de
+  // dessin à trahir plutôt qu'un repli générique qui prétendrait la
+  // connaître. L'aside ne se rend simplement pas (voir plus bas).
+};
+
 export async function getStaticPaths() {
   const pieces = await getCollection('pieces');
   return pieces.map((piece) => ({
@@ -20,6 +46,7 @@ export async function getStaticPaths() {
 const { piece } = Astro.props;
 const { Content } = await render(piece);
 const d = piece.data;
+const dessinFamille = DESSINS_PAR_FAMILLE[d.typologie];
 
 const voisines = (
   await Promise.all(d.piecesVoisines.map((slug) => getEntry('pieces', slug)))
@@ -49,7 +76,12 @@ const lignesCaracteristiques = [
       {d.nom}
     </h1>
     <p class="mesure-large mt-4 text-breande-muted">{d.chapo}</p>
-    <div class="mt-8 overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]" data-revelation>
+    {/* Le SEUL morphing du site (lot « lumière » du 19/08 au soir) : cette
+        image partage son view-transition-name avec la carte de collection
+        qui a mené jusqu'ici (voir [data-piece-photo], global.css). C'est
+        aussi le LCP de la fiche : view-transition-name est dormant hors
+        d'une navigation, il ne change rien au premier rendu. */}
+    <div class="mt-8 overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]" data-revelation data-piece-photo={piece.id}>
       <Visuel
         src={d.image}
         alt={d.imageAlt}
@@ -60,16 +92,31 @@ const lignesCaracteristiques = [
     </div>
   </Bandeau>
 
-  <Bandeau jour={2}>
-    <div class="mesure corps-piece text-breande-paper" data-revelation>
-      <Content />
-    </div>
-  </Bandeau>
+  {/* LA COTE QUI SE POSE (lot « lumière » du 19/08 au soir) — la marge
+      active de ces deux bandeaux (récit + caractéristiques, 800 px de vide
+      mesurés à 1440) reçoit une élévation au trait, PAR FAMILLE, qui se
+      trace au défilement, puis deux cotes qui se posent. Un seul wrapper à
+      cheval sur les deux <Bandeau> : c'est ce qui permet à l'aside d'être
+      STICKY sur leur hauteur combinée plutôt que sur celle d'un seul —
+      voir .fiche-piece__marge-active, global.css. */}
+  <div class="fiche-piece__marge-active">
+    <Bandeau jour={2} class="fiche-piece__recit">
+      <div class="mesure corps-piece text-breande-paper" data-revelation>
+        <Content />
+      </div>
+    </Bandeau>
 
-  <Bandeau jour={3} ariaLabelledby="titre-caracteristiques">
-    <TitreSection texte="Caractéristiques" id="titre-caracteristiques" filet />
-    <FicheCaracteristiques lignes={lignesCaracteristiques} class="mt-8 max-w-2xl" />
-  </Bandeau>
+    <Bandeau jour={3} ariaLabelledby="titre-caracteristiques" class="fiche-piece__caracteristiques">
+      <TitreSection texte="Caractéristiques" id="titre-caracteristiques" filet />
+      <FicheCaracteristiques lignes={lignesCaracteristiques} class="mt-8 max-w-2xl" />
+    </Bandeau>
+
+    {
+      dessinFamille && (
+        <aside class="fiche-piece__dessin" aria-hidden="true" data-dessin-technique set:html={dessinFamille} />
+      )
+    }
+  </div>
 
   {
     d.galerie.length > 0 && (
@@ -94,11 +141,11 @@ const lignesCaracteristiques = [
   }
 
   <Bandeau jour={4} air="large">
-    <div class="grid gap-8 sm:grid-cols-2" data-revelation>
+    <div class="grid gap-8 sm:grid-cols-2" data-revelation data-grille-pieces>
       {
         voisines.map((v) => v && (
           <a href={`/collections/${v.id}`} class="carte-piece">
-            <span class="carte-piece__cadre">
+            <span class="carte-piece__cadre" data-piece-photo={v.id}>
               <Visuel src={v.data.image} alt={v.data.imageAlt} sizes="50vw" class="carte-piece__image" />
             </span>
             <span class="carte-piece__corps">

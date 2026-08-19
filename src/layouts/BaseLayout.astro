@@ -47,6 +47,15 @@ const {
     <script is:inline src="/detection-js.js"></script>
   </head>
   <body class="grain">
+    {/* LE VARIATEUR, branché (recette DA du 19/08 au soir) — un seul calque,
+        posé une fois ici : --part-de-jour n'était lue nulle part dans le
+        CSS servi, alimentée à chaque frame par socle.ts pour rien. Voir
+        .lueur-verriere, global.css. Avant l'en-tête dans le document : au
+        z-index 0 (comme le grain, qui reste au-dessus, à 1), l'ordre du
+        DOM n'a pas d'incidence sur l'empilement, mais place le calque le
+        plus « de fond » en premier reste le geste le plus lisible. */}
+    <div class="lueur-verriere" aria-hidden="true"></div>
+
     {/* Hors flux, ne pousse jamais le contenu : voir global.css. */}
     <div class="sentinelle-entete" data-sentinelle-entete aria-hidden="true"></div>
 

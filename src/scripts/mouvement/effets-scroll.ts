@@ -29,7 +29,7 @@
  * défilement — un des pièges recensés par gsap-performance.
  */
 
-import { ScrollTrigger, defilerVers } from './socle';
+import { ScrollTrigger, defilerVers, ecrirePartDeJour } from './socle';
 
 /**
  * QUATRE AUTRES GESTES, un par page (lot du 19/08 — référence qiqiglobal.com,
@@ -71,8 +71,29 @@ const AMPLITUDE_IMAGE = 0.16;
  *  installerPartDeJour dans socle.ts, qui s'efface tant que CE déclencheur-
  *  ci (celui du ruban) est actif — un seul écrivain de --part-de-jour à la
  *  fois sur un même instant de défilement. */
+// DUPLIQUÉES dans socle.ts (PART_JOUR_AVANT_RUBAN / PART_JOUR_APRES_RUBAN,
+// installerPartDeJour) : c'est là que la plage du déclencheur GLOBAL est
+// bornée à ces deux mêmes valeurs pour continuer EXACTEMENT où le ruban
+// s'arrête, sans plateau (voir le commentaire de installerPartDeJour). Si
+// l'une des deux valeurs ci-dessous bouge, l'autre fichier doit suivre.
 const PART_JOUR_DEBUT = 0.55;
 const PART_JOUR_FIN = 0.3;
+
+/** L'OMBRE PORTÉE (accueil, lot « lumière » du 19/08 au soir) — troisième
+ *  vitesse du ruban, à l'oppose du parallax de l'image : « la lumière ne
+ *  bouge pas, c'est la pièce qui passe dessous ». -0,06 (signe opposé au
+ *  +0,16 de AMPLITUDE_IMAGE ci-dessus) pour rester sous le seuil de
+ *  perception d'un déplacement de la SOURCE elle-même, pas de l'objet.
+ *  Portée par la MÊME `progression` (post-palier) que l'image, pour que les
+ *  deux restent exactement en opposition de phase à chaque frame. Scale et
+ *  opacité, eux, suivent soi.progress BRUT — la même horloge que
+ *  --part-de-jour local (voir PART_JOUR_DEBUT/FIN ci-dessus) : c'est elle
+ *  qui « pilote » le socle, au sens de la mission. */
+const OMBRE_FACTEUR_X = -0.06;
+const OMBRE_SCALE_DEBUT = 1;
+const OMBRE_SCALE_FIN = 1.38;
+const OMBRE_OPACITE_DEBUT = 0.22;
+const OMBRE_OPACITE_FIN = 0.3;
 
 /** L'étiquette kelvin de la marge active (voir EchelleKelvins.astro) suit la
  *  MÊME plage que --part-de-jour ci-dessus, ancrée aux deux VRAIES
@@ -254,9 +275,22 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
 
       const rubanX = -distanceMax * progression;
       piste.style.setProperty('--ruban-x', `${rubanX}px`);
+      const scaleOmbre = OMBRE_SCALE_DEBUT + (OMBRE_SCALE_FIN - OMBRE_SCALE_DEBUT) * soi.progress;
+      const opaciteOmbre = OMBRE_OPACITE_DEBUT + (OMBRE_OPACITE_FIN - OMBRE_OPACITE_DEBUT) * soi.progress;
       images.forEach((image, i) => {
         const amplitude = amplitudes[i] ?? 0;
         image.style.setProperty('--ruban-image-x', `${amplitude * progression}px`);
+        // L'ombre vit sur le PANNEAU (voir .ruban-gestes__panneau::after,
+        // global.css), jamais sur `image` : une propriété personnalisée
+        // n'est visible que de l'élément qui la porte et de ses
+        // descendants — le panneau n'est pas descendant de l'image. Même
+        // boucle, même frame, aucun déclencheur de plus.
+        const panneau = panneaux[i];
+        const largeurPanneau = bornesPanneaux[i]?.largeur ?? 0;
+        if (!panneau) return;
+        panneau.style.setProperty('--ruban-ombre-x', `${(OMBRE_FACTEUR_X * largeurPanneau * progression).toFixed(1)}px`);
+        panneau.style.setProperty('--ruban-ombre-scale', scaleOmbre.toFixed(3));
+        panneau.style.setProperty('--ruban-ombre-opacite', opaciteOmbre.toFixed(3));
       });
       actualiserLegendes(rubanX);
 
@@ -267,7 +301,7 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
       // tout le défilement de la section, palier d'entrée compris, il ne
       // gèle pas avec la translation.
       const partDeJour = PART_JOUR_DEBUT + (PART_JOUR_FIN - PART_JOUR_DEBUT) * soi.progress;
-      document.documentElement.style.setProperty('--part-de-jour', partDeJour.toFixed(3));
+      ecrirePartDeJour(partDeJour);
 
       if (etiquetteKelvin) {
         const kelvin = KELVIN_DEBUT + (KELVIN_FIN - KELVIN_DEBUT) * soi.progress;
@@ -319,6 +353,11 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
     fenetre.setAttribute('tabindex', '0');
     piste.style.removeProperty('--ruban-x');
     for (const image of images) image.style.removeProperty('--ruban-image-x');
+    for (const panneau of panneaux) {
+      panneau.style.removeProperty('--ruban-ombre-x');
+      panneau.style.removeProperty('--ruban-ombre-scale');
+      panneau.style.removeProperty('--ruban-ombre-opacite');
+    }
     for (const legende of legendes) legende?.classList.remove('ruban-gestes__legende--active');
     for (const repere of reperes) repere.classList.remove('ruban-gestes__repere--actif');
   };
@@ -452,25 +491,19 @@ function demarrerFriseEtapes(frise: HTMLElement): (() => void) | void {
   const etapes = Array.from(frise.querySelectorAll<HTMLElement>(SELECTEUR_FRISE_ETAPE));
   if (!filet || etapes.length === 0) return;
 
-  // Mesuré une fois par rafraîchissement, jamais dans onUpdate (même règle
-  // que le ruban, voir l'en-tête de ce fichier) : une hauteur en pourcentage
-  // n'aurait de toute façon aucune prise sur un élément absolu dont
-  // l'ancêtre positionné est haut « auto ».
-  let hauteur = 0;
-  const mesurer = () => {
-    hauteur = frise.clientHeight;
-  };
-  mesurer();
-
   const declencheur = ScrollTrigger.create({
     trigger: frise,
     start: 'top 70%',
     end: 'bottom 80%',
     scrub: 0.8,
-    invalidateOnRefresh: true,
-    onRefresh: mesurer,
     onUpdate: (soi) => {
-      filet.style.setProperty('--filet-hauteur', `${(soi.progress * hauteur).toFixed(1)}px`);
+      // --filet-progres pilote un transform: scaleY (voir
+      // .frise-etapes__filet, global.css), plus une hauteur en px : CORRECTIF
+      // CLS (lot « lumière » du 19/08 au soir) — l'ancienne version, en px,
+      // changeait la hauteur RÉELLE de l'élément à chaque frame de scrub, une
+      // propriété de mise en page ; mesuré, 0,0006 à 0,0019 de Layout Shift
+      // sur /services. transform ne bouge jamais la boîte de mise en page.
+      filet.style.setProperty('--filet-progres', soi.progress.toFixed(3));
       etapes.forEach((etape, i) => {
         // Seuil de progression, pas une lecture de position : la révélation
         // est définitive (même garantie que revelations.ts), donc on ne
@@ -484,11 +517,176 @@ function demarrerFriseEtapes(frise: HTMLElement): (() => void) | void {
 
   return () => {
     declencheur.kill();
-    filet.style.removeProperty('--filet-hauteur');
+    filet.style.removeProperty('--filet-progres');
     // Rien n'est abandonné invisible derrière soi (même garantie que
     // arreterRevelations()) : tout ce qui n'était pas encore atteint le
     // devient au démontage.
     for (const etape of etapes) etape.setAttribute(MARQUE_FILET_ATTEINT, '');
+  };
+}
+
+/* ==========================================================================
+   LE SEUIL QUI SE RETIRE (accueil) — la photo du seuil ne bouge JAMAIS
+   (c'est le LCP) ; seul le calque de titre posé dessus se retire sur les
+   400 premiers pixels de défilement. `start`/`end` NUMÉRIQUES, sans
+   `trigger` : la même mécanique que le déclencheur global de socle.ts
+   (installerPartDeJour) — une position de page absolue, aucun élément à
+   mesurer, aucun risque de conflit avec la fenêtre épinglée du ruban plus
+   bas sur la page.
+   ========================================================================== */
+const SELECTEUR_SEUIL_TITRE = '[data-seuil-titre]';
+const SEUIL_TITRE_DISTANCE_PX = 400;
+const SEUIL_TITRE_TRANSLATION_PX = -40;
+
+function demarrerSeuilTitre(bloc: HTMLElement): () => void {
+  const declencheur = ScrollTrigger.create({
+    start: 0,
+    end: SEUIL_TITRE_DISTANCE_PX,
+    scrub: 0.4,
+    onUpdate: (soi) => {
+      bloc.style.setProperty('--seuil-titre-opacite', (1 - soi.progress).toFixed(3));
+      bloc.style.setProperty('--seuil-titre-y', `${(SEUIL_TITRE_TRANSLATION_PX * soi.progress).toFixed(1)}px`);
+    },
+  });
+  return () => {
+    declencheur.kill();
+    bloc.style.removeProperty('--seuil-titre-opacite');
+    bloc.style.removeProperty('--seuil-titre-y');
+  };
+}
+
+/* ==========================================================================
+   LA LUMIÈRE RASANTE (L'atelier) — un balayage traverse chaque photo de la
+   grille des matières, une matière après l'autre : chaque image a sa
+   PROPRE fenêtre de progression, décalée de 12 % et NORMALISÉE sur le
+   reste de la course (LUMIERE_DUREE) pour que la DERNIÈRE matière achève
+   quand même son balayage exactement à la fin du déclencheur — sans cette
+   normalisation, un simple décalage aurait laissé le dernier panneau
+   inachevé (0,64 de progression locale au mieux sur une fenêtre de 1).
+   ========================================================================== */
+const SELECTEUR_LUMIERE_RASANTE = '[data-lumiere-rasante]';
+const SELECTEUR_LUMIERE_IMAGE = '.famille-matiere__image';
+const LUMIERE_DECALAGE = 0.12;
+const LUMIERE_DUREE = 1 - 3 * LUMIERE_DECALAGE; // 3 décalages entre 4 matières.
+
+function demarrerLumiereRasante(grille: HTMLElement): (() => void) | void {
+  const images = Array.from(grille.querySelectorAll<HTMLElement>(SELECTEUR_LUMIERE_IMAGE));
+  if (images.length === 0) return;
+
+  const declencheur = ScrollTrigger.create({
+    trigger: grille,
+    start: 'top 78%',
+    end: 'bottom 60%',
+    scrub: 0.7,
+    onUpdate: (soi) => {
+      images.forEach((image, i) => {
+        const local = Math.min(1, Math.max(0, (soi.progress - i * LUMIERE_DECALAGE) / LUMIERE_DUREE));
+        image.style.setProperty('--matiere-x', `${(-40 + 180 * local).toFixed(1)}%`);
+        // Opacité en cloche (0 → 0,26 → 0) : un sinus sur [0, π], nul aux
+        // deux bornes de la fenêtre locale, jamais négatif grâce au clamp
+        // ci-dessus.
+        image.style.setProperty('--matiere-opacite', (Math.sin(Math.PI * local) * 0.26).toFixed(3));
+      });
+    },
+  });
+
+  return () => {
+    declencheur.kill();
+    for (const image of images) {
+      image.style.removeProperty('--matiere-x');
+      image.style.removeProperty('--matiere-opacite');
+    }
+  };
+}
+
+/* ==========================================================================
+   LE DESSIN TECHNIQUE QUI SE POSE (fiche de pièce) — un trait au
+   stroke-dashoffset (pathLength="1" sur chaque <path>, voir les fichiers
+   src/assets/dessins-techniques/*.svg : la normalisation évite tout calcul
+   de longueur réelle de tracé) puis, une fois le trait complet, les cotes
+   se posent en fondu (voir [data-trait-trace] .dessin-technique__cote,
+   global.css). Révélation DÉFINITIVE (même garantie que revelations.ts et
+   la frise des étapes) : l'attribut n'est jamais retiré.
+   ========================================================================== */
+const SELECTEUR_DESSIN = '[data-dessin-technique]';
+const MARQUE_TRAIT_TRACE = 'data-trait-trace';
+
+function demarrerDessinTechnique(aside: HTMLElement): (() => void) | void {
+  const declencheur = ScrollTrigger.create({
+    trigger: aside,
+    start: 'top 70%',
+    end: '+=700',
+    scrub: 0.5,
+    onUpdate: (soi) => {
+      aside.style.setProperty('--dessin-progres', (1 - soi.progress).toFixed(3));
+      if (soi.progress >= 1) aside.setAttribute(MARQUE_TRAIT_TRACE, '');
+    },
+  });
+
+  return () => {
+    declencheur.kill();
+    aside.style.removeProperty('--dessin-progres');
+    // Rien n'est abandonné à mi-trait : comme la frise, on complète plutôt
+    // que d'effacer.
+    aside.setAttribute(MARQUE_TRAIT_TRACE, '');
+  };
+}
+
+/* ==========================================================================
+   LE SURVOL DE PROXIMITÉ (grilles de pièces) — préalable : réparer le halo
+   mort de .carte-piece::after (voir global.css) avant d'en piloter
+   l'opacité par la distance au curseur. Un seul écouteur `pointermove`
+   passif PAR grille, une propriété écrite par carte, AUCUNE lecture de
+   géométrie dans le gestionnaire — les centres sont mesurés une fois par
+   rafraîchissement ScrollTrigger (même discipline que le ruban), en
+   coordonnées de PAGE (scrollX/scrollY ajoutés) précisément pour ne
+   jamais avoir à les relire pendant un défilement. `pageX`/`pageY` de
+   l'événement sont déjà en coordonnées de page, la comparaison est donc
+   valide à tout moment sans jamais toucher au DOM depuis le gestionnaire.
+   ========================================================================== */
+const SELECTEUR_GRILLE_PIECES = '[data-grille-pieces]';
+const RAYON_PROXIMITE_PX = 180;
+
+function demarrerProximite(grille: HTMLElement): (() => void) | void {
+  const cartes = Array.from(grille.querySelectorAll<HTMLElement>('.carte-piece'));
+  if (cartes.length === 0) return;
+
+  let centres: Array<{ x: number; y: number }> = [];
+  const mesurer = () => {
+    centres = cartes.map((carte) => {
+      const boite = carte.getBoundingClientRect();
+      return {
+        x: boite.left + boite.width / 2 + window.scrollX,
+        y: boite.top + boite.height / 2 + window.scrollY,
+      };
+    });
+  };
+  mesurer();
+  ScrollTrigger.addEventListener('refresh', mesurer);
+
+  const surPointer = (evenement: PointerEvent) => {
+    // Sortie immédiate hors souris (mission) : un halo « au survol » ne se
+    // déclenche jamais au doigt, sur écran tactile — la seule affordance
+    // qu'un visiteur tactile ait jamais eue pour CETTE carte est le geste
+    // qu'il vient de faire (le tapotement lui-même), jamais un calque qui
+    // n'apparaîtrait qu'à un curseur qu'il n'a pas.
+    if (evenement.pointerType !== 'mouse') return;
+    const x = evenement.pageX;
+    const y = evenement.pageY;
+    cartes.forEach((carte, i) => {
+      const centre = centres[i];
+      if (!centre) return;
+      const distance = Math.hypot(x - centre.x, y - centre.y);
+      const intensite = Math.max(0, 1 - distance / RAYON_PROXIMITE_PX);
+      carte.style.setProperty('--proximite', intensite.toFixed(3));
+    });
+  };
+  grille.addEventListener('pointermove', surPointer, { passive: true });
+
+  return () => {
+    ScrollTrigger.removeEventListener('refresh', mesurer);
+    grille.removeEventListener('pointermove', surPointer);
+    for (const carte of cartes) carte.style.removeProperty('--proximite');
   };
 }
 
@@ -518,6 +716,27 @@ export function demarrerEffetsScroll(): (() => void) | void {
   }
   for (const frise of document.querySelectorAll<HTMLElement>(SELECTEUR_FRISE)) {
     const nettoyage = demarrerFriseEtapes(frise);
+    if (nettoyage) nettoyages.push(nettoyage);
+  }
+  for (const bloc of document.querySelectorAll<HTMLElement>(SELECTEUR_SEUIL_TITRE)) {
+    nettoyages.push(demarrerSeuilTitre(bloc));
+  }
+  for (const grille of document.querySelectorAll<HTMLElement>(SELECTEUR_LUMIERE_RASANTE)) {
+    const nettoyage = demarrerLumiereRasante(grille);
+    if (nettoyage) nettoyages.push(nettoyage);
+  }
+  // Le dessin technique ne vit que dans la marge active, qui n'existe qu'à
+  // partir de 64 rem (voir .fiche-piece__dessin, global.css : display:none
+  // en dessous) — même seuil que le ruban, un déclencheur GSAP sur un
+  // élément display:none n'a aucune géométrie sensée à mesurer.
+  if (window.matchMedia(SEUIL_DESKTOP).matches) {
+    for (const aside of document.querySelectorAll<HTMLElement>(SELECTEUR_DESSIN)) {
+      const nettoyage = demarrerDessinTechnique(aside);
+      if (nettoyage) nettoyages.push(nettoyage);
+    }
+  }
+  for (const grille of document.querySelectorAll<HTMLElement>(SELECTEUR_GRILLE_PIECES)) {
+    const nettoyage = demarrerProximite(grille);
     if (nettoyage) nettoyages.push(nettoyage);
   }
 

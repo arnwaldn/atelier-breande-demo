@@ -1,7 +1,7 @@
 {
   "date": "2026-08-19",
-  "horodatage": "2026-08-19T04:20:36.580Z",
-  "url": "http://localhost:55698/",
+  "horodatage": "2026-08-19T15:04:47.055Z",
+  "url": "http://localhost:51861/",
   "page": "accueil (dist/index.html)",
   "lighthouseVersion": "13.4.1",
   "seuils": {
@@ -61,11 +61,11 @@
       "tirages": [
         96,
         96,
-        96
+        94
       ],
-      "plancher": 96,
-      "conforme": true
+      "plancher": 94,
+      "conforme": false
     }
   },
-  "conforme": true
+  "conforme": false
 }

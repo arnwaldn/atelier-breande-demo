@@ -132,8 +132,15 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
         etapesCommande.map((etape) => (
           <div class="frise-etape" data-frise-etape>
             <p class="frise-etape__numero">{String(etape.numero).padStart(2, '0')}</p>
-            <p class="frise-etape__titre">{etape.titre}</p>
-            <p class="frise-etape__texte">{etape.texte}</p>
+            {/* Numéro à gauche, titre et texte à droite (recette DA du
+                19/08 au soir, correctif de la frise) : le regroupement
+                dans un même bloc est ce qui permet à la grille à deux
+                colonnes de .frise-etape (≥ 1024 px, global.css) de placer
+                le numéro seul en colonne 1 et tout le reste en colonne 2. */}
+            <div class="frise-etape__corps">
+              <p class="frise-etape__titre">{etape.titre}</p>
+              <p class="frise-etape__texte">{etape.texte}</p>
+            </div>
           </div>
         ))
       }

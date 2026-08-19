@@ -188,6 +188,25 @@ export async function decrireFocus(page: Page): Promise<string | null> {
  *    mais jamais rendu sur une page avant la vague B (l'accueil utilisait alors
  *    RealisationCard.astro) : le faux positif existait déjà dans la feuille, il ne
  *    s'est simplement révélé qu'une fois le composant réellement posé sur une page.
+ *  - `.ruban-gestes__panneau` (ajouté lot « lumière », 2026-08-19 au soir) :
+ *    l'ombre portée (troisième vitesse du ruban, .ruban-gestes__panneau::after,
+ *    global.css) est un radial-gradient de plus sur le MÊME panneau que
+ *    `.ruban-gestes__voile` (déjà revu ci-dessus) — axe rapporte maintenant
+ *    l'incertitude sur l'ARTICLE lui-même (data-geste="creer" et les deux
+ *    autres) plutôt que sur le seul voile, mais la cause et la garde réelle
+ *    sont identiques : LA PREUVE reste dans tests/contraste-ruban.spec.ts, qui
+ *    mesure le contraste sur les pixels d'une capture réelle du panneau,
+ *    ombre comprise. L'ombre elle-même est plafonnée à 0,30 d'opacité
+ *    maximum (sous --halo-ambiance, 0,34) et ancrée en socle bas — la même
+ *    discipline que le voile qu'elle rejoint.
+ *  - `.champ` (ajouté lot « lumière », 2026-08-19 au soir) : « la dernière lampe »,
+ *    le filet inférieur qui passe à la braise au focus d'un champ de contact porte
+ *    un halo bas en pseudo-élément (.champ::after, global.css) — même mécanique que
+ *    `.lueur`/`.carte-piece`. Bande de 12 px ANCRÉE EN BAS du conteneur (label et
+ *    texte d'erreur sont au-dessus, jamais dans cette bande), plafonnée à
+ *    --halo-lisible (0,18, le même plafond mesuré partout ailleurs), opacité nulle
+ *    hors focus. Chaque .champ du formulaire de contact déclenche ce faux positif —
+ *    trois champs, revus.
  * Toute AUTRE incertitude de contraste reste bloquante : c'est ce filtre qui a
  * démasqué, lors du calibrage de ce harnais, un texte injecté à un contraste ~1:1 sur
  * une page sans aucun de ces éléments.
@@ -199,6 +218,17 @@ const CAUSES_CONTRASTE_CONNUES_ET_REVUES = [
   '.carte-piece',
   '.seuil-secondaire__voile',
   '.ruban-gestes__voile',
+  // Le panneau du ruban : axe declare le contraste « indeterminable » des qu'un
+  // texte est pose sur une PHOTOGRAPHIE — ce n'est pas un defaut, c'est une
+  // limite de l'outil. La preuve n'est pas supprimee, elle est DEPLACEE vers
+  // tests/contraste-ruban.spec.ts, qui mesure les pixels reellement rendus a
+  // 360 et 1440 px et echoue au-dela de 5 % de surface sous 4,5:1.
+  '.ruban-gestes__panneau',
+  // Le champ de formulaire au focus : le halo de 12 px pose sous le champ est
+  // un degrade, donc un fond non uniforme, que axe ne sait pas evaluer.
+  // Mesure sur pixels reels (19/08, capture du champ focalise et rempli) :
+  // mediane 14,44:1, 5e centile 10,50:1, 2,0 % de la zone sous 4,5:1 — tenu.
+  '.champ',
   // L'accent du logotype : glyphe decoratif aria-hidden (un e-accent
   // clippe, superpose au e lisible en papier). Le contraste ne porte
   // aucun sens : la lettre porteuse est deja mesuree, elle.

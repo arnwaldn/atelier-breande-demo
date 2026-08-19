@@ -42,6 +42,42 @@ let contexteMedia: gsap.MatchMedia | null = null;
 let instanceLissage: Lenis | null = null;
 
 /**
+ * LE PLANCHER DE JOUR (recette DA du 19/08, constat du soir) — deux
+ * déclencheurs écrivent --part-de-jour à des échelles de progression
+ * DIFFÉRENTES : le déclencheur global (ci-dessous, 1 − progress sur TOUTE
+ * la hauteur de la page) et celui du ruban des gestes (effets-scroll.ts,
+ * 0,55 → 0,30 sur sa SEULE traversée). À la sortie du ruban, le global
+ * reprend la main avec une fraction de page bien moins avancée que ce que
+ * le ruban venait d'atteindre : le jour REMONTAIT (0,300 → 0,400, mesuré).
+ * Le variateur doit être un crépuscule, jamais une aube — d'où ce plancher
+ * PARTAGÉ par les deux écrivains (voir demarrerRuban, effets-scroll.ts) :
+ * jamais une valeur plus CLAIRE que la plus sombre déjà écrite cette
+ * session de défilement. Module-level, réinitialisé à chaque (re)départ de
+ * surMouvement() (voir demarrerSocle ci-dessous) : la préférence de
+ * mouvement peut basculer plusieurs fois dans la même session (suivie EN
+ * DIRECT, voir l'en-tête de ce fichier), et un plancher qui resterait figé
+ * au dernier point atteint avant une bascule empêcherait tout nouveau
+ * départ de remonter au jour réel de la position de défilement courante.
+ */
+let plancherPartDeJour = 1;
+
+/** Réinitialise le plancher — un seul appel, au (re)départ de surMouvement(). */
+export function reinitialiserPartDeJour(): void {
+  plancherPartDeJour = 1;
+}
+
+/**
+ * Écrit --part-de-jour sur <html>, jamais plus clair que ce qui a déjà été
+ * écrit depuis le dernier départ (voir plancherPartDeJour ci-dessus) : la
+ * suite est garantie strictement décroissante côté écrivains, quelle que
+ * soit l'échelle de progression de l'appelant.
+ */
+export function ecrirePartDeJour(valeur: number): void {
+  plancherPartDeJour = Math.min(plancherPartDeJour, valeur);
+  document.documentElement.style.setProperty('--part-de-jour', plancherPartDeJour.toFixed(3));
+}
+
+/**
  * Inscrit un travail d'animation qui ne doit vivre QUE lorsque le mouvement
  * est permis. Le retour de `travail` (une fonction de nettoyage) est appelé
  * automatiquement si la préférence bascule vers « réduit ».
@@ -70,6 +106,15 @@ export function rafraichir(): void {
  * de la page, et la feuille en dérive teintes et ombres. Un seul nombre écrit
  * sur <html> par image au plus — jamais de style par élément.
  */
+/** Les deux mêmes bornes que PART_JOUR_DEBUT/PART_JOUR_FIN dans
+ *  effets-scroll.ts (le ruban n'écrit --part-de-jour QUE dans cet
+ *  intervalle) — dupliquées ici, jamais importées : effets-scroll.ts
+ *  importe déjà DEPUIS ce fichier, un import dans l'autre sens créerait un
+ *  cycle. Si l'une bouge, l'autre doit suivre — les deux fichiers se
+ *  citent mutuellement dans leurs commentaires pour ça. */
+const PART_JOUR_AVANT_RUBAN = 0.55;
+const PART_JOUR_APRES_RUBAN = 0.3;
+
 function installerPartDeJour(): (() => void) | void {
   const racine = document.documentElement;
   // Le ruban des gestes de l'accueil (s'il existe et qu'un déclencheur lui
@@ -80,22 +125,54 @@ function installerPartDeJour(): (() => void) | void {
   // variateur sur un seul palier pendant tout ce temps (recette DA du
   // 19/08). Deux écritures concurrentes de la même propriété au même
   // instant de défilement est la classe de défaut intermittent qu'on
-  // refuse : ce déclencheur-ci s'efface donc tant que celui du ruban est
-  // actif (ScrollTrigger.isActive, l'état public de GSAP — jamais une
-  // géométrie recalculée à la main, qui dériverait de celle du ruban).
+  // refuse : ce déclencheur-ci s'efface donc tant que le ruban est actif.
+  //
+  // PAS st.isActive — piège mesuré au chantier du 19/08 au soir : GSAP
+  // traite les déclencheurs dans leur ordre de CRÉATION, et celui-ci est
+  // créé AVANT le ruban (installerPartDeJour() s'exécute avant
+  // demarrerEffetsScroll(), voir demarrerSocle plus bas). Au moment où CE
+  // callback-ci tourne, rubanST.isActive reflète encore l'état de la frame
+  // PRÉCÉDENTE, pas la position de défilement courante — d'où un plateau à
+  // 0,300 mesuré sur 27 % de la hauteur de l'accueil (la formule « après »
+  // s'appliquait un temps avant que le ruban ne se déclare actif). La
+  // géométrie (start/end), elle, est stable d'une frame à l'autre — c'est
+  // elle qui décide, jamais un drapeau recalculé ailleurs dans le même tour.
+  //
+  // LE PLATEAU DE PLANCHER (constat du 19/08 au soir, premier passage) : le
+  // plancher seul (voir ecrirePartDeJour) empêche bien toute REMONTÉE, mais
+  // pas un long PALIER — le ruban, sur sa course propre bien plus courte
+  // que la hauteur totale de la page, atteint 0,30 en ~4 100 px quand la
+  // formule uniforme « 1 − progress » n'y arriverait naturellement que vers
+  // 6 600 px. Solution retenue (la seconde option offerte par la mission) :
+  // sur la page qui porte un ruban, ce déclencheur ne couvre plus TOUTE la
+  // hauteur d'un seul tenant — sa plage démarre AVANT le ruban (1 → 0,55,
+  // jusqu'à rubanST.start) et reprend APRÈS lui (0,30 → 0, depuis
+  // rubanST.end), en continuité exacte avec les deux bornes que le ruban
+  // lui-même pose. Les cinq autres pages, sans ruban, gardent la formule
+  // uniforme d'origine — déjà strictement décroissante, mesuré.
   const ruban = document.querySelector<HTMLElement>('[data-ruban]');
   const declencheur = ScrollTrigger.create({
     start: 0,
     end: () => Math.max(document.body.scrollHeight - window.innerHeight, 1),
     onUpdate: (auto) => {
-      const rubanPilote = ruban
-        ? ScrollTrigger.getAll().some((st) => st.trigger === ruban && st.isActive)
-        : false;
-      if (rubanPilote) return;
-      racine.style.setProperty(
-        '--part-de-jour',
-        (1 - auto.progress).toFixed(3)
-      );
+      const rubanST = ruban ? ScrollTrigger.getAll().find((st) => st.trigger === ruban) : undefined;
+      if (!rubanST) {
+        ecrirePartDeJour(1 - auto.progress);
+        return;
+      }
+
+      const scrollY = window.scrollY;
+      if (scrollY >= rubanST.start && scrollY <= rubanST.end) return; // le ruban écrit lui-même.
+
+      if (scrollY < rubanST.start) {
+        const local = rubanST.start > 0 ? scrollY / rubanST.start : 0;
+        ecrirePartDeJour(1 + (PART_JOUR_AVANT_RUBAN - 1) * local);
+        return;
+      }
+      const finDePage = Math.max(document.body.scrollHeight - window.innerHeight, 1);
+      const porteeApres = finDePage - rubanST.end;
+      const local = porteeApres > 0 ? Math.min(1, Math.max(0, (scrollY - rubanST.end) / porteeApres)) : 1;
+      ecrirePartDeJour(PART_JOUR_APRES_RUBAN * (1 - local));
     },
   });
   return () => {
@@ -156,6 +233,7 @@ export function demarrerSocle(): void {
   // Sous mouvement permis : révélations, variable maîtresse, lissage, et les
   // effets de défilement scrubbés (le ruban des gestes, pour l'instant).
   surMouvement(() => {
+    reinitialiserPartDeJour();
     demarrerRevelations();
     const arreterJour = installerPartDeJour();
     const arreterLissage = installerLissage();

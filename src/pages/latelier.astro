@@ -68,7 +68,11 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
   {/* B3 — LES QUATRE FAMILLES DE MATIÈRES */}
   <Bandeau jour={2} ariaLabelledby="titre-matieres">
     <TitreSection texte="Les matières" id="titre-matieres" filet />
-    <div class="grille-matieres mt-10">
+    {/* LA LUMIÈRE RASANTE (lot « lumière » du 19/08 au soir) — un balayage
+        traverse chaque photo, une matière après l'autre, voir
+        demarrerLumiereRasante() dans effets-scroll.ts et
+        .famille-matiere__image::after dans global.css. */}
+    <div class="grille-matieres mt-10" data-lumiere-rasante>
       {
         familles.map((famille, i) => {
           const visuel = imagesFamilles[famille.titre];

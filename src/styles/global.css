@@ -155,10 +155,18 @@
   --voile-image-ambiance: 0.12; /* zone SANS texte, purement décorative */
 
   /* Ombres. Jamais noires. Le troisième ingrédient — le liséré qui reçoit la
-     lumière — est celui qui fait la matière. */
+     lumière — est celui qui fait la matière.
+     --recoit-lumiere BRANCHÉ sur --part-de-jour (recette DA du 19/08 au
+     soir, geste 0) : y 6 px / flou 18 px / α 0,30 en haut de page, y 18 px
+     / flou 34 px / α 0,46 au pied — la lampe baisse, le liséré qui reçoit
+     sa lumière s'allonge et s'assombrit. Trois calc(), un seul token, tous
+     les usages existants (cartes, bande-scène, comparateur…) en héritent
+     sans y être touchés. */
   --ombre-contact: 0 2px 6px rgb(12 8 5 / 0.55);
   --ombre-portee: 0 28px 60px -20px rgb(8 5 3 / 0.75);
-  --recoit-lumiere: inset 0 1px 0 rgb(255 209 163 / 0.1);
+  --recoit-lumiere: inset 0 calc(18px - var(--part-de-jour) * 12px)
+    calc(34px - var(--part-de-jour) * 16px) 0
+    rgb(255 209 163 / calc(0.46 - var(--part-de-jour) * 0.16));
 
   /* Laiton brossé. Un aplat ne dit pas « métal » : il faut cinq arrêts.
      Un filet de 1 px en dégradé, c'est ce qui dit « métal » sans une image. */
@@ -216,7 +224,17 @@
   }
 
   body {
-    background-color: var(--color-breande-night);
+    /* LE VARIATEUR, BRANCHÉ (recette DA du 19/08 au soir, geste 0) :
+       --part-de-jour n'était lue nulle part dans le CSS servi — le fond
+       restait constant à l'octet près sur 11 025 px, mesuré. #100c0a est
+       --color-breande-nuit-profonde, déjà réservée « seuil et pied » :
+       c'est elle qui accueille le bas de page ici aussi, jamais une
+       sixième teinte inventée pour l'occasion. */
+    background-color: color-mix(
+      in oklab,
+      var(--color-breande-night) calc(var(--part-de-jour) * 100%),
+      var(--color-breande-nuit-profonde)
+    );
     color: var(--color-breande-paper);
     font-family: var(--font-body);
     font-size: var(--t-corps);
@@ -329,11 +347,44 @@
     );
   }
 
-  /* --- Filet de laiton. Ce qui dit « métal » sans une seule image. ------ */
+  /* --- La lueur de verrière. Deuxième consommateur du geste 0 : la SEULE
+     couleur froide du site (--color-breande-verriere), plafonnée à 12 %
+     d'opacité (le plafond de l'ADR), qui se retire jusqu'à 0 avec le jour.
+     Un calque fixe unique, posé une fois dans BaseLayout — jamais un par
+     section. Quatre arrêts, alpha pleine sur chacun : c'est l'opacité de
+     l'ÉLÉMENT (0 → 0,12) qui plafonne le résultat composité, pas un alpha
+     supplémentaire caché dans le dégradé. ------------------------------- */
+  .lueur-verriere {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: calc(var(--part-de-jour) * 0.12);
+    background: radial-gradient(
+      ellipse at top,
+      var(--color-breande-verriere) 0%,
+      rgb(168 182 190 / 0.5) 35%,
+      rgb(168 182 190 / 0.15) 62%,
+      transparent 85%
+    );
+  }
+
+  /* --- Filet de laiton. Ce qui dit « métal » sans une seule image.
+     Quatrième consommateur du geste 0 : clair (--color-breande-laiton-clair)
+     en haut de page, sombre (--color-breande-laiton-sombre) au pied — les
+     DEUX températures déjà nommées par leur rôle dans le thème, jamais une
+     valeur inventée pour l'occasion. --laiton-brosse (le dégradé à cinq
+     arrêts) reste inchangé pour ses autres usages (boutons, molette,
+     échelle des kelvins…) : seul ce filet, le plus littéralement nommé
+     pour ce geste, en hérite. -------------------------------------------- */
   .filet-laiton {
     height: 1px;
     border: 0;
-    background: var(--laiton-brosse);
+    background: color-mix(
+      in oklab,
+      var(--color-breande-laiton-clair),
+      var(--color-breande-laiton-sombre) calc((1 - var(--part-de-jour)) * 100%)
+    );
     opacity: 0.55;
   }
 
@@ -397,6 +448,16 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  /* Les pseudo-éléments ::view-transition-* (lot « lumière » du 19/08 au
+     soir) ne sont PAS des ::before/::after : le sélecteur universel
+     ci-dessus ne les couvre pas, et notre propre durée --ms-survol posée
+     sur ::view-transition-group(root) réintroduirait 240 ms d'animation
+     sous mouvement réduit sans cette règle dédiée. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
   }
 }
 
@@ -741,11 +802,24 @@
    CARTE DE PIÈCE
    ========================================================================== */
 .carte-piece {
+  /* CORRECTIF (lot « lumière » du 19/08 au soir) : .carte-piece est
+     « positioned » (position: relative) mais ne formait PAS son propre
+     contexte d'empilement (aucun z-index déclaré sur elle-même) — son
+     ::after à z-index: -1 se comparait alors à l'ancêtre empilé le plus
+     proche, pas à elle, et peignait AVANT le fond de la carte elle-même
+     (posé plus tard, au survol : --color-breande-charbon-haut, l'opaque
+     mesuré à rgb(44,35,28)) : le halo était sous son propre fond. z-index: 0
+     force ce contexte local — le halo (toujours -1, mais DANS ce contexte)
+     peint désormais entre le fond et le contenu, comme prévu. */
   position: relative;
+  z-index: 0;
   display: flex;
   flex-direction: column;
   border-radius: 2px;
-  overflow: hidden;
+  /* overflow: hidden RETIRÉ (même correctif) : il rognait la moitié du
+     travail du fix ci-dessus, en coupant tout ce que le halo débordait du
+     cadre de la carte. .carte-piece__cadre garde son PROPRE overflow:
+     hidden (plus bas) : le clip de la photo ne dépendait jamais de celui-ci. */
   background-color: var(--color-breande-coal);
   box-shadow: var(--recoit-lumiere);
   color: inherit;
@@ -758,7 +832,13 @@
   inset: -20%;
   z-index: -1;
   pointer-events: none;
-  opacity: 0;
+  /* SURVOL DE PROXIMITÉ (lot « lumière » du 19/08 au soir) — repos à
+     var(--proximite, 0) plutôt qu'à 0 fixe : demarrerProximite()
+     (effets-scroll.ts) écrit cette propriété par carte, linéaire en
+     distance au curseur, jamais lue depuis ce fichier. Sous mouvement
+     réduit ou hors souris, la propriété n'est jamais écrite : le repli
+     reste 0, identique à avant. */
+  opacity: var(--proximite, 0);
   background: radial-gradient(
     ellipse at center,
     rgb(217 154 78 / var(--halo-lisible)) 0%,
@@ -766,7 +846,7 @@
     rgb(217 154 78 / 0.03) 55%,
     transparent 74%
   );
-  transition: opacity var(--ms-survol) var(--ease-etat);
+  transition: opacity var(--ms-etat) var(--ease-etat);
 }
 .carte-piece:hover,
 .carte-piece:focus-visible {
@@ -815,6 +895,40 @@
   color: var(--color-breande-muted);
   font-size: var(--t-etiquette);
   font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   LA VITRINE S'ALLUME AU PASSAGE (Collections, lot « lumière » du 19/08 au
+   soir) — chaque carte de la grille arrive froide et désaturée, puis
+   rejoint sa couleur réelle à la révélation (data-revele posé par
+   revelations.ts sur le [data-revelation] ancêtre), en cascade avec les
+   jetons .cascade-1..4 déjà posés dans le balisage — jamais une nouvelle
+   famille de classes. Simultanément le halo ambré (.carte-piece::after,
+   plus haut) monte à pleine valeur. Scopé à .grille-collections : la même
+   carte réapparaît en voisine sur une fiche de pièce ou en avant sur
+   l'accueil, où ce geste n'a pas été demandé.
+   La première carte de la page (LCP, 352 ms mesurés) est EXCLUE — elle
+   porte data-prioritaire, posé par CartePiece.astro depuis la même prop
+   qui donne déjà loading="eager" à sa photo. -------------------------- */
+.grille-collections .carte-piece:not([data-prioritaire]) .carte-piece__image {
+  filter: saturate(0.55) brightness(0.82);
+  transition: filter var(--ms-signature) var(--ease-monte);
+}
+html.mouvement .grille-collections [data-revele] .carte-piece:not([data-prioritaire]) .carte-piece__image,
+.grille-collections .carte-piece[data-prioritaire] .carte-piece__image {
+  filter: saturate(1) brightness(1);
+}
+.grille-collections .cascade-2 .carte-piece__image {
+  transition-delay: 60ms;
+}
+.grille-collections .cascade-3 .carte-piece__image {
+  transition-delay: 120ms;
+}
+.grille-collections .cascade-4 .carte-piece__image {
+  transition-delay: 180ms;
+}
+html.mouvement .grille-collections [data-revele] .carte-piece:not([data-prioritaire])::after {
+  opacity: 1;
 }
 
 /* ==========================================================================
@@ -1188,6 +1302,18 @@ html.mouvement [data-revele] {
 }
 
 /* --------------------------------------------------------------------------
+   LE SEUIL QUI SE RETIRE — accueil (lot « lumière » du 19/08 au soir). La
+   photo (le LCP) ne porte AUCUNE règle ici : seul ce calque de titre,
+   piloté par demarrerSeuilTitre() (effets-scroll.ts) sur les 400 premiers
+   pixels de défilement, opacité seule + une translation courte — jamais un
+   déplacement de la photo elle-même.
+   -------------------------------------------------------------------------- */
+[data-seuil-titre] {
+  opacity: var(--seuil-titre-opacite, 1);
+  transform: translateY(var(--seuil-titre-y, 0px));
+}
+
+/* --------------------------------------------------------------------------
    PHRASE SEULE — accueil bloc 3 : --t-section, seule, sans voisinage proche.
    -------------------------------------------------------------------------- */
 .phrase-seule {
@@ -1316,6 +1442,7 @@ html.mouvement [data-revele] {
   }
 }
 .famille-matiere__image {
+  position: relative;
   aspect-ratio: 5 / 4;
   overflow: hidden;
   border-radius: 2px;
@@ -1328,6 +1455,27 @@ html.mouvement [data-revele] {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+/* LA LUMIÈRE RASANTE (lot « lumière » du 19/08 au soir) — une matière après
+   l'autre, décalée de 12 % de progression (voir demarrerLumiereRasante(),
+   effets-scroll.ts). soft-light, pas de filter: blur() ni de
+   backdrop-filter (les deux refus de l'ADR) : le flou de la bande se peint
+   dans le dégradé lui-même, à quatre arrêts. */
+.famille-matiere__image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+  opacity: var(--matiere-opacite, 0);
+  transform: translateX(var(--matiere-x, -40%));
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 35%,
+    rgb(255 255 255 / 0.85) 50%,
+    transparent 65%
+  );
 }
 .famille-matiere__titre {
   font-family: var(--font-display);
@@ -1687,6 +1835,60 @@ html.mouvement .carte-piece-large[data-revele] .carte-piece-large__cadre {
 }
 
 /* --------------------------------------------------------------------------
+   LA COTE QUI SE POSE — fiche de pièce (lot « lumière » du 19/08 au soir).
+   --mesure vaut 34 rem, la zone de contenu à 1440 fait 1 344 px : 800 px de
+   marge droite vides sur toute la hauteur du récit + des caractéristiques,
+   mesurés. « On ne dilate pas la mesure, on PEUPLE la marge » (ADR-002) :
+   un wrapper à cheval sur les deux <Bandeau> (récit, caractéristiques) pour
+   que la colonne sticky tienne sur leur hauteur COMBINÉE, jamais sur celle
+   d'un seul des deux. Sous 64 rem, aucune marge à peupler : le dessin
+   disparaît, jamais un déclencheur GSAP dessus (voir SEUIL_DESKTOP,
+   effets-scroll.ts).
+   -------------------------------------------------------------------------- */
+.fiche-piece__dessin {
+  display: none;
+}
+@media (min-width: 64rem) {
+  .fiche-piece__marge-active {
+    display: grid;
+    grid-template-columns: 1fr 18rem;
+    column-gap: 3rem;
+    align-items: start;
+  }
+  /* Les deux <Bandeau> gardent leur padding-inline (marge-page) du CÔTÉ
+     GAUCHE ; à droite, il ferait doublon avec column-gap ci-dessus. */
+  .fiche-piece__recit,
+  .fiche-piece__caracteristiques {
+    padding-inline-end: 0;
+  }
+  .fiche-piece__dessin {
+    display: block;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    position: sticky;
+    top: 8rem;
+  }
+}
+/* Les <path> portent pathLength="1" (voir src/assets/dessins-techniques/) :
+   la normalisation dispense de calculer la longueur réelle de chaque
+   tracé, propre à chaque famille. */
+.dessin-technique__trait {
+  fill: none;
+  stroke: var(--color-breande-laiton-clair);
+  stroke-dasharray: 1;
+  stroke-dashoffset: var(--dessin-progres, 1);
+}
+.dessin-technique__cote {
+  fill: none;
+  stroke: var(--color-breande-laiton-clair);
+  opacity: 0;
+  transition: opacity var(--ms-revele) var(--ease-monte);
+}
+[data-trait-trace] .dessin-technique__cote {
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------------------
    SERVICES — inclus / non inclus, liste des tarifs (JAMAIS un tableau de
    cotation), étapes de commande.
    -------------------------------------------------------------------------- */
@@ -1805,8 +2007,34 @@ html.mouvement .carte-piece-large[data-revele] .carte-piece-large__cadre {
   left: 0;
   top: 0;
   width: 2px;
-  height: var(--filet-hauteur, 0px);
-  background: var(--laiton-brosse);
+  /* height: 100% FIXE + transform: scaleY (lot « lumière » du 19/08 au
+     soir, correctif CLS) : l'ancienne version pilotait la hauteur RÉELLE
+     (--filet-hauteur en px), une propriété de MISE EN PAGE — mesuré :
+     0,0006 à 0,0019 de Layout Shift à chaque frame de scrub sur /services,
+     la seule page qui grandissait ainsi. transform ne déplace jamais la
+     boîte de mise en page, seulement son rendu : le même effet visuel
+     (le filet « pousse » depuis le haut), CLS nul par construction. */
+  height: 100%;
+  transform-origin: top;
+  transform: scaleY(var(--filet-progres, 0));
+  will-change: transform;
+  /* LE FILET S'ALLUME (lot « lumière » du 19/08 au soir) : clair à la
+     tête (le bas du filet, puisqu'il grandit vers le bas), sombre en amont
+     — deux arrêts, les deux mêmes tokens laiton que le geste 0. */
+  background: linear-gradient(to top, var(--color-breande-laiton-clair) 0%, var(--color-breande-laiton-sombre) 100%);
+}
+.frise-etapes__filet::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
+  background: var(--color-breande-k2700);
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--color-breande-k2700) 30%, transparent);
+  pointer-events: none;
 }
 html.mouvement .frise-etape:not([data-filet-atteint]) {
   opacity: 0;
@@ -1819,10 +2047,21 @@ html.mouvement .frise-etape[data-filet-atteint] {
     opacity var(--ms-revele) var(--ease-monte),
     transform var(--ms-revele) var(--ease-monte);
 }
-@media (min-width: 768px) {
-  .frise-etapes {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 2rem 1.75rem;
+/* CORRECTIF (lot « lumière » du 19/08 au soir) — l'ancienne grille à
+   4 colonnes × 2 rangées (768 px) rendait le geste FAUX à l'écran : l'ordre
+   de lecture est horizontal (01 02 03 04 puis 05 06 07 08), le filet
+   vertical qui « traverse les huit étapes » ne traversait en réalité que
+   la première COLONNE. Remplacée par une pile verticale, huit lignes
+   vraies, au palier suivant (≥ 1024 px, voir plus bas) : le filet redevient
+   ce qu'il prétend être. Rien entre 640 px (base) et 1024 px : la pile
+   verticale de la règle de base suffit déjà, un palier intermédiaire
+   n'aurait rien à corriger. */
+@media (min-width: 1024px) {
+  .frise-etape {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0 1.5rem;
+    align-items: baseline;
   }
 }
 .frise-etape__numero {
@@ -1928,6 +2167,44 @@ html.mouvement .frise-etape[data-filet-atteint] {
    rendre son propre ascenseur, sans régression : la propriété est ignorée). */
 .champ__textarea {
   scrollbar-color: var(--color-breande-suie) transparent;
+}
+/* LA DERNIÈRE LAMPE (lot « lumière » du 19/08 au soir) — au focus d'un
+   champ, son filet inférieur passe à la braise (2 200 K) et un halo bas
+   très court se pose, plafonné à --halo-lisible (le même plafond que
+   partout ailleurs sur le site, réutilisé plutôt qu'une valeur inventée).
+   Aucun déplacement, aucune échelle : le LCP de /contact est un paragraphe
+   de la colonne de DROITE (.contact-bloc__texte), jamais touché ici — ce
+   geste ne vit que sur les champs de la colonne de gauche. */
+.champ {
+  position: relative;
+}
+.champ::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 12px;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--color-breande-k2200) 0%,
+    rgb(255 146 36 / 0.55) 35%,
+    rgb(255 146 36 / 0.15) 70%,
+    transparent 100%
+  );
+  transition: opacity var(--ms-etat) var(--ease-etat);
+}
+.champ:focus-within::after {
+  opacity: var(--halo-lisible);
+}
+.champ input,
+.champ textarea {
+  transition: border-bottom-color var(--ms-etat) var(--ease-etat);
+}
+.champ:focus-within input,
+.champ:focus-within textarea {
+  border-bottom-color: var(--color-breande-k2200);
 }
 .contact-colonnes {
   display: grid;
@@ -2203,6 +2480,7 @@ html.lenis {
     transparent 100%
   );
 }
+
 /* Cadrage du panneau « Conseiller » sous 64 rem (recette du 19/08, second
    tour) : en crop portrait 3/4, l'image (native ~3/2) est TOUJOURS contrainte
    par sa hauteur — object-fit: cover la case exactement sur la hauteur du
@@ -2333,6 +2611,34 @@ html.lenis {
   .ruban-gestes__image-mouvement {
     transform: translate3d(var(--ruban-image-x, 0px), 0, 0);
     will-change: transform;
+  }
+  /* L'OMBRE PORTÉE — troisième vitesse du ruban (lot « lumière » du 19/08
+     au soir) : la lumière ne bouge pas, c'est la pièce qui passe dessous.
+     Socle ancré en bas, jamais inset: 0 (règle du voile ci-dessus). Écrite
+     par demarrerRuban() DANS LA MÊME boucle que --ruban-image-x (voir
+     effets-scroll.ts) : zéro déclencheur de plus. Desktop seulement, comme
+     tout le reste du ruban piloté : rognée par overflow: hidden posé sur
+     .ruban-gestes__panneau juste au-dessus, dans ce même palier. */
+  .ruban-gestes__panneau::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    left: 50%;
+    bottom: 8%;
+    width: 58%;
+    height: 16%;
+    border-radius: 50%;
+    opacity: var(--ruban-ombre-opacite, 0.22);
+    transform: translateX(calc(-50% + var(--ruban-ombre-x, 0px))) scaleY(var(--ruban-ombre-scale, 1));
+    transform-origin: 50% 100%;
+    background: radial-gradient(
+      ellipse at center,
+      var(--color-breande-nuit-profonde) 0%,
+      color-mix(in srgb, var(--color-breande-nuit-profonde) 60%, transparent) 40%,
+      color-mix(in srgb, var(--color-breande-nuit-profonde) 25%, transparent) 70%,
+      transparent 100%
+    );
   }
   /* Visible seulement sous html.js : c'est le script qui fait vivre l'index
      actif (effets-scroll.ts) — sans lui, trois traits qui ne racontent rien
@@ -2509,3 +2815,47 @@ html.lenis {
     transform: none;
   }
 }
+
+/* ==========================================================================
+   TRANSITIONS ENTRE PAGES (lot « lumière » du 19/08 au soir) — navigation
+   NATIVE du navigateur, zéro octet de JS : ClientRouter reste écarté (choix
+   d'architecture, chaque navigation est un document neuf). En-tête et pied
+   reçoivent leur PROPRE groupe (view-transition-name) : sans lui, ils sont
+   engloutis dans l'instantané « root » — qui varie de hauteur d'une page à
+   l'autre — et clignotent au changement. Le corps : un fondu croisé de
+   --ms-survol (240 ms) en --ease-etat, SANS aucune translation (un
+   glissement ferait du site un diaporama, pas un variateur) — on se
+   contente de reprendre en main la durée et la courbe de l'animation par
+   défaut du navigateur, qui est déjà un pur fondu.
+   ========================================================================== */
+@view-transition {
+  navigation: auto;
+}
+.entete {
+  view-transition-name: entete-site;
+}
+.pied-de-page {
+  view-transition-name: pied-de-page-site;
+}
+::view-transition-group(root) {
+  animation-duration: var(--ms-survol);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-timing-function: var(--ease-etat);
+}
+
+/* LE SEUL MORPHING DU SITE — la photo d'une carte de collection vers
+   l'image de tête de sa fiche : « c'est le même objet », le seul endroit où
+   la continuité est vraie (ADR-002). Sept pièces publiées, sept noms
+   partagés entre la carte (CartePiece.astro, la grande carte plein-bord de
+   /collections, sa voisine sur une autre fiche) et la tête de sa PROPRE
+   fiche (voir les data-piece-photo dans les pages concernées) — une liste
+   fermée et courte, plus sûre qu'un nom composé dynamiquement en JS. */
+[data-piece-photo='traboule'] { view-transition-name: piece-photo-traboule; }
+[data-piece-photo='imposte'] { view-transition-name: piece-photo-imposte; }
+[data-piece-photo='cerce'] { view-transition-name: piece-photo-cerce; }
+[data-piece-photo='larmier'] { view-transition-name: piece-photo-larmier; }
+[data-piece-photo='doucine'] { view-transition-name: piece-photo-doucine; }
+[data-piece-photo='encorbellement'] { view-transition-name: piece-photo-encorbellement; }
+[data-piece-photo='suspension-1930'] { view-transition-name: piece-photo-suspension-1930; }

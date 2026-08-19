@@ -41,7 +41,7 @@ const grandeDroite = parSlug['suspension-1930'];
   </Bandeau>
 
   <Bandeau jour={2}>
-    <div class="grille-collections">
+    <div class="grille-collections" data-grille-pieces>
       {
         rangeeA.map((piece, i) => piece && (
           <div data-revelation class:list={[`cascade-${i + 1}`, i === 0 && 'sm:col-span-2']}>
@@ -75,7 +75,7 @@ const grandeDroite = parSlug['suspension-1930'];
               second observateur sur le cadre ne se serait donc JAMAIS
               déclenché (piège vérifié en recette du 19/08, capture à
               l'appui). Même déclencheur, un seul écrivain. */}
-          <a href={`/collections/${grandeGauche.id}`} class="carte-piece-large__cadre bandeau__deborde-gauche">
+          <a href={`/collections/${grandeGauche.id}`} class="carte-piece-large__cadre bandeau__deborde-gauche" data-piece-photo={grandeGauche.id}>
             <Visuel
               src={grandeGauche.data.image}
               alt={grandeGauche.data.imageAlt}
@@ -99,7 +99,7 @@ const grandeDroite = parSlug['suspension-1930'];
   }
 
   <Bandeau jour={3}>
-    <div class="grille-collections">
+    <div class="grille-collections" data-grille-pieces>
       {
         rangeeB.map((piece, i) => piece && (
           <div data-revelation class:list={[`cascade-${i + 1}`]}>
@@ -123,7 +123,7 @@ const grandeDroite = parSlug['suspension-1930'];
       <Bandeau jour={4} pleinBord="droite" ariaLabel={`La pièce ${grandeDroite.data.nom}`}>
         <div class="carte-piece-large" data-revelation>
           <div class="md:order-2">
-            <a href={`/collections/${grandeDroite.id}`} class="carte-piece-large__cadre bandeau__deborde-droite">
+            <a href={`/collections/${grandeDroite.id}`} class="carte-piece-large__cadre bandeau__deborde-droite" data-piece-photo={grandeDroite.id}>
               <Visuel
                 src={grandeDroite.data.image}
                 alt={grandeDroite.data.imageAlt}

@@ -68,7 +68,11 @@ const piecesVedettes = await Promise.all(
       class="absolute inset-0 bg-gradient-to-t from-breande-night via-breande-night/45 to-breande-night/10"
       aria-hidden="true"
     ></div>
-    <div class="relative mx-auto flex min-h-[max(72vh,480px)] max-w-[108rem] flex-col justify-end px-4 pt-40 pb-12 sm:px-8 sm:pt-32 md:px-12 md:pb-16">
+    {/* LE SEUIL QUI SE RETIRE (lot « lumière » du 19/08 au soir) — la photo
+        (le LCP) ne bouge jamais ; seul ce calque de titre se retire sur les
+        400 premiers pixels de défilement, voir demarrerSeuilTitre() dans
+        effets-scroll.ts et --seuil-titre-opacite/-y dans global.css. */}
+    <div data-seuil-titre class="relative mx-auto flex min-h-[max(72vh,480px)] max-w-[108rem] flex-col justify-end px-4 pt-40 pb-12 sm:px-8 sm:pt-32 md:px-12 md:pb-16">
       <h1 class="titre-wonk max-w-3xl text-breande-paper text-[length:var(--t-seuil)] leading-[1.02]">
         {titreSeuil[0]}<br />{titreSeuil[1]}<br />{titreSeuil[2]}
       </h1>
@@ -159,7 +163,7 @@ const piecesVedettes = await Promise.all(
   {/* 8 — PIÈCES MISES EN AVANT, ce que nous ne faisons pas, appel final. */}
   <Bandeau jour={4} air="large" ariaLabelledby="titre-pieces-recentes">
     <TitreSection texte={titrePiecesRecentes} id="titre-pieces-recentes" filet />
-    <div class="mt-10 grid gap-8 md:grid-cols-3">
+    <div class="mt-10 grid gap-8 md:grid-cols-3" data-grille-pieces>
       {
         piecesVedettes.map((piece, i) => piece && (
           <div
