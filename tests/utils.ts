@@ -2,13 +2,31 @@ import type { Page } from '@playwright/test';
 import type { AxeResults } from 'axe-core';
 
 /**
- * Les quatre pages du site, avec un nom lisible pour les intitulés de test.
+ * Les six pages du site (vague B, chantier « cinq pages » du 2026-08-19),
+ * avec un nom lisible pour les intitulés de test.
  */
 export const PAGES = [
   { chemin: '/', nom: 'accueil' },
+  { chemin: '/latelier', nom: 'l’atelier' },
+  { chemin: '/collections', nom: 'collections' },
   { chemin: '/services', nom: 'services' },
   { chemin: '/contact', nom: 'contact' },
   { chemin: '/mentions-legales', nom: 'mentions légales' },
+] as const;
+
+/**
+ * Les sept fiches de pièce publiées (src/content/pieces/*.md) — utilisées par
+ * le contrôle dédié de plan-du-site.spec.ts. Liste fermée et courte : plus
+ * simple et plus sûr qu'une lecture de src/content/ depuis le harnais de test.
+ */
+export const PIECES = [
+  'traboule',
+  'imposte',
+  'cerce',
+  'larmier',
+  'doucine',
+  'encorbellement',
+  'suspension-1930',
 ] as const;
 
 /**
@@ -128,6 +146,12 @@ export async function decrireFocus(page: Page): Promise<string | null> {
  *    au-dessus de la photo, pour garantir la lisibilité du texte — « ... due to a
  *    background gradient ». Le texte du hero porte sa propre couleur calibrée
  *    (breande-paper, 14,9:1 sur le fond nuit — voir global.css).
+ *  - `.seuil-secondaire__voile` (ajouté vague B, 2026-08-19) : même mécanique que
+ *    `.bg-gradient-to-t`, sur le seuil court de L'atelier — un dégradé qui va du
+ *    nuit plein (0 %, là où le texte est ancré, en bas du bloc) vers transparent
+ *    (100 %, au-dessus de l'image). Le texte s'ancre là où le dégradé est le plus
+ *    opaque : le contraste réel y est proche de celui, déjà mesuré, de
+ *    breande-paper sur breande-night (15,86:1).
  *  - `header` (ajouté vague A, chantier « coquille », 2026-08-19) : le filet de
  *    laiton qui scelle l'en-tête au défilement est un pseudo-élément `::after` sur
  *    <header class="entete"> (voir .entete::after, global.css) — même mécanique que
@@ -138,11 +162,25 @@ export async function decrireFocus(page: Page): Promise<string | null> {
  *    largement > 4,5:1 dans les deux états, scellé ou transparent — voir global.css) ;
  *    le site n'a qu'un seul <header>, donc pas de risque de sur-filtrage aujourd'hui —
  *    à resserrer si un jour un second `<header>` apparaît sur une page.
+ *  - `.carte-piece` (ajouté vague B, chantier « cinq pages », 2026-08-19) : le halo
+ *    au survol de chaque carte de pièce (.carte-piece::after, global.css) est le
+ *    MÊME pseudo-élément que `.lueur` — un radial-gradient à `--halo-lisible`
+ *    (0,18, plafond mesuré et documenté dans global.css : le texte principal tient
+ *    10,40:1 derrière). Composant construit en vague A (src/components/CartePiece.astro)
+ *    mais jamais rendu sur une page avant la vague B (l'accueil utilisait alors
+ *    RealisationCard.astro) : le faux positif existait déjà dans la feuille, il ne
+ *    s'est simplement révélé qu'une fois le composant réellement posé sur une page.
  * Toute AUTRE incertitude de contraste reste bloquante : c'est ce filtre qui a
  * démasqué, lors du calibrage de ce harnais, un texte injecté à un contraste ~1:1 sur
- * une page sans aucun de ces trois éléments.
+ * une page sans aucun de ces éléments.
  */
-const CAUSES_CONTRASTE_CONNUES_ET_REVUES = ['.lueur', '.bg-gradient-to-t', 'header'];
+const CAUSES_CONTRASTE_CONNUES_ET_REVUES = [
+  '.lueur',
+  '.bg-gradient-to-t',
+  'header',
+  '.carte-piece',
+  '.seuil-secondaire__voile',
+];
 
 export function violationsAxeAExiger(resultats: AxeResults) {
   const violationsGraves = resultats.violations.filter(
@@ -154,9 +192,21 @@ export function violationsAxeAExiger(resultats: AxeResults) {
     .map((v) => ({
       ...v,
       nodes: v.nodes.filter((n) => {
+        // Le sélecteur choisi par axe (rn.target) n'est pas toujours celui qui
+        // porte la classe en cause : quand plusieurs éléments partagent une
+        // même classe (plusieurs .carte-piece sur une page de collection, par
+        // exemple), axe préfère un sélecteur qui les distingue (l'attribut
+        // href) plutôt que la classe elle-même. Le balisage complet (rn.html)
+        // la porte toujours : on cherche dans les deux.
         const causeConnue = n.any.some((c) =>
           (c.relatedNodes ?? []).some((rn) =>
-            CAUSES_CONTRASTE_CONNUES_ET_REVUES.some((cause) => JSON.stringify(rn.target).includes(cause))
+            CAUSES_CONTRASTE_CONNUES_ET_REVUES.some((cause) => {
+              if (JSON.stringify(rn.target).includes(cause)) return true;
+              // rn.html porte le balisage réel (ex. class="carte-piece"), sans
+              // le point du sélecteur CSS : on le retire avant de chercher.
+              const causeBalisage = cause.startsWith('.') ? cause.slice(1) : cause;
+              return (rn.html ?? '').includes(causeBalisage);
+            })
           )
         );
         return !causeConnue;

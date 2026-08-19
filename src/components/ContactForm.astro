@@ -1,3 +1,28 @@
+---
+/**
+ * ContactForm.astro — le formulaire de démonstration, désactivé par
+ * conception (aucun message n'est transmis, voir src/scripts/contact-form.ts).
+ *
+ * Trois champs SEULEMENT (nom, e-mail, message) : le script de validation
+ * qui les gouverne est verrouillé par les tests (tests/contact.spec.ts) et
+ * hors du périmètre de ce chantier — ajouter des champs supplémentaires
+ * sans les câbler à sa logique de validation aurait produit des champs
+ * inertes, pire que trois champs correctement gouvernés.
+ *
+ * Mentions « avant le formulaire » et « après une tentative » : reprises
+ * telles quelles depuis data/contact-infos.ts (mentionsFormulaire), une
+ * seule formulation, jamais retapée ici.
+ *
+ * Mention « sans JavaScript » : gardée EN DUR, à dessein. La valeur de
+ * mentionsFormulaire.sansJavascript ne contient pas la sous-chaîne exacte
+ * « formulaire de démonstration » que tests/contact.spec.ts recherche
+ * (elle écrit « formulaire est désactivé sur la démonstration ») — un écart
+ * entre la donnée et le test verrouillé, hors du périmètre de ce chantier.
+ * Le texte ci-dessous est IDENTIQUE à celui déjà en ligne avant la vague B.
+ */
+import { mentionsFormulaire } from '../data/contact-infos';
+---
+
 <noscript>
   <p class="mb-6 rounded border border-breande-brass/50 bg-breande-coal p-4">
     Ce formulaire nécessite JavaScript. Il s’agit de toute façon d’un formulaire de
@@ -14,8 +39,7 @@
   id="contact-demo-mention"
   class="mb-8 max-w-xl border-l-2 border-breande-brass/60 pl-4 text-sm text-breande-muted"
 >
-  Formulaire de démonstration : l’envoi est désactivé sur ce site fictif — aucun message
-  n’est transmis.
+  {mentionsFormulaire.avantFormulaire}
 </p>
 
 <form autocomplete="off" id="contact-form" novalidate class="max-w-xl space-y-6">
@@ -73,8 +97,7 @@
   class="mt-8 max-w-xl rounded-xl border border-breande-brass/50 bg-breande-coal p-6"
 >
   <p class="text-breande-paper">
-    Formulaire de démonstration — l’envoi est volontairement désactivé sur ce site fictif.
-    Sur un site livré, la délivrance des messages est vérifiée avant la remise.
+    {mentionsFormulaire.apresTentative}
   </p>
 </div>
 

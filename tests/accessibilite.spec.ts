@@ -24,6 +24,13 @@ test.describe('accessibilité', () => {
     await attendreImmobilite(page);
     await page.getByRole('button', { name: 'Envoyer' }).click();
     await expect(page.locator('#nom-erreur')).toBeVisible();
+    // Seconde attente (vague B) : la page Contact porte maintenant ses propres
+    // révélations au défilement (colonne de droite, voir data-revelation dans
+    // contact.astro) — leur IntersectionObserver peut se déclencher après la
+    // première attente, en écho au clic. Sans cette seconde immobilité, axe
+    // peut scanner un texte encore en fondu, à un contraste de transition qui
+    // n'existe dans aucune charte (même piège que documenté sur attendreImmobilite).
+    await attendreImmobilite(page);
 
     const resultats = await new AxeBuilder({ page }).analyze();
     const aExiger = violationsAxeAExiger(resultats);

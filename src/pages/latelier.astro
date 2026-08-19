@@ -1,0 +1,183 @@
+---
+import type { ImageMetadata } from 'astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Bandeau from '../components/Bandeau.astro';
+import TitreSection from '../components/TitreSection.astro';
+import AppelAction from '../components/AppelAction.astro';
+import Visuel from '../components/Visuel.astro';
+import ComparateurCoupe from '../components/ComparateurCoupe.astro';
+import {
+  enTete,
+  leLieu,
+  familles,
+  procedesIntro,
+  procedes,
+  laLumiere,
+  ceQuOnNeFaitPasTitre,
+  ceQuOnNeFaitPas,
+  ouEtQuand,
+  appel,
+} from '../data/atelier';
+import etabliLarge from '../assets/atelier/etabli-large.jpg';
+import matiereLaiton from '../assets/atelier/matiere-laiton.jpg';
+import matiereVerre from '../assets/atelier/matiere-verre.jpg';
+import matiereBois from '../assets/atelier/matiere-bois.jpg';
+import matiereAcier from '../assets/atelier/matiere-acier.jpg';
+import coupePhoto from '../assets/atelier/coupe-photo.jpg';
+import coupeDessin from '../assets/atelier/coupe-dessin.jpg';
+
+const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
+  'Laiton et cuivre': { image: matiereLaiton, alt: 'Chutes et pièces de laiton brossé, verni et patiné, rangées sur l’établi' },
+  Verre: { image: matiereVerre, alt: 'Globes de verre soufflé clairs, ambrés et fumés, alignés à contre-jour' },
+  Bois: { image: matiereBois, alt: 'Plateaux de noyer et de chêne massif empilés, prêts à sécher' },
+  'Acier et finitions': { image: matiereAcier, alt: 'Pièces d’acier thermolaqué noir texturé et fonte brute pour bases de lampadaire' },
+};
+---
+<BaseLayout
+  title="L’atelier — Atelier Bréande (site de démonstration)"
+  description="Site de démonstration : Atelier Bréande est un atelier fictif. Les matières, les procédés et la lumière — comment une pièce naît, du dessin à l’essai en charge."
+  heroPleinEcran
+>
+  {/* B1 — SEUIL COURT. Image plein-bord, 46svh, PAS prioritaire : ce n'est
+      pas le LCP du site (seul le hero de l'accueil l'est). */}
+  <section class="seuil-secondaire" data-jour="1">
+    <div class="seuil-secondaire__image">
+      <Visuel
+        src={etabliLarge}
+        alt="L’établi principal de l’atelier, vu de face, avec ses outils rangés à portée de main"
+        sizes="100vw"
+        widths={[480, 900, 1400, 1920]}
+      />
+    </div>
+    <div class="seuil-secondaire__voile" aria-hidden="true"></div>
+    <div class="seuil-secondaire__corps">
+      <div class="mx-auto max-w-[108rem] px-4 sm:px-8 md:px-12">
+        <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">{enTete.titre}</h1>
+        <p class="mesure-large mt-4 text-breande-paper/85">{enTete.chapo}</p>
+      </div>
+    </div>
+  </section>
+
+  {/* B2 — LE LIEU */}
+  <Bandeau jour={2}>
+    <div class="mesure-large text-breande-muted" data-revelation>
+      {leLieu.map((p) => <p class="mt-4 first:mt-0">{p}</p>)}
+    </div>
+  </Bandeau>
+
+  {/* B3 — LES QUATRE FAMILLES DE MATIÈRES */}
+  <Bandeau jour={2} ariaLabelledby="titre-matieres">
+    <TitreSection texte="Les matières" id="titre-matieres" filet />
+    <div class="grille-matieres mt-10">
+      {
+        familles.map((famille, i) => {
+          const visuel = imagesFamilles[famille.titre];
+          return (
+            <div data-revelation class:list={[`cascade-${i + 1}`]}>
+              {visuel && (
+                <div class="famille-matiere__image">
+                  <Visuel src={visuel.image} alt={visuel.alt} sizes="(min-width: 768px) 40vw, 90vw" />
+                </div>
+              )}
+              <p class="famille-matiere__titre">{famille.titre}</p>
+              <p class="text-breande-muted">{famille.texte}</p>
+            </div>
+          );
+        })
+      }
+    </div>
+  </Bandeau>
+
+  {/* B4 — LES PROCÉDÉS, en frise verticale numérotée */}
+  <Bandeau jour={3} ariaLabelledby="titre-procedes">
+    <TitreSection texte="Les procédés" id="titre-procedes" filet />
+    <p class="mesure-large mt-4 text-breande-muted">{procedesIntro}</p>
+    <div class="frise-procedes mt-8" data-revelation>
+      {
+        procedes.map((procede) => (
+          <div class="frise-procede">
+            <span class="frise-procede__numero" aria-hidden="true">
+              {String(procede.numero).padStart(2, '0')}
+            </span>
+            <div>
+              <p class="frise-procede__titre">{procede.titre}</p>
+              <p class="frise-procede__texte">{procede.texte}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </Bandeau>
+
+  {/* B5 — LA LUMIÈRE */}
+  <Bandeau jour={3} ariaLabelledby="titre-lumiere">
+    <TitreSection texte={laLumiere.titre} id="titre-lumiere" filet />
+    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+      {laLumiere.texte.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
+    </div>
+    <table class="tableau-lumiere mt-8" data-revelation>
+      <caption>Repère de température et d’intensité par pièce du logement.</caption>
+      <thead>
+        <tr>
+          <th scope="col">pièce</th>
+          <th scope="col">température</th>
+          <th scope="col">intensité par point</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          laLumiere.tableau.map((ligne) => (
+            <tr>
+              <th scope="row">{ligne.piece}</th>
+              <td>{ligne.temperature}</td>
+              <td>{ligne.intensite}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p class="mesure-large mt-6 text-breande-muted">{laLumiere.note}</p>
+  </Bandeau>
+
+  {/* LA COUPE DE MATIÈRE — moment de bravoure n°3. Geste volontaire, pas de
+      ScrollTrigger : marche à l'identique sous mouvement réduit. */}
+  <Bandeau jour={4} ariaLabelledby="titre-coupe">
+    <TitreSection texte="La coupe de matière" id="titre-coupe" filet />
+    <p class="mesure-large mt-4 text-breande-muted">
+      D’un côté la pièce photographiée, de l’autre le dessin technique qui l’a précédée —
+      c’est le même objet, à deux moments du même geste.
+    </p>
+    <div class="mt-8" data-revelation>
+      <ComparateurCoupe
+        photo={coupePhoto}
+        photoAlt="Photo d’une suspension en laiton et verre soufflé, allumée"
+        dessin={coupeDessin}
+        dessinAlt="Dessin technique au trait de la même suspension, coté et annoté"
+      />
+    </div>
+  </Bandeau>
+
+  {/* B6 — CE QUI SE FAIT AILLEURS */}
+  <Bandeau jour={4} ariaLabelledby="titre-ailleurs">
+    <TitreSection texte={ceQuOnNeFaitPasTitre} id="titre-ailleurs" filet />
+    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+      {ceQuOnNeFaitPas.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
+    </div>
+  </Bandeau>
+
+  {/* B7 — OÙ, ET QUAND */}
+  <Bandeau jour={5} ariaLabelledby="titre-ou-quand">
+    <TitreSection texte={ouEtQuand.titre} id="titre-ou-quand" filet />
+    <p class="mesure-large mt-4 text-breande-muted" data-revelation>{ouEtQuand.texte}</p>
+  </Bandeau>
+
+  {/* B8 — APPEL */}
+  <Bandeau jour={5}>
+    <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
+      <p class="mesure text-lg text-breande-paper">{appel.texte}</p>
+      <div class="mt-6">
+        <AppelAction texte={appel.bouton} href={appel.href} variante="plein" />
+      </div>
+    </div>
+  </Bandeau>
+</BaseLayout>

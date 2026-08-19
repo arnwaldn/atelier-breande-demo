@@ -1,19 +1,87 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Bandeau from '../components/Bandeau.astro';
+import TitreSection from '../components/TitreSection.astro';
+import Accordeon from '../components/Accordeon.astro';
 import ContactForm from '../components/ContactForm.astro';
+import {
+  contactEnTete,
+  autresMoyens,
+  ceQuiSePasseEnsuite,
+  venirALAtelier,
+  horaires,
+  zone,
+} from '../data/contact-infos';
+import { identite } from '../data/identite';
+import { faqContact } from '../data/faq';
 ---
 <BaseLayout
   title="Contact — Atelier Bréande (site de démonstration)"
-  description="Site de démonstration : Atelier Bréande est un atelier fictif. Le formulaire de cette page est désactivé : aucun message n’est transmis."
+  description="Site de démonstration : Atelier Bréande est un atelier fictif. Formulaire désactivé, téléphone, horaires et zone d’intervention pour joindre l’atelier."
 >
-  <section class="py-12">
-    <h1 class="text-4xl">Contact</h1>
-    <p class="mt-4 max-w-xl text-lg text-breande-muted">
-      Parlez-nous de votre projet : une pièce à créer, un luminaire à restaurer,
-      une ambiance à composer. Nous vous répondons rapidement.
-    </p>
-    <div class="mt-10">
-      <ContactForm />
+  {/*
+    Un seul Bandeau pour le seuil et les colonnes : la mention de formulaire
+    désactivé doit rester lisible sans défiler à 360 px (E2, critère
+    d'acceptation testé). Deux sections empilées auraient ajouté un plein
+    padding-block de trop entre le titre et le formulaire.
+  */}
+  <Bandeau jour={2}>
+    <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">
+      {contactEnTete.titre}
+    </h1>
+    <p class="mesure-large mt-4 text-breande-muted">{contactEnTete.chapo}</p>
+
+    <div class="contact-colonnes mt-10">
+      <div>
+        <ContactForm />
+      </div>
+
+      <div>
+        <div class="contact-bloc" data-revelation>
+          <p class="contact-bloc__titre">{autresMoyens.titre}</p>
+          <p class="contact-bloc__texte">{autresMoyens.texte}</p>
+          <p class="mt-3">
+            <a href={identite.telephoneLien} class="etiquette">{identite.telephone}</a>
+          </p>
+        </div>
+
+        <div class="contact-bloc" data-revelation>
+          <p class="contact-bloc__titre">Ce qui se passe ensuite</p>
+          <ol class="liste-etapes-suite mt-2">
+            {ceQuiSePasseEnsuite.map((etape) => <li>{etape.texte}</li>)}
+          </ol>
+        </div>
+
+        <div class="contact-bloc" data-revelation>
+          <p class="contact-bloc__titre">{venirALAtelier.titre}</p>
+          <p class="contact-bloc__texte">{venirALAtelier.texte}</p>
+        </div>
+
+        <div class="contact-bloc" data-revelation>
+          <p class="contact-bloc__titre">{zone.titre}</p>
+          <p class="contact-bloc__texte">{zone.texte}</p>
+          <ul class="liste-zone">
+            {zone.incluse.map((commune) => <li>{commune}</li>)}
+          </ul>
+          <p class="contact-bloc__texte mt-3">{zone.auDela}</p>
+          <p class="contact-bloc__texte mt-2">{zone.deplacement}</p>
+        </div>
+
+        <div class="contact-bloc" data-revelation>
+          <p class="contact-bloc__titre">Horaires</p>
+          <p class="contact-bloc__texte">{horaires.semaine}</p>
+          <p class="contact-bloc__texte">{horaires.samedi}</p>
+          <p class="contact-bloc__texte">{horaires.fermeture}</p>
+          <p class="contact-bloc__texte">{horaires.reception}</p>
+        </div>
+      </div>
     </div>
-  </section>
+  </Bandeau>
+
+  <Bandeau jour={5} ariaLabelledby="titre-faq-contact">
+    <TitreSection texte="Questions fréquentes" id="titre-faq-contact" filet />
+    <div class="mt-8" data-revelation>
+      <Accordeon questions={faqContact} idPrefixe="faq-contact" />
+    </div>
+  </Bandeau>
 </BaseLayout>

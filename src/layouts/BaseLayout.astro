@@ -4,6 +4,7 @@ import SeoHead from '../components/SeoHead.astro';
 import EnTete from '../components/EnTete.astro';
 import PiedDePage from '../components/PiedDePage.astro';
 import EchelleKelvins from '../components/EchelleKelvins.astro';
+import { horaires as horairesContact } from '../data/contact-infos';
 
 interface Props {
   title: string;
@@ -12,7 +13,9 @@ interface Props {
       page elle-même, qui réserve sa propre marge sous l'en-tête). false :
       <main> réserve la hauteur de l'en-tête, pour ne rien couvrir. */
   heroPleinEcran?: boolean;
-  /** Props transmises telles quelles à PiedDePage (zone, horaires). */
+  /** Props transmises telles quelles à PiedDePage (zone, horaires) — par
+      défaut, le résumé issu du référentiel de contact (data/contact-infos.ts),
+      identique sur les six pages. */
   piedZone?: string;
   piedHoraires?: string;
 }
@@ -20,8 +23,8 @@ const {
   title,
   description,
   heroPleinEcran = false,
-  piedZone,
-  piedHoraires,
+  piedZone = 'Lyon et la métropole, jusqu’à 60 km, sur rendez-vous',
+  piedHoraires = `${horairesContact.semaine} ; ${horairesContact.samedi}`,
 } = Astro.props;
 ---
 <!doctype html>
@@ -40,10 +43,20 @@ const {
     <EnTete />
     <EchelleKelvins />
 
-    <main id="contenu" class:list={['mx-auto max-w-5xl px-4', !heroPleinEcran && 'pt-[var(--hauteur-entete)]']}>
+    {/*
+      LARGEUR : plus de max-w-5xl/px-4 ici. Depuis la vague B, chaque page
+      compose elle-même sa largeur — .contenant (108rem, marge-page) pour le
+      texte mesuré, <Bandeau> (même plafond, padding-inline nul d'un seul
+      côté) pour les images en plein-bord. Un <main> contraint aurait empêché
+      toute image de toucher le bord réel de la fenêtre (ADR-002).
+    */}
+    <main id="contenu" class:list={['w-full', !heroPleinEcran && 'pt-[var(--hauteur-entete)]']}>
       <slot />
     </main>
 
     <PiedDePage zone={piedZone} horaires={piedHoraires} />
+
+    {/* L'aiguilleur de la couche animée — voir src/scripts/orchestration.ts. */}
+    <script>import '../scripts/orchestration';</script>
   </body>
 </html>

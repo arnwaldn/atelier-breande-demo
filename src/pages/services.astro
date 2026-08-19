@@ -1,26 +1,182 @@
 ---
+import type { ImageMetadata } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ServiceCard from '../components/ServiceCard.astro';
-import { services } from '../data/services';
+import Bandeau from '../components/Bandeau.astro';
+import TitreSection from '../components/TitreSection.astro';
+import ChiffreCle from '../components/ChiffreCle.astro';
+import AppelAction from '../components/AppelAction.astro';
+import Accordeon from '../components/Accordeon.astro';
+import Visuel from '../components/Visuel.astro';
+import {
+  servicesEnTete,
+  services,
+  etapesCommande,
+  tarifs,
+  garanties,
+  avecUnArchitecte,
+  appelServices,
+} from '../data/services';
+import { faqServices } from '../data/faq';
+import imageCreation from '../assets/services/creation.jpg';
+import imageRestauration from '../assets/services/restauration.jpg';
+import imageConseil from '../assets/services/conseil.jpg';
+
+const imagesServices: Record<string, { image: ImageMetadata; alt: string }> = {
+  creation: { image: imageCreation, alt: 'Croquis à l’échelle 1 et gabarit de carton, punaisés au mur de l’atelier' },
+  restauration: { image: imageRestauration, alt: 'Suspension ancienne démontée sur l’établi, câblage textile déposé' },
+  conseil: { image: imageConseil, alt: 'Plan d’éclairage annoté et ampoules d’essai posées sur une table' },
+};
+
+// Un extrait court des huit étapes, dans chaque travée — la frise complète
+// suit plus bas, une seule fois (id="etapes").
+const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !== undefined);
 ---
 <BaseLayout
   title="Nos services — Atelier Bréande (site de démonstration)"
-  description="Site de démonstration : Atelier Bréande est un atelier fictif. Création sur mesure, restauration de luminaires anciens et conseil en éclairage — les trois façons de travailler avec l’atelier."
+  description="Site de démonstration : Atelier Bréande est un atelier fictif. Création sur mesure, restauration de luminaires anciens et conseil en éclairage — prix, délais et huit étapes détaillées."
 >
-  <section class="py-12">
-    <h1 class="text-4xl">Nos services</h1>
-    <p class="mt-4 max-w-2xl text-lg text-breande-muted">
-      Trois façons de travailler ensemble, toujours avec la même exigence : une lumière juste,
-      des matières durables, un objet qui vous ressemble.
-    </p>
-    <div class="mt-10 grid gap-6 md:grid-cols-3">
-      {services.map((service) => <ServiceCard service={service} />)}
+  <Bandeau jour={1}>
+    <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">
+      {servicesEnTete.titre}
+    </h1>
+    <p class="mesure-large mt-4 text-breande-muted">{servicesEnTete.chapo}</p>
+  </Bandeau>
+
+  {
+    services.map((service, i) => {
+      const cote = i % 2 === 0 ? 'droite' : 'gauche';
+      const visuel = imagesServices[service.id];
+      const palier = (2 + Math.min(i, 2)) as 2 | 3 | 4;
+      return (
+        <Bandeau jour={palier} pleinBord={cote} ariaLabelledby={`titre-${service.ancre}`} id={service.ancre}>
+          <div class="service-travee">
+            <div
+              class:list={[
+                'aspect-[4/5] overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]',
+                cote === 'droite' ? 'md:order-1' : 'md:order-2',
+              ]}
+            >
+              <Visuel src={visuel.image} alt={visuel.alt} sizes="(min-width: 900px) 50vw, 100vw" class="h-full w-full object-cover" />
+            </div>
+            <div class:list={[cote === 'droite' ? 'md:order-2' : 'md:order-1']} data-revelation>
+              <TitreSection texte={service.titre} id={`titre-${service.ancre}`} />
+              <p class="mesure mt-2 text-breande-laiton-clair">{service.accroche}</p>
+              <div class="mesure-large mt-4 text-breande-muted">
+                {service.corps.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
+              </div>
+
+              <div class="deux-listes">
+                <div>
+                  <h3>inclus</h3>
+                  <ul>{service.inclus.map((item) => <li>{item}</li>)}</ul>
+                </div>
+                <div>
+                  <h3>non inclus</h3>
+                  <ul>{service.nonInclus.map((item) => <li>{item}</li>)}</ul>
+                </div>
+              </div>
+
+              {(service.aPreparer || service.photosAEnvoyer || service.livrable) && (
+                <div class="mesure-large mt-6 border-l-2 border-breande-brass/40 pl-5 text-breande-muted">
+                  {service.aPreparer && (
+                    <p>À préparer : {service.aPreparer.join(', ')}.</p>
+                  )}
+                  {service.photosAEnvoyer && (
+                    <p>Photos à envoyer : {service.photosAEnvoyer.join(', ')}.</p>
+                  )}
+                  {service.livrable && <p>Vous recevez : {service.livrable}</p>}
+                </div>
+              )}
+
+              <div class="mt-8 flex flex-wrap gap-x-10 gap-y-4">
+                <ChiffreCle valeur={service.fourchette} libelle="fourchette" />
+                <ChiffreCle valeur={service.delai} libelle="délai courant" />
+              </div>
+
+              <p class="etiquette mt-6">
+                <a href="/services#etapes">comment ça se passe</a>
+              </p>
+              <ol class="mt-3 flex flex-col gap-2 text-breande-muted">
+                {extraitEtapes.map((etape) => (
+                  <li>
+                    <span class="text-breande-laiton-clair">{etape.numero}.</span> {etape.titre}
+                  </li>
+                ))}
+              </ol>
+
+              <div class="mt-8">
+                <AppelAction texte={`Demander un devis — ${service.titre.toLowerCase()}`} href="/contact" variante="plein" />
+              </div>
+            </div>
+          </div>
+        </Bandeau>
+      );
+    })
+  }
+
+  {/* LES HUIT ÉTAPES, complètes, en frise. */}
+  <Bandeau jour={4} id="etapes" ariaLabelledby="titre-etapes">
+    <TitreSection texte="Comment ça se passe" id="titre-etapes" filet />
+    <div class="frise-etapes mt-10">
+      {
+        etapesCommande.map((etape) => (
+          <div data-revelation>
+            <p class="frise-etape__numero">{String(etape.numero).padStart(2, '0')}</p>
+            <p class="frise-etape__titre">{etape.titre}</p>
+            <p class="frise-etape__texte">{etape.texte}</p>
+          </div>
+        ))
+      }
     </div>
-    <div class="mt-12">
-      <a
-        href="/contact"
-        class="inline-block rounded bg-breande-amber px-8 py-3 font-semibold text-breande-night transition-colors hover:bg-breande-paper"
-      >Parler de votre projet</a>
+  </Bandeau>
+
+  {/* DÉLAIS ET TARIFS — en liste, jamais un tableau de cotation. */}
+  <Bandeau jour={4} ariaLabelledby="titre-tarifs">
+    <TitreSection texte="Délais et tarifs" id="titre-tarifs" filet />
+    <ul class="liste-tarifs mt-8" data-revelation>
+      {
+        tarifs.map((ligne) => (
+          <li class="liste-tarifs__ligne">
+            <span class="liste-tarifs__prestation">{ligne.prestation}</span>
+            <span class="liste-tarifs__fourchette">{ligne.fourchette}</span>
+            <span class="liste-tarifs__delai">{ligne.delai}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </Bandeau>
+
+  {/* GARANTIES */}
+  <Bandeau jour={5} ariaLabelledby="titre-garanties">
+    <TitreSection texte="Garanties" id="titre-garanties" filet />
+    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+      {garanties.map((g) => <p class="mt-3 first:mt-0">{g}</p>)}
     </div>
-  </section>
+  </Bandeau>
+
+  {/* TRAVAILLER AVEC UNE AGENCE */}
+  <Bandeau jour={5} ariaLabelledby="titre-architecte">
+    <TitreSection texte={avecUnArchitecte.titre} id="titre-architecte" filet />
+    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+      {avecUnArchitecte.texte.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
+    </div>
+  </Bandeau>
+
+  {/* FAQ */}
+  <Bandeau jour={5} ariaLabelledby="titre-faq" id="faq">
+    <TitreSection texte="Questions fréquentes" id="titre-faq" filet />
+    <div class="mt-8" data-revelation>
+      <Accordeon questions={faqServices} idPrefixe="faq-services" />
+    </div>
+  </Bandeau>
+
+  {/* APPEL FINAL */}
+  <Bandeau jour={5}>
+    <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
+      <p class="mesure text-lg text-breande-paper">{appelServices.texte}</p>
+      <div class="mt-6">
+        <AppelAction texte={appelServices.bouton} href={appelServices.href} variante="plein" />
+      </div>
+    </div>
+  </Bandeau>
 </BaseLayout>

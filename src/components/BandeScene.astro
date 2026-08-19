@@ -3,12 +3,17 @@
  * BandeScene.astro — l'hôte du futur bloc 3D (le variateur, moment de
  * bravoure n°2 de l'ADR direction artistique).
  *
- * [data-scene] est le point d'ancrage que le lot 3D branchera plus tard :
- * pour l'instant, il affiche l'image de repli (fournie par l'appelant via le
- * slot par défaut, avec Visuel.astro) et une molette SVG décorative, en
- * laiton, graduée de 2 200 à 4 000 K avec un curseur FIXE à 2 700 K. Le
- * bouton « régler la lumière » est volontairement inerte (aria-disabled) :
- * rien ne se passe au clic tant que le fragment WebGL n'est pas branché.
+ * [data-scene] est le point d'ancrage du bloc 3D, branché en vague B par
+ * src/scripts/orchestration.ts : il affiche l'image de repli (fournie par
+ * l'appelant via le slot par défaut, avec Visuel.astro) et une molette SVG
+ * décorative, en laiton, graduée de 2 200 à 4 000 K avec un curseur FIXE à
+ * 2 700 K — c'est l'état DÉFAUT, jamais un trou à couvrir (voir attente.ts).
+ *
+ * Le bouton « régler la lumière » porte data-scene-bouton : sous 1024 px,
+ * c'est la SEULE porte d'entrée de la scène (ADR direction artistique — la
+ * 3D ne se charge jamais d'elle-même sur écran étroit). Il est donc un
+ * vrai bouton, cliquable et focusable, et non plus aria-disabled comme au
+ * lot précédent : l'aiguilleur y attache son propre écouteur de clic.
  *
  * Critère de recette n°6 : ce bloc doit être beau SANS JavaScript ni WebGL —
  * c'est la seule chose que ce composant a la charge de garantir.
@@ -32,8 +37,13 @@ const { id, class: className } = Astro.props;
     <svg
       class="bande-scene__molette"
       viewBox="0 0 200 130"
-      role="img"
-      aria-label="Molette de réglage de la température de lumière, graduée de 2 200 à 4 000 kelvins, actuellement calée sur 2 700 kelvins"
+      role="slider"
+      tabindex="0"
+      aria-valuemin="2200"
+      aria-valuemax="4000"
+      aria-valuenow="2700"
+      aria-valuetext="2 700 kelvins"
+      aria-label="Température de la lumière"
     >
       <defs>
         <linearGradient id="bande-scene-laiton" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -69,6 +79,15 @@ const { id, class: className } = Astro.props;
       <text class="bande-scene__label bande-scene__label--actif" x="30" y="34">2 700 K</text>
     </svg>
 
-    <AppelAction texte="Régler la lumière" variante="filet" disabled class="bande-scene__bouton" />
+    <AppelAction
+      texte="Régler la lumière"
+      variante="filet"
+      data-scene-bouton
+      class="bande-scene__bouton"
+    />
   </div>
 </div>
+
+<script>
+  import '../scripts/molette';
+</script>

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PAGES } from './utils';
+import { PAGES, PIECES } from './utils';
 
 /**
  * Le plan du site : chaque page répond, s'identifie correctement (un seul titre de
@@ -43,7 +43,7 @@ test.describe('plan du site', () => {
     });
   }
 
-  test('le title est unique sur les quatre pages du site', async ({ page }) => {
+  test('le title est unique sur les six pages du site', async ({ page }) => {
     const titres = new Set<string>();
     for (const p of PAGES) {
       await page.goto(p.chemin);
@@ -55,7 +55,7 @@ test.describe('plan du site', () => {
     expect(titres.size).toBe(PAGES.length);
   });
 
-  test('la meta description est unique sur les quatre pages du site', async ({ page }) => {
+  test('la meta description est unique sur les six pages du site', async ({ page }) => {
     const descriptions = new Set<string>();
     for (const p of PAGES) {
       await page.goto(p.chemin);
@@ -66,7 +66,27 @@ test.describe('plan du site', () => {
     expect(descriptions.size).toBe(PAGES.length);
   });
 
-  // Deux ressources non-HTML complètent les quatre pages : robots.txt (fichier statique
+  // Les sept fiches de pièce (routes dynamiques /collections/[piece]) ne sont pas
+  // dans PAGES (elles n'ont pas de canonical de section fixe à comparer terme à
+  // terme), mais chacune doit répondre et s'identifier correctement : même
+  // contrôle minimal que les six pages ci-dessus, sur un chemin construit.
+  test('les sept fiches de pièce répondent 200, avec un h1 unique et un canonical cohérent', async ({
+    page,
+  }) => {
+    for (const slug of PIECES) {
+      const chemin = `/collections/${slug}`;
+      const reponse = await page.goto(chemin);
+      expect(reponse?.status(), `statut HTTP de ${chemin}`).toBe(200);
+      await expect(page.locator('h1'), `h1 de ${chemin}`).toHaveCount(1);
+
+      const canonical = page.locator('link[rel="canonical"]');
+      const hrefCanonical = await canonical.getAttribute('href');
+      expect(hrefCanonical, `canonical absent sur ${chemin}`).not.toBeNull();
+      expect(new URL(hrefCanonical!).pathname, `canonical incohérent sur ${chemin}`).toBe(chemin);
+    }
+  });
+
+  // Deux ressources non-HTML complètent les six pages : robots.txt (fichier statique
   // attendu sous public/) et sitemap-index.xml (généré au build par @astrojs/sitemap,
   // déjà déclaré dans astro.config.mjs). Vérifiées via le contexte de requête plutôt
   // qu'une navigation de page : ce ne sont pas des documents HTML.

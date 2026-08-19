@@ -16,6 +16,10 @@ interface Props {
   disabled?: boolean;
   ariaDescribedby?: string;
   class?: string;
+  /** Attributs additionnels (data-*, aria-*) — ex. data-scene-bouton sur le
+      bouton de la bande-scène : l'aiguilleur (orchestration.ts) le cherche
+      par cet attribut pour déclencher la scène 3D au clic, sur écran étroit. */
+  [attribut: string]: unknown;
 }
 
 const {
@@ -25,6 +29,7 @@ const {
   disabled = false,
   ariaDescribedby,
   class: className,
+  ...attrs
 } = Astro.props;
 
 const classesCommunes = [
@@ -37,7 +42,7 @@ const classesCommunes = [
 
 {
   href && !disabled ? (
-    <a href={href} aria-describedby={ariaDescribedby} class:list={classesCommunes}>
+    <a href={href} aria-describedby={ariaDescribedby} class:list={classesCommunes} {...attrs}>
       {texte}
     </a>
   ) : (
@@ -46,6 +51,7 @@ const classesCommunes = [
       aria-disabled={disabled ? 'true' : undefined}
       aria-describedby={ariaDescribedby}
       class:list={classesCommunes}
+      {...attrs}
     >
       {texte}
     </button>

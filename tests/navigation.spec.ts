@@ -2,13 +2,10 @@ import { test, expect, type Page } from '@playwright/test';
 import { PAGES } from './utils';
 
 /**
- * Les cinq entrées de la navigation principale (vague A — chantier « coquille »,
- * 2026-08-19). Deux d'entre elles (l'atelier, collections) sont déjà câblées
- * dans l'en-tête et le pied de page, mais leurs pages arrivent en vague B :
- * on les inclut dans le contrôle STRUCTUREL (l'entrée existe, avec le bon
- * href), mais pas dans les contrôles qui exigent que la page cible RÉPONDE
- * (clic + navigation, aria-current sur la page elle-même) — voir
- * PAGES_ACTIVES ci-dessous et le test dédié « liens à venir » plus bas.
+ * Les cinq entrées de la navigation principale (les cinq pages du site,
+ * vagues A et B — chantier « cinq pages », 2026-08-19). Toutes répondent
+ * désormais : plus de distinction entre entrées « structurelles » et
+ * entrées « actives ».
  */
 const LIENS_NAV = [
   { libelle: 'accueil', chemin: '/' },
@@ -18,8 +15,8 @@ const LIENS_NAV = [
   { libelle: 'contact', chemin: '/contact' },
 ] as const;
 
-/** Les entrées de menu dont la page cible existe déjà et répond 200. */
-const PAGES_ACTIVES = LIENS_NAV.filter((l) => l.chemin === '/' || l.chemin === '/services' || l.chemin === '/contact');
+/** Toutes les entrées de menu mènent désormais à une page réelle. */
+const PAGES_ACTIVES = LIENS_NAV;
 
 /**
  * En dessous de 768 px, les cinq entrées passent dans un <details> accessible
@@ -103,14 +100,8 @@ test.describe('navigation', () => {
     await expect(page).toHaveURL(/#contenu$/);
   });
 
-  test('aucun lien interne mort sur les quatre pages (parcours en largeur)', async ({ page, request }) => {
+  test('aucun lien interne mort sur les six pages (parcours en largeur)', async ({ page, request }) => {
     const liensInternes = new Set<string>();
-
-    // Vague A (chantier « coquille », 2026-08-19) : l'en-tête et le pied de page
-    // câblent déjà /latelier et /collections — ce sont les deux prochaines pages
-    // du site (vague B), pas des liens morts. On les exclut explicitement du
-    // crawl plutôt que de les laisser faire échouer ce test à tort.
-    const ROUTES_A_VENIR = new Set(['/latelier', '/collections']);
 
     for (const p of PAGES) {
       await page.goto(p.chemin);
@@ -123,7 +114,7 @@ test.describe('navigation', () => {
         if (href.startsWith('/') && !href.startsWith('//')) {
           const cheminSansAncre = href.split('#')[0];
           const chemin = cheminSansAncre === '' ? '/' : cheminSansAncre;
-          if (!ROUTES_A_VENIR.has(chemin)) liensInternes.add(chemin);
+          liensInternes.add(chemin);
         }
       }
     }
@@ -135,15 +126,6 @@ test.describe('navigation', () => {
     for (const chemin of liensInternes) {
       const reponse = await request.get(chemin);
       expect(reponse.status(), `lien interne mort : ${chemin}`).toBe(200);
-    }
-  });
-
-  test('/latelier et /collections répondent 404 pour l’instant (vague B) — et la page 404 reste tenue', async ({
-    request,
-  }) => {
-    for (const chemin of ['/latelier', '/collections']) {
-      const reponse = await request.get(chemin);
-      expect(reponse.status(), `${chemin} ne répond plus 404 : la page a peut-être été créée — ce test doit alors être retiré`).toBe(404);
     }
   });
 });

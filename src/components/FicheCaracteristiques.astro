@@ -1,0 +1,29 @@
+---
+/**
+ * FicheCaracteristiques.astro — les caractéristiques d'une pièce, en LISTE
+ * stylée à filets de laiton. Jamais un tableau de cotation : c'est l'un des
+ * cinq marqueurs interdits de l'ADR direction artistique.
+ */
+interface Ligne {
+  etiquette: string;
+  valeur: string;
+}
+
+interface Props {
+  lignes: Ligne[];
+  class?: string;
+}
+
+const { lignes, class: className } = Astro.props;
+---
+
+<dl class:list={['fiche-caracteristiques', className]}>
+  {
+    lignes.map((ligne) => (
+      <div class="fiche-caracteristiques__ligne">
+        <dt>{ligne.etiquette}</dt>
+        <dd>{ligne.valeur}</dd>
+      </div>
+    ))
+  }
+</dl>

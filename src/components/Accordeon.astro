@@ -1,0 +1,38 @@
+---
+/**
+ * Accordeon.astro — la FAQ, en <details>/<summary> natifs.
+ *
+ * Aucun script : le navigateur gère déjà l'état ouvert/fermé, le clavier
+ * (Entrée/Espace sur le résumé) et la sémantique (le résumé porte le rôle
+ * de bouton d'accordéon nativement). La révélation du corps se joue en CSS
+ * pur, sur grid-template-rows (voir .accordeon-item__corps, global.css) —
+ * neutralisée comme toute transition sous prefers-reduced-motion.
+ */
+import type { QuestionFaq } from '../data/faq';
+
+interface Props {
+  questions: QuestionFaq[];
+  idPrefixe: string;
+  class?: string;
+}
+
+const { questions, idPrefixe, class: className } = Astro.props;
+---
+
+<div class:list={['accordeon', className]}>
+  {
+    questions.map((q) => (
+      <details class="accordeon-item" id={`${idPrefixe}-${q.id}`}>
+        <summary class="accordeon-item__resume">
+          <span>{q.question}</span>
+          <span class="accordeon-item__icone" aria-hidden="true" />
+        </summary>
+        <div class="accordeon-item__corps">
+          <div class="accordeon-item__corps-interieur">
+            <p class="accordeon-item__reponse">{q.reponse}</p>
+          </div>
+        </div>
+      </details>
+    ))
+  }
+</div>

@@ -1000,3 +1000,779 @@
     transparent 76%
   );
 }
+
+/* ==========================================================================
+   VAGUE B — LES CINQ PAGES ET LA COUCHE DE MOUVEMENT
+
+   Le variateur devient un plafond de largeur : .bandeau hérite ici de
+   --page-max, comme .contenant, pour que le plein-bord touche le bord réel
+   de la fenêtre jusqu'à 1728 px et non un rail artificiel plus étroit.
+   ========================================================================== */
+
+/* L'en-tête est position: fixed et se scelle (fond opaque) dès le premier
+   pixel de défilement — y compris un défilement instantané vers une ancre
+   (/services#creation, #etapes, #faq…). Sans cette réserve, la cible d'une
+   ancre atterrit SOUS l'en-tête scellé, invisible. Une seule déclaration,
+   qui couvre tout le site : la coquille (§ vague A) n'en avait pas besoin,
+   aucune page n'avait encore d'ancre interne avant cette vague. */
+html {
+  scroll-padding-top: var(--hauteur-entete);
+}
+
+.bandeau {
+  max-width: var(--page-max);
+  margin-inline: auto;
+}
+
+/* --------------------------------------------------------------------------
+   RÉVÉLATIONS — états posés UNIQUEMENT sous html.mouvement (voir
+   src/scripts/mouvement/revelations.ts, hors périmètre de ce chantier :
+   c'est LUI qui pose la classe et l'attribut data-revele). Sans lui — script
+   bloqué, en échec, jamais arrivé — rien n'est jamais cousu à opacité 0.
+   -------------------------------------------------------------------------- */
+html.mouvement [data-revelation]:not([data-revele]) {
+  opacity: 0;
+  transform: translateY(12px);
+}
+html.mouvement [data-revele] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--ms-revele) var(--ease-monte),
+    transform var(--ms-revele) var(--ease-monte);
+}
+
+/* Cascade — au plus quatre frères, 60 ms d'écart. Posée en classe utilitaire
+   à côté de data-revelation ; ne fait rien tant que html.mouvement n'est pas
+   posée (le délai ne joue que sur une transition qui, elle, n'existe que
+   sous cette classe). */
+.cascade-1 {
+  transition-delay: 0ms;
+}
+.cascade-2 {
+  transition-delay: 60ms;
+}
+.cascade-3 {
+  transition-delay: 120ms;
+}
+.cascade-4 {
+  transition-delay: 180ms;
+}
+
+/* --------------------------------------------------------------------------
+   CHIFFRES CLÉS — grille des repères (accueil).
+   -------------------------------------------------------------------------- */
+.grille-reperes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--air-bloc) 1.5rem;
+}
+@media (min-width: 768px) {
+  .grille-reperes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* --------------------------------------------------------------------------
+   PHRASE SEULE — accueil bloc 3 : --t-section, seule, sans voisinage proche.
+   -------------------------------------------------------------------------- */
+.phrase-seule {
+  max-width: var(--mesure-large);
+  font-family: var(--font-display);
+  font-size: var(--t-section);
+  font-variation-settings: 'WONK' 1;
+  line-height: 1.15;
+  color: var(--color-breande-paper);
+}
+
+/* --------------------------------------------------------------------------
+   LE CHANTIER RACONTÉ — accueil bloc 5.
+   -------------------------------------------------------------------------- */
+.chantier-raconte {
+  display: grid;
+  gap: 2.5rem;
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .chantier-raconte {
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+  }
+}
+.chantier-raconte__image {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: var(--recoit-lumiere);
+}
+.chantier-raconte__image picture,
+.chantier-raconte__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.chantier-raconte__corps p + p {
+  margin-top: 1.1rem;
+}
+
+/* --------------------------------------------------------------------------
+   LE BANDEAU DE BASCULEMENT — accueil bloc 6 : dégradé K5000 → K2700, grain
+   par-dessus (déjà posé globalement par .grain::after — cette bande n'a rien
+   de plus à faire que se peindre), une ligne centrée.
+   -------------------------------------------------------------------------- */
+.bandeau-basculement {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 14rem;
+  padding: var(--air-bloc) var(--marge-page);
+  overflow: hidden;
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, var(--color-breande-k5000) 14%, var(--color-breande-night)) 0%,
+    color-mix(in srgb, var(--color-breande-k2700) 22%, var(--color-breande-night)) 100%
+  );
+}
+.bandeau-basculement__texte {
+  position: relative;
+  z-index: 1;
+  max-width: var(--mesure);
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--t-piece);
+  color: var(--color-breande-paper);
+}
+
+/* --------------------------------------------------------------------------
+   SEUIL SECONDAIRE — bandeau plein-bord court en tête de page (L'atelier,
+   fiche de pièce) : plus bas que le seuil de l'accueil (celui-ci N'EST PAS
+   le LCP du site — seul le hero de l'accueil l'est), texte posé par-dessus
+   un dégradé de lisibilité.
+   -------------------------------------------------------------------------- */
+.seuil-secondaire {
+  position: relative;
+  overflow: hidden;
+  min-height: 46svh;
+  display: flex;
+  align-items: flex-end;
+}
+.seuil-secondaire__image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.seuil-secondaire__image picture,
+.seuil-secondaire__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.seuil-secondaire__voile {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    var(--color-breande-night) 0%,
+    color-mix(in srgb, var(--color-breande-night) 60%, transparent) 55%,
+    color-mix(in srgb, var(--color-breande-night) 10%, transparent) 100%
+  );
+}
+.seuil-secondaire__corps {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: var(--hauteur-entete) var(--marge-page) var(--air-bloc);
+}
+
+/* --------------------------------------------------------------------------
+   LES QUATRE FAMILLES DE MATIÈRES — L'atelier, grille 2×2.
+   -------------------------------------------------------------------------- */
+.grille-matieres {
+  display: grid;
+  gap: 2.5rem;
+}
+@media (min-width: 768px) {
+  .grille-matieres {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem 2.5rem;
+  }
+}
+.famille-matiere__image {
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+  border-radius: 2px;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--recoit-lumiere);
+}
+.famille-matiere__image picture,
+.famille-matiere__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.famille-matiere__titre {
+  font-family: var(--font-display);
+  font-size: var(--t-piece);
+  color: var(--color-breande-paper);
+  margin-bottom: 0.6rem;
+}
+
+/* --------------------------------------------------------------------------
+   LA FRISE DES PROCÉDÉS — L'atelier, huit étapes numérotées à la verticale.
+   Les numéros : Fraunces, laiton clair, grand corps — jamais WONK (chiffres).
+   -------------------------------------------------------------------------- */
+.frise-procedes {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.frise-procede {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 1.5rem;
+  padding-block: 1.75rem;
+}
+.frise-procede:not(:last-child) {
+  border-bottom: 1px solid rgb(138 107 74 / 0.22);
+}
+.frise-procede__numero {
+  font-family: var(--font-display);
+  font-weight: 480;
+  font-size: clamp(2rem, 1.4rem + 2.2vw, 3rem);
+  line-height: 1;
+  color: var(--color-breande-laiton-clair);
+  font-variant-numeric: tabular-nums;
+}
+.frise-procede__titre {
+  font-family: var(--font-display);
+  font-size: var(--t-piece);
+  color: var(--color-breande-paper);
+  margin-bottom: 0.4rem;
+}
+.frise-procede__texte {
+  color: var(--color-breande-muted);
+  max-width: var(--mesure);
+}
+
+/* --------------------------------------------------------------------------
+   LE TABLEAU DES TEMPÉRATURES — L'atelier, un vrai <table> : ce n'est pas
+   une cotation, c'est un repère de métier. Bas de casse, filets fins,
+   jamais un quadrillage de catalogue.
+   -------------------------------------------------------------------------- */
+.tableau-lumiere {
+  width: 100%;
+  max-width: var(--mesure-large);
+  border-collapse: collapse;
+  font-size: var(--t-etiquette);
+}
+.tableau-lumiere caption {
+  text-align: left;
+  margin-bottom: 1rem;
+  color: var(--color-breande-muted);
+}
+.tableau-lumiere th,
+.tableau-lumiere td {
+  text-align: left;
+  padding: 0.85rem 1rem 0.85rem 0;
+  border-bottom: 1px solid rgb(138 107 74 / 0.25);
+  vertical-align: baseline;
+}
+.tableau-lumiere thead th {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-breande-laiton-clair);
+  border-bottom: 1px solid rgb(138 107 74 / 0.55);
+}
+.tableau-lumiere tbody th {
+  font-family: var(--font-display);
+  font-weight: 480;
+  color: var(--color-breande-paper);
+}
+.tableau-lumiere td {
+  color: var(--color-breande-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   LA COUPE DE MATIÈRE — comparateur avant/après manuel (L'atelier).
+   Deux images superposées, révélées par clip-path piloté par un input range
+   natif : accessible au clavier de fait, fonctionne sans script de mouvement
+   et sans ScrollTrigger — voir src/components/ComparateurCoupe.astro et
+   src/scripts/comparateur-coupe.ts.
+   -------------------------------------------------------------------------- */
+.comparateur-coupe {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  max-width: 34rem;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: var(--recoit-lumiere);
+  background-color: var(--color-breande-coal);
+  touch-action: pan-y;
+}
+@media (min-width: 640px) {
+  .comparateur-coupe {
+    aspect-ratio: 4 / 3;
+    max-width: 40rem;
+  }
+}
+.comparateur-coupe__couche {
+  position: absolute;
+  inset: 0;
+}
+.comparateur-coupe__couche picture,
+.comparateur-coupe__couche img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* Le dessin technique est le fond ; la photo se révèle par-dessus, de la
+   gauche vers --reveal (0 % à 100 %), pilotée en JS via une propriété
+   personnalisée — jamais un attribut style="" statique (CSP style-src). */
+.comparateur-coupe__photo {
+  clip-path: inset(0 calc(100% - var(--reveal, 50%)) 0 0);
+}
+.comparateur-coupe__trait {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--reveal, 50%);
+  width: 2px;
+  transform: translateX(-1px);
+  background: var(--laiton-brosse);
+  pointer-events: none;
+  z-index: 2;
+}
+.comparateur-coupe__curseur {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: ew-resize;
+}
+.comparateur-coupe__curseur::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+.comparateur-coupe__curseur::-moz-range-track {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+}
+.comparateur-coupe__curseur::-webkit-slider-thumb {
+  appearance: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-top: 0;
+  border-radius: 2px;
+  background: var(--laiton-brosse);
+  box-shadow: var(--ombre-contact);
+  cursor: ew-resize;
+}
+.comparateur-coupe__curseur::-moz-range-thumb {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 2px;
+  background: var(--laiton-brosse);
+  box-shadow: var(--ombre-contact);
+  cursor: ew-resize;
+}
+.comparateur-coupe__legende {
+  margin-top: 1rem;
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+}
+
+/* --------------------------------------------------------------------------
+   LA GRILLE DES COLLECTIONS — rythme de tailles (grand / petit / moyen).
+   Le plein-bord d'une ligne sur trois se compose directement dans la page
+   (collections/index.astro), avec <Bandeau pleinBord>, en alternant le
+   côté — jamais les deux côtés à la fois (ADR direction artistique).
+   -------------------------------------------------------------------------- */
+.grille-collections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+@media (min-width: 640px) {
+  .grille-collections {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+}
+
+/* Carte de pièce en plein-bord : image touchant le bord réel, corps texte
+   dans la marge active de l'autre côté. Réutilise carte-piece__nom etc. */
+.carte-piece-large {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+@media (min-width: 768px) {
+  .carte-piece-large {
+    grid-template-columns: 1.3fr 1fr;
+    gap: 3rem;
+  }
+}
+.carte-piece-large__cadre {
+  display: block;
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+}
+.carte-piece-large__cadre picture,
+.carte-piece-large__cadre img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.carte-piece-large__nom {
+  font-family: var(--font-display);
+  font-size: var(--t-section);
+  color: var(--color-breande-paper);
+  text-decoration: none;
+  line-height: 1.1;
+}
+.carte-piece-large__specs {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------------------------------------------------
+   CORPS DE FICHE — le récit markdown d'une pièce (<Content />), simples
+   paragraphes sans plugin typographique.
+   -------------------------------------------------------------------------- */
+.corps-piece p + p {
+  margin-top: 1.1rem;
+}
+
+/* --------------------------------------------------------------------------
+   FICHE DE PIÈCE — caractéristiques en liste, filets de laiton. Le marqueur
+   interdit est un TABLEAU DE COTATION : ceci est une <dl>, jamais un
+   <table>.
+   -------------------------------------------------------------------------- */
+.fiche-caracteristiques {
+  display: grid;
+  gap: 0;
+}
+.fiche-caracteristiques__ligne {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 1rem 1.5rem;
+  padding-block: 0.9rem;
+  border-bottom: 1px solid rgb(138 107 74 / 0.25);
+}
+.fiche-caracteristiques__ligne:first-child {
+  border-top: 1px solid rgb(138 107 74 / 0.25);
+}
+.fiche-caracteristiques dt {
+  color: var(--color-breande-laiton-clair);
+  font-size: var(--t-etiquette);
+}
+.fiche-caracteristiques dd {
+  margin: 0;
+  color: var(--color-breande-paper);
+}
+
+/* --------------------------------------------------------------------------
+   SERVICES — inclus / non inclus, liste des tarifs (JAMAIS un tableau de
+   cotation), étapes de commande.
+   -------------------------------------------------------------------------- */
+.service-travee {
+  display: grid;
+  gap: 2.5rem;
+}
+@media (min-width: 900px) {
+  .service-travee {
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5rem;
+    align-items: start;
+  }
+}
+.service-travee__image {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: var(--recoit-lumiere);
+}
+.service-travee__image picture,
+.service-travee__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.deux-listes {
+  display: grid;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+@media (min-width: 560px) {
+  .deux-listes {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.deux-listes h3 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--t-etiquette);
+  color: var(--color-breande-laiton-clair);
+  margin-bottom: 0.6rem;
+}
+.deux-listes ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--color-breande-muted);
+}
+.deux-listes li {
+  padding-left: 1.1rem;
+  position: relative;
+}
+.deux-listes li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 6px;
+  height: 1px;
+  background: var(--laiton-brosse);
+}
+
+.liste-tarifs {
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+.liste-tarifs__ligne {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  padding-block: 1rem;
+  border-bottom: 1px solid rgb(138 107 74 / 0.25);
+}
+.liste-tarifs__ligne:first-child {
+  border-top: 1px solid rgb(138 107 74 / 0.25);
+}
+@media (min-width: 640px) {
+  .liste-tarifs__ligne {
+    grid-template-columns: 1.6fr 1fr 1fr;
+    gap: 1rem;
+    align-items: baseline;
+  }
+}
+.liste-tarifs__prestation {
+  font-family: var(--font-display);
+  color: var(--color-breande-paper);
+}
+.liste-tarifs__fourchette {
+  color: var(--color-breande-laiton-clair);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-etiquette);
+}
+.liste-tarifs__delai {
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+}
+
+.frise-etapes {
+  display: grid;
+  gap: 1.75rem;
+}
+@media (min-width: 768px) {
+  .frise-etapes {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem 1.75rem;
+  }
+}
+.frise-etape__numero {
+  font-family: var(--font-display);
+  font-size: var(--t-piece);
+  color: var(--color-breande-laiton-clair);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.5rem;
+}
+.frise-etape__titre {
+  color: var(--color-breande-paper);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.frise-etape__texte {
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+}
+
+/* --------------------------------------------------------------------------
+   FAQ — accordéon natif <details>, révélation par grid-template-rows
+   0fr → 1fr, --ms-etat. Pas de JS : le navigateur gère déjà l'état ouvert.
+   -------------------------------------------------------------------------- */
+.accordeon {
+  display: flex;
+  flex-direction: column;
+}
+.accordeon-item {
+  border-bottom: 1px solid rgb(138 107 74 / 0.25);
+}
+.accordeon-item:first-child {
+  border-top: 1px solid rgb(138 107 74 / 0.25);
+}
+.accordeon-item__resume {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.25rem;
+  font-family: var(--font-display);
+  font-size: var(--t-corps);
+  color: var(--color-breande-paper);
+}
+.accordeon-item__resume::-webkit-details-marker {
+  display: none;
+}
+.accordeon-item__resume::marker {
+  content: '';
+}
+.accordeon-item__icone {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  position: relative;
+}
+.accordeon-item__icone::before,
+.accordeon-item__icone::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--laiton-brosse);
+  transform: translate(-50%, -50%);
+  transition: transform var(--ms-etat) var(--ease-etat);
+}
+.accordeon-item__icone::before {
+  width: 1rem;
+  height: 1px;
+}
+.accordeon-item__icone::after {
+  width: 1px;
+  height: 1rem;
+}
+.accordeon-item[open] .accordeon-item__icone::after {
+  transform: translate(-50%, -50%) rotate(90deg) scaleY(0);
+}
+.accordeon-item__corps {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--ms-etat) var(--ease-etat);
+}
+.accordeon-item[open] .accordeon-item__corps {
+  grid-template-rows: 1fr;
+}
+.accordeon-item__corps-interieur {
+  overflow: hidden;
+}
+.accordeon-item__reponse {
+  padding-bottom: 1.25rem;
+  max-width: var(--mesure-large);
+  color: var(--color-breande-muted);
+}
+
+/* --------------------------------------------------------------------------
+   CONTACT — deux colonnes à partir de 1024 px.
+   -------------------------------------------------------------------------- */
+.contact-colonnes {
+  display: grid;
+  gap: 3rem;
+}
+@media (min-width: 1024px) {
+  .contact-colonnes {
+    grid-template-columns: minmax(0, 30rem) 1fr;
+    gap: 4.5rem;
+    align-items: start;
+  }
+}
+.contact-bloc + .contact-bloc {
+  margin-top: 2.25rem;
+}
+.contact-bloc__titre {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--t-etiquette);
+  color: var(--color-breande-laiton-clair);
+  margin-bottom: 0.6rem;
+}
+.contact-bloc__texte {
+  color: var(--color-breande-muted);
+}
+.liste-zone {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
+  list-style: none;
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+}
+.liste-zone li:not(:last-child)::after {
+  content: '·';
+  margin-left: 0.9rem;
+  color: var(--color-breande-brass);
+}
+.liste-etapes-suite {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  list-style: none;
+  counter-reset: etape-suite;
+}
+.liste-etapes-suite li {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 1rem;
+  color: var(--color-breande-muted);
+}
+.liste-etapes-suite li::before {
+  counter-increment: etape-suite;
+  content: counter(etape-suite);
+  font-family: var(--font-display);
+  color: var(--color-breande-laiton-clair);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- vague B : le variateur ------------------------------------------------
+   Quand le canevas 3D est monte, l'image de repli s'efface en 450 ms — la
+   substitution, jamais la coexistence : on ne montre pas deux lampes. Le
+   reglage (molette + bouton) reste au-dessus du canevas, qui est transparent
+   au pointeur. Le bouton n'existe que sous 1024 px : au-dela, la scene se
+   charge a l'approche et un bouton inerte serait un mensonge d'interface. */
+[data-scene] { position: relative; }
+[data-scene] canvas { z-index: 1; }
+.bande-scene__reglage { position: relative; z-index: 2; }
+.bande-scene__repli { transition: opacity 450ms ease-out; }
+[data-scene][data-scene-active='oui'] .bande-scene__repli { opacity: 0; }
+.bande-scene__molette { cursor: ew-resize; touch-action: none; }
+.bande-scene__molette:focus-visible { outline: 2px solid var(--color-breande-amber); outline-offset: 6px; }
+@media (min-width: 64rem) {
+  .bande-scene__bouton { display: none; }
+}

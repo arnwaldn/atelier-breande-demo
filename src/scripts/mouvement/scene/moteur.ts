@@ -310,6 +310,23 @@ async function monterScene(
     },
   });
 
+  // LA MOLETTE PREND LA MAIN. Le defilement amene l'allumage tout seul ;
+  // des que le visiteur touche la molette, c'est LUI qui commande — le
+  // variateur, litteralement. Le scrub est tue, sans retour : un reglage
+  // qui se referait defaire par le defilement serait une main fantome.
+  let mainAuVisiteur = false;
+  const surReglage = (e: Event): void => {
+    const detail = (e as CustomEvent<{ t: number }>).detail;
+    if (!mainAuVisiteur) {
+      mainAuVisiteur = true;
+      declencheur.kill();
+      hote.removeEventListener('breande-reglage', surReglage);
+    }
+    allumage.valeur = detail.t;
+    appliquer();
+  };
+  hote.addEventListener('breande-reglage', surReglage);
+
   // Une seule horloge : gsap.ticker. Hors du champ ou onglet caché : rien ne
   // tourne. Le gouverneur juge sur le 95e centile — voir qualite.ts.
   const gouverneur = new Gouverneur();

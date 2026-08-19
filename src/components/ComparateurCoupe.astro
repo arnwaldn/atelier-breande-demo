@@ -1,0 +1,50 @@
+---
+/**
+ * ComparateurCoupe.astro — la coupe de matière (ADR direction artistique,
+ * moment de bravoure n°3) : un trait de laiton traverse la photo d'une
+ * suspension ; derrière lui, le dessin technique au trait, calé au pixel.
+ *
+ * PAS de ScrollTrigger : le geste est VOLONTAIRE, porté par un
+ * <input type="range"> natif — accessible au clavier de fait, fonctionne à
+ * l'identique sous prefers-reduced-motion (voir src/scripts/comparateur-coupe.ts).
+ * Le dessin est la couche de fond, la photo se révèle par-dessus de la
+ * gauche vers la valeur du curseur.
+ */
+import type { ImageMetadata } from 'astro';
+import Visuel from './Visuel.astro';
+
+interface Props {
+  photo: ImageMetadata;
+  photoAlt: string;
+  dessin: ImageMetadata;
+  dessinAlt: string;
+  class?: string;
+}
+
+const { photo, photoAlt, dessin, dessinAlt, class: className } = Astro.props;
+---
+
+<figure class:list={['comparateur-coupe', className]} data-comparateur-coupe>
+  <div class="comparateur-coupe__couche">
+    <Visuel src={dessin} alt={dessinAlt} widths={[400, 700, 1000]} sizes="(min-width: 640px) 40rem, 90vw" />
+  </div>
+  <div class="comparateur-coupe__couche comparateur-coupe__photo">
+    <Visuel src={photo} alt={photoAlt} widths={[400, 700, 1000]} sizes="(min-width: 640px) 40rem, 90vw" />
+  </div>
+  <div class="comparateur-coupe__trait" aria-hidden="true"></div>
+  <input
+    type="range"
+    class="comparateur-coupe__curseur"
+    min="0"
+    max="100"
+    value="50"
+    step="1"
+    data-comparateur-curseur
+    aria-label="Comparer la photo de la pièce et son dessin technique : déplacer pour révéler l’un ou l’autre"
+  />
+  <figcaption class="comparateur-coupe__legende">
+    Déplacez le trait de laiton : à gauche le dessin technique, à droite la pièce photographiée.
+  </figcaption>
+</figure>
+
+<script src="../scripts/comparateur-coupe.ts"></script>

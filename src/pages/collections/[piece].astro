@@ -1,0 +1,125 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Bandeau from '../../components/Bandeau.astro';
+import TitreSection from '../../components/TitreSection.astro';
+import EtiquetteTechnique from '../../components/EtiquetteTechnique.astro';
+import FicheCaracteristiques from '../../components/FicheCaracteristiques.astro';
+import AppelAction from '../../components/AppelAction.astro';
+import Visuel from '../../components/Visuel.astro';
+import { services } from '../../data/services';
+
+export async function getStaticPaths() {
+  const pieces = await getCollection('pieces');
+  return pieces.map((piece) => ({
+    params: { piece: piece.id },
+    props: { piece },
+  }));
+}
+
+const { piece } = Astro.props;
+const { Content } = await render(piece);
+const d = piece.data;
+
+const voisines = (
+  await Promise.all(d.piecesVoisines.map((slug) => getEntry('pieces', slug)))
+).filter((p) => p !== undefined);
+
+const serviceLie = services.find((s) => s.id === d.serviceLie);
+
+const lignesCaracteristiques = [
+  { etiquette: 'matières', valeur: d.matieres.join('  ·  ') },
+  { etiquette: 'finition', valeur: d.finition },
+  { etiquette: 'dimensions', valeur: d.dimensions },
+  { etiquette: 'lumière', valeur: d.lumiere },
+  { etiquette: 'fabrication', valeur: d.fabrication },
+  { etiquette: 'contexte de pose', valeur: d.contexteDePose },
+  { etiquette: 'prix', valeur: d.prix },
+  ...(d.declinaisons ? [{ etiquette: 'déclinaisons', valeur: d.declinaisons }] : []),
+  { etiquette: 'délai courant', valeur: d.delaiCourant },
+];
+---
+<BaseLayout
+  title={`${d.nom} — Atelier Bréande (site de démonstration)`}
+  description={`Site de démonstration : Atelier Bréande est un atelier fictif. ${d.chapo}`}
+>
+  <Bandeau jour={1} ariaLabelledby="titre-piece">
+    <EtiquetteTechnique items={[d.typologie.replaceAll('-', ' ')]} />
+    <h1 id="titre-piece" class="titre-wonk mt-2 max-w-3xl text-breande-paper text-[length:var(--t-section)]">
+      {d.nom}
+    </h1>
+    <p class="mesure-large mt-4 text-breande-muted">{d.chapo}</p>
+    <div class="mt-8 overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]" data-revelation>
+      <Visuel
+        src={d.image}
+        alt={d.imageAlt}
+        prioritaire
+        sizes="(min-width: 1024px) 70vw, 100vw"
+        widths={[480, 900, 1400, 2000]}
+      />
+    </div>
+  </Bandeau>
+
+  <Bandeau jour={2}>
+    <div class="mesure-large corps-piece text-breande-paper" data-revelation>
+      <Content />
+    </div>
+  </Bandeau>
+
+  <Bandeau jour={3} ariaLabelledby="titre-caracteristiques">
+    <TitreSection texte="Caractéristiques" id="titre-caracteristiques" filet />
+    <FicheCaracteristiques lignes={lignesCaracteristiques} class="mt-8 max-w-2xl" />
+  </Bandeau>
+
+  {
+    d.galerie.length > 0 && (
+      <Bandeau jour={3} ariaLabelledby="titre-galerie">
+        <TitreSection texte="En situation" id="titre-galerie" filet />
+        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+          {d.galerie.map((image, i) => (
+            <div class="aspect-[4/3] overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]" data-revelation class:list={[`cascade-${i + 1}`]}>
+              <Visuel src={image.fichier} alt={image.alt} sizes="(min-width: 640px) 50vw, 100vw" class="h-full w-full object-cover" />
+            </div>
+          ))}
+        </div>
+      </Bandeau>
+    )
+  }
+
+  <Bandeau jour={4}>
+    <div class="grid gap-8 sm:grid-cols-2" data-revelation>
+      {
+        voisines.map((v) => v && (
+          <a href={`/collections/${v.id}`} class="carte-piece">
+            <span class="carte-piece__cadre">
+              <Visuel src={v.data.image} alt={v.data.imageAlt} sizes="50vw" class="carte-piece__image" />
+            </span>
+            <span class="carte-piece__corps">
+              <EtiquetteTechnique items={v.data.matieres} />
+              <span class="carte-piece__nom">{v.data.nom}</span>
+              <span class="carte-piece__specs">
+                <span>à partir de {v.data.prix}</span>
+                <span aria-hidden="true">·</span>
+                <span>{v.data.delaiCourant}</span>
+              </span>
+            </span>
+          </a>
+        ))
+      }
+    </div>
+
+    {
+      serviceLie && (
+        <p class="mesure mt-10 text-breande-muted" data-revelation>
+          Cette pièce relève de notre service{' '}
+          <a href={`/services#${serviceLie.ancre}`} class="etiquette">{serviceLie.titre}</a>.
+        </p>
+      )
+    }
+
+    <div class="mt-10 border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
+      <AppelAction texte="Demander une pièce approchante" href="/contact" variante="plein" />
+      <AppelAction texte="Voir toutes les pièces" href="/collections" variante="filet" class="ml-4" />
+    </div>
+  </Bandeau>
+</BaseLayout>

@@ -28,14 +28,6 @@ export interface Service {
   livrable?: string;
   /** Slugs de fiches à montrer avec la prestation. */
   piecesLiees: string[];
-  /**
-   * HÉRITAGE — consommés par l’ancienne carte de service
-   * (src/components/ServiceCard.astro). À supprimer AVEC elle : le libellé
-   * « Ce que cela vous apporte » du gabarit est banni (docs/PRD.md § 1.3) ;
-   * `accroche` et `corps` le remplacent.
-   */
-  description: string;
-  apport: string;
 }
 
 export const servicesEnTete = {
@@ -78,10 +70,6 @@ export const services: Service[] = [
       'la position des points lumineux existants',
     ],
     piecesLiees: ['imposte', 'encorbellement'],
-    description:
-      'Nous concevons avec vous un luminaire unique, du premier croquis à la pose : choix des matières, proportions, teinte de la lumière.',
-    apport:
-      'Une pièce dessinée pour votre plafond, votre table et vos habitudes du soir, réglée chez vous après la pose.',
   },
   {
     id: 'restauration',
@@ -116,10 +104,6 @@ export const services: Service[] = [
       'les marques, plaques ou numéros s’il y en a',
     ],
     piecesLiees: ['suspension-1930'],
-    description:
-      'Nous remettons en état les luminaires anciens : dépose complète du circuit, remise aux normes, redressage et reprise des finitions, dans le respect de la pièce.',
-    apport:
-      'Une pièce de famille qui se rallume sans risque, avec ses marques d’usage et sa patine conservées.',
   },
   {
     id: 'conseil',
@@ -147,10 +131,6 @@ export const services: Service[] = [
     livrable:
       'Un plan pièce par pièce, remis en PDF.',
     piecesLiees: ['cerce', 'larmier'],
-    description:
-      'Nous accompagnons particuliers et architectes d’intérieur pour décider, pièce par pièce, où va la lumière : implantation, intensités, températures, variateurs.',
-    apport:
-      'Un plan remis avant les travaux, qui évite les points mal placés et les rattrapages une fois les cloisons fermées.',
   },
 ];
 
