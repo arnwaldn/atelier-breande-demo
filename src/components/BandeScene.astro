@@ -1,0 +1,74 @@
+---
+/**
+ * BandeScene.astro — l'hôte du futur bloc 3D (le variateur, moment de
+ * bravoure n°2 de l'ADR direction artistique).
+ *
+ * [data-scene] est le point d'ancrage que le lot 3D branchera plus tard :
+ * pour l'instant, il affiche l'image de repli (fournie par l'appelant via le
+ * slot par défaut, avec Visuel.astro) et une molette SVG décorative, en
+ * laiton, graduée de 2 200 à 4 000 K avec un curseur FIXE à 2 700 K. Le
+ * bouton « régler la lumière » est volontairement inerte (aria-disabled) :
+ * rien ne se passe au clic tant que le fragment WebGL n'est pas branché.
+ *
+ * Critère de recette n°6 : ce bloc doit être beau SANS JavaScript ni WebGL —
+ * c'est la seule chose que ce composant a la charge de garantir.
+ */
+import AppelAction from './AppelAction.astro';
+
+interface Props {
+  id?: string;
+  class?: string;
+}
+
+const { id, class: className } = Astro.props;
+---
+
+<div id={id} class:list={['bande-scene', className]} data-scene>
+  <div class="bande-scene__repli">
+    <slot />
+  </div>
+
+  <div class="bande-scene__reglage">
+    <svg
+      class="bande-scene__molette"
+      viewBox="0 0 200 130"
+      role="img"
+      aria-label="Molette de réglage de la température de lumière, graduée de 2 200 à 4 000 kelvins, actuellement calée sur 2 700 kelvins"
+    >
+      <defs>
+        <linearGradient id="bande-scene-laiton" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#6a4f35" />
+          <stop offset="22%" stop-color="#b08d63" />
+          <stop offset="41%" stop-color="#e4c79a" />
+          <stop offset="63%" stop-color="#8a6b4a" />
+          <stop offset="100%" stop-color="#c7a377" />
+        </linearGradient>
+      </defs>
+
+      <path
+        class="bande-scene__arc"
+        d="M20,100 A80,80 0 0 1 180,100"
+        fill="none"
+        stroke-width="3"
+        stroke-linecap="round"
+      />
+
+      <g class="bande-scene__graduations" stroke-width="2" stroke-linecap="round">
+        <line x1="20" y1="100" x2="27.7" y2="88.4" />
+        <line x1="86.1" y1="21.2" x2="88" y2="31" />
+        <line x1="140" y1="30.7" x2="135.4" y2="39.3" />
+        <line x1="180" y1="100" x2="172.3" y2="88.4" />
+      </g>
+
+      <line class="bande-scene__curseur" x1="100" y1="100" x2="48.6" y2="38.7" stroke-width="3" stroke-linecap="round" />
+      <circle class="bande-scene__curseur-point" cx="48.6" cy="38.7" r="5" />
+      <circle class="bande-scene__moyeu" cx="100" cy="100" r="6" />
+
+      <text class="bande-scene__label" x="12" y="119">2 200</text>
+      <text class="bande-scene__label" x="158" y="119">4 000</text>
+      <text class="bande-scene__label bande-scene__label--actif" x="30" y="34">2 700 K</text>
+    </svg>
+
+    <AppelAction texte="Régler la lumière" variante="filet" disabled class="bande-scene__bouton" />
+  </div>
+</div>

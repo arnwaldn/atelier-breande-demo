@@ -1,0 +1,20 @@
+---
+/**
+ * ChiffreCle.astro — un chiffre d'atelier (année, nombre de pièces, délai...),
+ * en tabulaires. JAMAIS animé : la direction artistique interdit
+ * explicitement les compteurs qui s'incrémentent — un chiffre d'atelier se
+ * lit, il ne se joue pas.
+ */
+interface Props {
+  valeur: string;
+  libelle: string;
+  class?: string;
+}
+
+const { valeur, libelle, class: className } = Astro.props;
+---
+
+<p class:list={['chiffre-cle', className]}>
+  <span class="chiffre-cle__valeur">{valeur}</span>
+  <span class="chiffre-cle__libelle">{libelle}</span>
+</p>

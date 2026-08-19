@@ -1,0 +1,53 @@
+---
+/**
+ * AppelAction.astro — bouton plein ambre (appel principal) ou filet de
+ * laiton (appel secondaire). Rendu en <a> quand un `href` est fourni
+ * (navigation), en <button type="button"> sinon — utile pour un appel
+ * volontairement inerte (voir BandeScene, « régler la lumière »).
+ *
+ * Angles à 2 px : le laiton se plie, il ne s'arrondit pas.
+ */
+interface Props {
+  texte: string;
+  href?: string;
+  variante?: 'plein' | 'filet';
+  /** Rendu inerte : aria-disabled plutôt que l'attribut disabled natif, pour
+      rester perceptible et focusable au clavier tout en n'ayant aucun effet. */
+  disabled?: boolean;
+  ariaDescribedby?: string;
+  class?: string;
+}
+
+const {
+  texte,
+  href,
+  variante = 'plein',
+  disabled = false,
+  ariaDescribedby,
+  class: className,
+} = Astro.props;
+
+const classesCommunes = [
+  'appel-action',
+  variante === 'plein' ? 'appel-action--plein' : 'appel-action--filet',
+  disabled && 'appel-action--inerte',
+  className,
+];
+---
+
+{
+  href && !disabled ? (
+    <a href={href} aria-describedby={ariaDescribedby} class:list={classesCommunes}>
+      {texte}
+    </a>
+  ) : (
+    <button
+      type="button"
+      aria-disabled={disabled ? 'true' : undefined}
+      aria-describedby={ariaDescribedby}
+      class:list={classesCommunes}
+    >
+      {texte}
+    </button>
+  )
+}

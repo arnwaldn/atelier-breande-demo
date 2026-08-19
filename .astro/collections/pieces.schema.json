@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "nom": {
+      "type": "string"
+    },
+    "typologie": {
+      "type": "string",
+      "enum": [
+        "suspension",
+        "applique",
+        "lampe-a-poser",
+        "lampadaire",
+        "plafonnier",
+        "restauration"
+      ]
+    },
+    "annee": {
+      "type": "integer",
+      "minimum": 2022,
+      "maximum": 2026
+    },
+    "image": {
+      "type": "string"
+    },
+    "imageAlt": {
+      "type": "string",
+      "minLength": 10
+    },
+    "galerie": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "fichier": {
+            "type": "string"
+          },
+          "alt": {
+            "type": "string",
+            "minLength": 10
+          }
+        },
+        "required": [
+          "fichier",
+          "alt"
+        ]
+      }
+    },
+    "chapo": {
+      "type": "string"
+    },
+    "matieres": {
+      "minItems": 2,
+      "maxItems": 6,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "finition": {
+      "type": "string"
+    },
+    "dimensions": {
+      "type": "string"
+    },
+    "lumiere": {
+      "type": "string"
+    },
+    "fabrication": {
+      "type": "string"
+    },
+    "contexteDePose": {
+      "type": "string"
+    },
+    "prix": {
+      "type": "string"
+    },
+    "declinaisons": {
+      "type": "string"
+    },
+    "delaiCourant": {
+      "type": "string"
+    },
+    "piecesVoisines": {
+      "minItems": 2,
+      "maxItems": 2,
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "serviceLie": {
+      "type": "string",
+      "enum": [
+        "creation",
+        "restauration",
+        "conseil"
+      ]
+    },
+    "ordre": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "vedette": {
+      "default": false,
+      "type": "boolean"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nom",
+    "typologie",
+    "annee",
+    "image",
+    "imageAlt",
+    "chapo",
+    "matieres",
+    "finition",
+    "dimensions",
+    "lumiere",
+    "fabrication",
+    "contexteDePose",
+    "prix",
+    "delaiCourant",
+    "piecesVoisines",
+    "serviceLie",
+    "ordre"
+  ]
+}

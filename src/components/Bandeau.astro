@@ -1,0 +1,48 @@
+---
+/**
+ * Bandeau.astro — section pleine largeur du variateur.
+ *
+ * `jour` pose l'attribut data-jour (1 à 5), consommé par les règles
+ * [data-jour="…"] de global.css : c'est lui qui fixe --part-de-jour et la
+ * couleur de lumière de la section pour l'échelle des kelvins.
+ *
+ * `pleinBord` retire le remplissage d'UN SEUL côté (gauche OU droite), pour
+ * les compositions où une image touche le bord réel de la fenêtre — jamais
+ * les deux côtés à la fois : l'écriture visuelle du site est asymétrique
+ * (« la lumière tourne » en descendant la page).
+ */
+export type PalierJour = 1 | 2 | 3 | 4 | 5;
+
+interface Props {
+  jour: PalierJour;
+  pleinBord?: 'gauche' | 'droite' | null;
+  id?: string;
+  ariaLabelledby?: string;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const {
+  jour,
+  pleinBord = null,
+  id,
+  ariaLabelledby,
+  ariaLabel,
+  class: className,
+} = Astro.props;
+---
+
+<section
+  id={id}
+  data-jour={jour}
+  aria-labelledby={ariaLabelledby}
+  aria-label={ariaLabelledby ? undefined : ariaLabel}
+  class:list={[
+    'bandeau',
+    pleinBord === 'gauche' && 'bandeau--plein-gauche',
+    pleinBord === 'droite' && 'bandeau--plein-droite',
+    className,
+  ]}
+>
+  <slot />
+</section>

@@ -1,0 +1,22 @@
+---
+/**
+ * TitreSection.astro — h2 bas de casse + filet laiton optionnel.
+ *
+ * Le texte est fourni bas de casse par l'appelant (le composant ne le
+ * transforme jamais : une capitale imposée en CSS romprait la citation
+ * exacte d'un nom propre glissé dans un titre).
+ */
+interface Props {
+  texte: string;
+  id?: string;
+  filet?: boolean;
+  class?: string;
+}
+
+const { texte, id, filet = false, class: className } = Astro.props;
+---
+
+<div class:list={['titre-section', className]}>
+  <h2 id={id}>{texte}</h2>
+  {filet && <hr class="filet-laiton mt-4 max-w-32" aria-hidden="true" />}
+</div>

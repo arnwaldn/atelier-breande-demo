@@ -1,0 +1,98 @@
+---
+/**
+ * EnTete.astro — remplace Header.astro.
+ *
+ * Transparent sur le seuil, scellé au défilement (fond nuit à 92 % + filet
+ * de laiton) par IntersectionObserver sur la sentinelle posée dans
+ * BaseLayout — jamais d'écouteur scroll (voir src/scripts/en-tete.ts).
+ *
+ * Cinq entrées + un bouton persistant. En dessous de 1024 px (seuil vérifié
+ * en recette : à 768 px, logo + 5 entrées + bouton débordent encore sur une
+ * ligne), les cinq entrées et le bouton passent dans un <details> accessible
+ * (pas de JS) — le repli explicitement autorisé par la mission, retenu
+ * plutôt qu'un texte écrasé illisible.
+ *
+ * Le logotype : le seul élément en ambre de tout le site est l'accent aigu
+ * du é de « Bréande » — jamais la lettre entière. Le reste du mot reste en
+ * papier. Un halo (jamais un mouvement de l'accent) apparaît au survol.
+ */
+import AppelAction from './AppelAction.astro';
+
+const liens = [
+  { href: '/', libelle: 'accueil' },
+  { href: '/latelier', libelle: 'l’atelier' },
+  { href: '/collections', libelle: 'collections' },
+  { href: '/services', libelle: 'services' },
+  { href: '/contact', libelle: 'contact' },
+] as const;
+
+const cheminCourant = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+function estActif(href: string) {
+  return cheminCourant === href;
+}
+---
+
+<header class="entete" data-entete>
+  <div class="entete__cadre">
+    <a href="/" class="logotype" aria-label="Atelier Bréande — retour à l’accueil">
+      <span class="logotype__mot" aria-hidden="true"
+        >Atelier Br<span class="logotype__e-hote"
+          ><span class="logotype__e">e</span><span class="logotype__accent"></span></span
+        >ande</span
+      >
+    </a>
+
+    <nav aria-label="Navigation principale" class="entete__nav-desktop">
+      <ul>
+        {
+          liens.map((lien) => (
+            <li>
+              <a
+                href={lien.href}
+                aria-current={estActif(lien.href) ? 'page' : undefined}
+                class:list={['entete__lien', estActif(lien.href) && 'entete__lien--actif']}
+              >
+                {lien.libelle}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="entete__actions">
+      <AppelAction texte="Prendre rendez-vous" href="/contact" variante="plein" class="entete__cta" />
+
+      <details class="entete__menu-mobile">
+        <summary aria-label="Menu">
+          <span class="entete__icone-menu" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+        </summary>
+        <div class="entete__panneau-mobile">
+          <nav aria-label="Navigation principale">
+            <ul>
+              {
+                liens.map((lien) => (
+                  <li>
+                    <a
+                      href={lien.href}
+                      aria-current={estActif(lien.href) ? 'page' : undefined}
+                      class:list={['entete__lien', estActif(lien.href) && 'entete__lien--actif']}
+                    >
+                      {lien.libelle}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+          <AppelAction texte="Prendre rendez-vous" href="/contact" variante="plein" class="entete__cta-mobile" />
+        </div>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script src="../scripts/en-tete.ts"></script>

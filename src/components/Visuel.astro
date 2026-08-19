@@ -1,0 +1,53 @@
+---
+/**
+ * Visuel.astro — l'UNIQUE porte vers astro:assets du projet.
+ *
+ * Toute image traitée par la construction (fiches de pièces, photos
+ * éditoriales) passe par ce composant, jamais par un import direct de
+ * <Picture> ou <Image> ailleurs : c'est ici, et nulle part ailleurs, que se
+ * décident les formats servis et le format de repli.
+ *
+ * JAMAIS `image.layout` — hors périmètre de ce projet (voir ADR budget).
+ */
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  /** Texte alternatif — OBLIGATOIRE. Une image sans alt est un défaut, pas un détail. */
+  alt: string;
+  widths?: number[];
+  sizes?: string;
+  /** Une seule image « prioritaire » par page : LCP, chargement immédiat. */
+  prioritaire?: boolean;
+  class?: string;
+}
+
+const {
+  src,
+  alt,
+  widths = [480, 800, 1200, 1600],
+  sizes = '100vw',
+  prioritaire = false,
+  class: className,
+} = Astro.props;
+
+if (!alt || alt.trim().length === 0) {
+  throw new Error(
+    'Visuel.astro : la prop « alt » est obligatoire et ne peut pas être vide (image sans texte alternatif).'
+  );
+}
+---
+
+<Picture
+  src={src}
+  alt={alt}
+  formats={['avif', 'webp']}
+  fallbackFormat="jpg"
+  widths={widths}
+  sizes={sizes}
+  loading={prioritaire ? 'eager' : 'lazy'}
+  fetchpriority={prioritaire ? 'high' : 'auto'}
+  decoding={prioritaire ? 'sync' : 'async'}
+  class={className}
+/>

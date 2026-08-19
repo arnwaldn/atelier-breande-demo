@@ -1,0 +1,17 @@
+---
+/**
+ * EtiquetteTechnique.astro — une étiquette d'établi, pas une ligne de
+ * catalogue. S'appuie sur la classe .etiquette de global.css (bas de casse,
+ * filet de laiton devant, tabular-nums pour les kelvins).
+ *
+ * Exemple : « laiton brossé · verre ambré · 2 700 K »
+ */
+interface Props {
+  items: string[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<p class:list={['etiquette', className]}>{items.join('  ·  ')}</p>

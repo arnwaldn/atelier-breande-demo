@@ -1,15 +1,28 @@
 ---
 import '../styles/global.css';
 import SeoHead from '../components/SeoHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import EnTete from '../components/EnTete.astro';
+import PiedDePage from '../components/PiedDePage.astro';
+import EchelleKelvins from '../components/EchelleKelvins.astro';
 
 interface Props {
   title: string;
   description: string;
-  heroPleinEcran?: boolean; // accueil : le header se pose sur l'image
+  /** true : l'en-tête se pose SUR le contenu (hero plein écran géré par la
+      page elle-même, qui réserve sa propre marge sous l'en-tête). false :
+      <main> réserve la hauteur de l'en-tête, pour ne rien couvrir. */
+  heroPleinEcran?: boolean;
+  /** Props transmises telles quelles à PiedDePage (zone, horaires). */
+  piedZone?: string;
+  piedHoraires?: string;
 }
-const { title, description, heroPleinEcran = false } = Astro.props;
+const {
+  title,
+  description,
+  heroPleinEcran = false,
+  piedZone,
+  piedHoraires,
+} = Astro.props;
 ---
 <!doctype html>
 <html lang="fr">
@@ -19,11 +32,18 @@ const { title, description, heroPleinEcran = false } = Astro.props;
     <link rel="preload" href="/polices/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
   </head>
   <body class="grain">
+    {/* Hors flux, ne pousse jamais le contenu : voir global.css. */}
+    <div class="sentinelle-entete" data-sentinelle-entete aria-hidden="true"></div>
+
     <a class="skip-link" href="#contenu">Aller au contenu</a>
-    <Header surImage={heroPleinEcran} />
-    <main id="contenu" class="mx-auto max-w-5xl px-4">
+
+    <EnTete />
+    <EchelleKelvins />
+
+    <main id="contenu" class:list={['mx-auto max-w-5xl px-4', !heroPleinEcran && 'pt-[var(--hauteur-entete)]']}>
       <slot />
     </main>
-    <Footer />
+
+    <PiedDePage zone={piedZone} horaires={piedHoraires} />
   </body>
 </html>

@@ -1,0 +1,21 @@
+---
+/**
+ * EchelleKelvins.astro — la marge active.
+ *
+ * Colonne décorative ancrée au bord gauche du viewport : visible en colonne
+ * complète (trait de laiton + valeur courante) à partir de 1024 px, réduite
+ * à un filet de 2 px sous ce seuil — seule sa couleur varie alors, par
+ * palier, selon la section actuellement au centre de l'écran (voir
+ * src/scripts/echelle-kelvins.ts, IntersectionObserver sur [data-jour]).
+ *
+ * Purement décoratif — aria-hidden : la même information (le sujet de la
+ * section) existe dans le contenu visible de la page.
+ */
+---
+
+<aside class="echelle-kelvins" data-echelle-kelvins data-palier="1" aria-hidden="true">
+  <span class="echelle-kelvins__trait"></span>
+  <span class="echelle-kelvins__valeur" data-echelle-valeur>5 000 K</span>
+</aside>
+
+<script src="../scripts/echelle-kelvins.ts"></script>

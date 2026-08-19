@@ -1,0 +1,65 @@
+---
+/**
+ * PiedDePage.astro — remplace Footer.astro.
+ *
+ * Logotype à TAILLE DE TEXTE : le logotype monumental en pied de page est un
+ * marqueur de la démo sœur (Maison Vaubrune), explicitement interdit par
+ * l'ADR direction artistique — ici, une simple mention en corps de texte.
+ *
+ * zone/horaires sont des props : ce composant ne connaît aucun contenu
+ * métier par lui-même (les données réelles arrivent avec les pages, hors du
+ * périmètre de ce chantier), mais reste utilisable dès aujourd'hui grâce à
+ * des valeurs par défaut cohérentes avec le PRD.
+ */
+interface Props {
+  zone?: string;
+  horaires?: string;
+}
+
+const {
+  zone = 'Lyon et sa région, sur rendez-vous',
+  horaires = 'du mardi au samedi, 9 h – 18 h',
+} = Astro.props;
+
+const annee = new Date().getFullYear();
+
+const liens = [
+  { href: '/', libelle: 'accueil' },
+  { href: '/latelier', libelle: 'l’atelier' },
+  { href: '/collections', libelle: 'collections' },
+  { href: '/services', libelle: 'services' },
+  { href: '/contact', libelle: 'contact' },
+] as const;
+---
+
+<footer class="pied-de-page">
+  <div class="pied-de-page__cadre contenant">
+    <div class="pied-de-page__colonnes">
+      <div class="pied-de-page__identite">
+        <p class="pied-de-page__marque">Atelier Bréande — luminaires sur mesure.</p>
+        <p class="pied-de-page__zone">{zone}</p>
+        <p class="pied-de-page__horaires">{horaires}</p>
+      </div>
+
+      <nav aria-label="Plan du site" class="pied-de-page__plan">
+        <p class="etiquette">plan du site</p>
+        <ul>
+          {
+            liens.map((lien) => (
+              <li>
+                <a href={lien.href}>{lien.libelle}</a>
+              </li>
+            ))
+          }
+          <li><a href="/mentions-legales">mentions légales</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <p class="pied-de-page__fiction">
+      Site fictif de démonstration — conçu et réalisé par Arnaud Porcel. {annee}.
+    </p>
+
+    <div class="pied-de-page__halo" aria-hidden="true"></div>
+  </div>
+</footer>

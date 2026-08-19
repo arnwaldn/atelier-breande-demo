@@ -1,0 +1,57 @@
+---
+/**
+ * CartePiece.astro — carte de la galerie de pièces.
+ *
+ * Le nom est affiché tel que fourni : c'est à l'appelant (la fiche de pièce,
+ * bas de casse par convention du projet) de le composer déjà en bas de
+ * casse — ce composant ne force aucune transformation de casse en CSS, qui
+ * romprait la citation exacte d'un nom propre.
+ */
+import type { ImageMetadata } from 'astro';
+import Visuel from './Visuel.astro';
+import EtiquetteTechnique from './EtiquetteTechnique.astro';
+
+interface Props {
+  nom: string;
+  href: string;
+  image: ImageMetadata;
+  imageAlt: string;
+  matieres: string[];
+  /** Le montant seul : le composant préfixe « à partir de ». */
+  prix: string;
+  delaiCourant: string;
+  prioritaire?: boolean;
+}
+
+const {
+  nom,
+  href,
+  image,
+  imageAlt,
+  matieres,
+  prix,
+  delaiCourant,
+  prioritaire = false,
+} = Astro.props;
+---
+
+<a href={href} class="carte-piece">
+  <span class="carte-piece__cadre">
+    <Visuel
+      src={image}
+      alt={imageAlt}
+      prioritaire={prioritaire}
+      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+      class="carte-piece__image"
+    />
+  </span>
+  <span class="carte-piece__corps">
+    <EtiquetteTechnique items={matieres} />
+    <span class="carte-piece__nom">{nom}</span>
+    <span class="carte-piece__specs">
+      <span>à partir de {prix}</span>
+      <span aria-hidden="true">·</span>
+      <span>{delaiCourant}</span>
+    </span>
+  </span>
+</a>

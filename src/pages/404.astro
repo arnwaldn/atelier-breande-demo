@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AppelAction from '../components/AppelAction.astro';
+---
+<BaseLayout
+  title="page introuvable — Atelier Bréande (site de démonstration)"
+  description="Cette page n’existe pas. Site de démonstration : Atelier Bréande est un atelier fictif — retrouvez l’accueil ou les collections."
+>
+  <section class="py-24 md:py-32">
+    <p class="etiquette">erreur 404</p>
+    <h1 class="mt-4 max-w-2xl text-4xl md:text-5xl">cette pièce n’existe pas (encore)</h1>
+    <p class="mt-6 max-w-xl text-lg text-breande-muted">
+      La page que vous cherchiez a changé d’adresse ou n’a jamais existé — ce site est une
+      démonstration, pas un véritable atelier.
+    </p>
+    <div class="mt-10 flex flex-wrap gap-4">
+      <AppelAction texte="retourner à l’accueil" href="/" variante="plein" />
+      <AppelAction texte="voir les collections" href="/collections" variante="filet" />
+    </div>
+  </section>
+</BaseLayout>

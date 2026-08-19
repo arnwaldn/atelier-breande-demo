@@ -370,3 +370,633 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================================================
+   VAGUE A : LA COQUILLE
+   En-tête scellée, pied de page, paliers du variateur, échelle des kelvins,
+   molette de la bande-scène, cartes de la galerie, appels à l'action.
+   Vocabulaire FERMÉ : les cinq durées et trois courbes déclarées plus haut,
+   pas une valeur de plus. Aucun ease-in, aucun transition: all.
+   ========================================================================== */
+
+:root {
+  /* Hauteur de l'en-tête : partagée par la sentinelle (le seuil qui scelle
+     l'en-tête) et par <main> (l'espace qu'il faut réserver sur les pages
+     sans hero plein écran, où l'en-tête se pose SUR le contenu). */
+  --hauteur-entete: 4.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   LE VARIATEUR. Cinq paliers, posés par <Bandeau jour="…"> via
+   data-jour="1".."5". --part-de-jour pilote l'arc lumineux (couche de
+   mouvement, lot suivant) ; --couleur-jour est consommé ici par l'échelle
+   des kelvins. Les cinq valeurs sont les cinq températures de global.css,
+   jamais une sixième : 5000 au seuil, 2200 au plus près du pied.
+   -------------------------------------------------------------------------- */
+[data-jour='1'] {
+  --part-de-jour: 1;
+  --couleur-jour: var(--color-breande-k5000);
+}
+[data-jour='2'] {
+  --part-de-jour: 0.8;
+  --couleur-jour: var(--color-breande-k4000);
+}
+[data-jour='3'] {
+  --part-de-jour: 0.55;
+  --couleur-jour: var(--color-breande-k3000);
+}
+[data-jour='4'] {
+  --part-de-jour: 0.3;
+  --couleur-jour: var(--color-breande-k2700);
+}
+[data-jour='5'] {
+  --part-de-jour: 0;
+  --couleur-jour: var(--color-breande-k2200);
+}
+
+/* --------------------------------------------------------------------------
+   LA SENTINELLE D'EN-TÊTE. Hors flux (position: absolute, ne pousse jamais
+   le contenu), ancrée en tout début de document, haute d'une hauteur
+   d'en-tête : dès qu'elle quitte le viewport, l'en-tête se scelle — voir
+   src/scripts/en-tete.ts.
+   -------------------------------------------------------------------------- */
+.sentinelle-entete {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: var(--hauteur-entete);
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   EN-TÊTE
+   ========================================================================== */
+.entete {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 40;
+  height: var(--hauteur-entete);
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  transition: background-color var(--ms-etat) var(--ease-etat);
+}
+.entete::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--laiton-brosse);
+  opacity: 0;
+  transition: opacity var(--ms-etat) var(--ease-etat);
+}
+.entete--scelle {
+  background-color: color-mix(in srgb, var(--color-breande-nuit-profonde) 92%, transparent);
+}
+.entete--scelle::after {
+  opacity: 0.55;
+}
+
+.entete__cadre {
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--marge-page);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.entete__nav-desktop {
+  display: none;
+}
+.entete__nav-desktop ul {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  list-style: none;
+}
+.entete__lien {
+  font-size: var(--t-menu);
+  color: var(--color-breande-paper);
+  text-decoration: none;
+  padding-block: 0.25rem;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--ms-survol) var(--ease-etat),
+    border-color var(--ms-survol) var(--ease-etat);
+}
+.entete__lien:hover {
+  color: var(--color-breande-amber);
+}
+.entete__lien--actif {
+  color: var(--color-breande-amber);
+  border-bottom-color: var(--color-breande-amber);
+}
+
+.entete__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+/* Spécificité doublée (.entete__cta.appel-action) et non un simple .entete__cta :
+   .appel-action fixe display: inline-flex sans media query, même spécificité qu'un
+   sélecteur à une classe — sans ce doublement, l'ordre des règles dans la feuille
+   déciderait, et .appel-action (déclaré plus bas) l'emporterait à toutes les
+   largeurs. Bug réel rencontré et corrigé en recette (CTA visible à 360 px). */
+.entete__cta.appel-action {
+  display: none;
+}
+
+.entete__menu-mobile {
+  position: relative;
+}
+.entete__menu-mobile summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 2px;
+}
+.entete__menu-mobile summary::-webkit-details-marker {
+  display: none;
+}
+.entete__menu-mobile summary::marker {
+  content: '';
+}
+.entete__menu-mobile[open] summary {
+  background-color: var(--color-breande-coal);
+}
+.entete__icone-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 22px;
+}
+.entete__icone-menu span {
+  display: block;
+  height: 1px;
+  background: var(--color-breande-paper);
+}
+
+.entete__panneau-mobile {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  min-width: 14rem;
+  padding: 1.25rem;
+  border: 1px solid rgb(138 107 74 / 0.35);
+  border-radius: 2px;
+  background-color: var(--color-breande-coal);
+  box-shadow: var(--ombre-portee);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.entete__panneau-mobile nav ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.entete__panneau-mobile .entete__lien {
+  font-size: var(--t-corps);
+}
+.entete__cta-mobile {
+  width: 100%;
+  text-align: center;
+}
+
+/* Seuil vérifié en recette : à 768 px, logo + 5 entrées + bouton ne tiennent
+   pas sur une ligne (le bouton passe sur trois lignes et déborde sous
+   l'en-tête). 1024 px est le premier palier où tout tient confortablement —
+   c'est aussi le seuil déjà retenu pour l'échelle des kelvins et pour le
+   variateur 3D (ADR direction artistique) : un seul seuil pour tout
+   l'en-tête desktop, cohérent avec le reste de la coquille. */
+@media (min-width: 1024px) {
+  .entete__nav-desktop {
+    display: block;
+  }
+  .entete__cta.appel-action {
+    display: inline-flex;
+  }
+  .entete__menu-mobile {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   LE LOGOTYPE — la signature. L'accent aigu du é de « Bréande » est le SEUL
+   élément en ambre de tout le site ; il ne bouge jamais. Seul un halo,
+   derrière lui, passe de 0 à --halo-lisible en --ms-survol au survol ou au
+   focus du logo.
+   -------------------------------------------------------------------------- */
+.logotype {
+  position: relative;
+  display: inline-flex;
+  font-family: var(--font-display);
+  font-weight: 480;
+  font-size: 1.375rem;
+  letter-spacing: -0.01em;
+  color: var(--color-breande-paper);
+  text-decoration: none;
+  line-height: 1;
+}
+.logotype__e-hote {
+  position: relative;
+  display: inline-block;
+}
+.logotype__e {
+  color: var(--color-breande-paper);
+}
+.logotype__accent {
+  position: absolute;
+  top: -0.6em;
+  left: 0.06em;
+  width: 0.46em;
+  height: 0.15em;
+  background: var(--color-breande-amber);
+  border-radius: 1px;
+  transform: rotate(-40deg);
+  transform-origin: 0% 100%;
+}
+.logotype__accent::after {
+  content: '';
+  position: absolute;
+  inset: -0.85em -1.05em;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(217 154 78 / var(--halo-lisible)) 0%,
+    rgb(217 154 78 / 0.09) 32%,
+    rgb(217 154 78 / 0.03) 58%,
+    transparent 76%
+  );
+  transition: opacity var(--ms-survol) var(--ease-etat);
+}
+.logotype:hover .logotype__accent::after,
+.logotype:focus-visible .logotype__accent::after {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   APPEL À L'ACTION — plein ambre (principal) ou filet de laiton (secondaire).
+   Angles à 2 px : le laiton se plie, il ne s'arrondit pas.
+   ========================================================================== */
+.appel-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 2px;
+  padding-inline: 2rem;
+  padding-block: 0.75rem;
+  font-size: var(--t-corps);
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--ms-survol) var(--ease-etat),
+    color var(--ms-survol) var(--ease-etat),
+    border-color var(--ms-survol) var(--ease-etat);
+}
+.appel-action--plein {
+  background-color: var(--color-breande-amber);
+  color: var(--color-breande-night);
+}
+.appel-action--plein:hover {
+  background-color: var(--color-breande-paper);
+}
+.appel-action--filet {
+  background-color: transparent;
+  color: var(--color-breande-laiton-clair);
+  border-color: rgb(176 141 99 / 0.55);
+}
+.appel-action--filet:hover {
+  border-color: var(--color-breande-laiton-clair);
+  color: var(--color-breande-paper);
+}
+.appel-action--inerte {
+  cursor: default;
+  opacity: 0.65;
+  /* Ni survol ni clic : le bouton est présent et annoncé (aria-disabled),
+     jamais fonctionnel — la seule façon honnête de « rien faire ». */
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   CARTE DE PIÈCE
+   ========================================================================== */
+.carte-piece {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 2px;
+  overflow: hidden;
+  background-color: var(--color-breande-coal);
+  box-shadow: var(--recoit-lumiere);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color var(--ms-survol) var(--ease-etat);
+}
+.carte-piece::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(217 154 78 / var(--halo-lisible)) 0%,
+    rgb(217 154 78 / 0.09) 30%,
+    rgb(217 154 78 / 0.03) 55%,
+    transparent 74%
+  );
+  transition: opacity var(--ms-survol) var(--ease-etat);
+}
+.carte-piece:hover,
+.carte-piece:focus-visible {
+  background-color: var(--color-breande-charbon-haut);
+}
+.carte-piece:hover::after,
+.carte-piece:focus-visible::after {
+  opacity: 1;
+}
+.carte-piece__cadre {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.carte-piece__cadre picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.carte-piece__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.carte-piece__corps {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.carte-piece__nom {
+  font-family: var(--font-display);
+  font-size: var(--t-piece);
+  color: var(--color-breande-paper);
+  line-height: 1.2;
+}
+.carte-piece__specs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   TITRE DE SECTION
+   ========================================================================== */
+.titre-section h2 {
+  font-size: var(--t-section);
+}
+
+/* ==========================================================================
+   BANDEAU — le variateur, section par section. Le plein-bord retire le
+   remplissage d'UN SEUL côté à la fois : jamais les deux, jamais gauche ET
+   droite sur la même section.
+   ========================================================================== */
+.bandeau {
+  width: 100%;
+  padding-block: var(--air-section);
+  padding-inline: var(--marge-page);
+}
+.bandeau--plein-gauche {
+  padding-inline: 0 var(--marge-page);
+}
+.bandeau--plein-droite {
+  padding-inline: var(--marge-page) 0;
+}
+
+/* ==========================================================================
+   CHIFFRE CLÉ — tabulaire, jamais animé.
+   ========================================================================== */
+.chiffre-cle__valeur {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--t-piece);
+  color: var(--color-breande-paper);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.chiffre-cle__libelle {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+}
+
+/* ==========================================================================
+   ÉCHELLE DES KELVINS — la marge active. Filet de 2 px sous 1024 px (seule
+   sa couleur varie) ; colonne complète (trait de laiton + valeur) au-delà.
+   ========================================================================== */
+.echelle-kelvins {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 20;
+  width: 2px;
+  pointer-events: none;
+  background-color: var(--couleur-jour, var(--color-breande-k5000));
+  transition: background-color var(--ms-etat) var(--ease-etat);
+}
+.echelle-kelvins__trait,
+.echelle-kelvins__valeur {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .echelle-kelvins {
+    width: 64px;
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .echelle-kelvins__trait {
+    display: block;
+    width: 1px;
+    flex: 0 1 220px;
+    background: var(--laiton-brosse);
+    opacity: 0.22;
+  }
+  .echelle-kelvins__valeur {
+    display: block;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: var(--t-etiquette);
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--couleur-jour, var(--color-breande-k5000));
+    transition: color var(--ms-etat) var(--ease-etat);
+  }
+}
+
+/* ==========================================================================
+   BANDE-SCÈNE — l'hôte du futur bloc 3D. Doit rester beau sans WebGL :
+   critère de recette n°6 de l'ADR direction artistique.
+   ========================================================================== */
+.bande-scene {
+  position: relative;
+  display: grid;
+  gap: 2.5rem;
+  border-radius: 2px;
+  overflow: hidden;
+  background-color: var(--color-breande-coal);
+  box-shadow: var(--recoit-lumiere);
+}
+@media (min-width: 900px) {
+  .bande-scene {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: center;
+  }
+}
+.bande-scene__repli {
+  position: relative;
+  line-height: 0;
+  min-height: 16rem;
+}
+.bande-scene__repli picture,
+.bande-scene__repli img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bande-scene__reglage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+.bande-scene__molette {
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+}
+.bande-scene__arc,
+.bande-scene__graduations {
+  stroke: url(#bande-scene-laiton);
+}
+.bande-scene__curseur {
+  stroke: var(--color-breande-glow);
+}
+.bande-scene__curseur-point {
+  fill: var(--color-breande-glow);
+}
+.bande-scene__moyeu {
+  fill: var(--color-breande-brass);
+}
+.bande-scene__label {
+  fill: var(--color-breande-laiton-clair);
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+.bande-scene__label--actif {
+  fill: var(--color-breande-glow);
+  font-weight: 600;
+}
+.bande-scene__bouton {
+  width: 100%;
+  max-width: 16rem;
+}
+
+/* ==========================================================================
+   PIED DE PAGE
+   ========================================================================== */
+.pied-de-page {
+  position: relative;
+  margin-top: var(--air-section);
+  background-color: var(--color-breande-nuit-profonde);
+  overflow: hidden;
+}
+.pied-de-page__cadre {
+  position: relative;
+  padding-block: var(--air-bloc) 7rem;
+}
+.pied-de-page__colonnes {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+.pied-de-page__marque {
+  font-family: var(--font-display);
+  font-size: var(--t-corps);
+  color: var(--color-breande-paper);
+}
+.pied-de-page__zone,
+.pied-de-page__horaires {
+  margin-top: 0.4rem;
+  color: var(--color-breande-muted);
+  font-size: var(--t-etiquette);
+}
+.pied-de-page__plan ul {
+  margin-top: 0.75rem;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.pied-de-page__plan a {
+  color: var(--color-breande-muted);
+  text-decoration: none;
+  transition: color var(--ms-survol) var(--ease-etat);
+}
+.pied-de-page__plan a:hover {
+  color: var(--color-breande-paper);
+}
+.pied-de-page__fiction {
+  position: relative;
+  z-index: 1;
+  margin-top: 3rem;
+  color: var(--color-breande-eteint);
+  font-size: var(--t-etiquette);
+}
+.pied-de-page__halo {
+  position: absolute;
+  z-index: 0;
+  inset-inline: -10%;
+  bottom: -40%;
+  height: 10rem;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(255 146 36 / 0.14) 0%,
+    rgb(255 146 36 / 0.07) 32%,
+    rgb(255 146 36 / 0.02) 58%,
+    transparent 76%
+  );
+}

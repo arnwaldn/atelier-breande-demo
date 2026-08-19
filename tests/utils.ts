@@ -118,7 +118,7 @@ export async function decrireFocus(page: Page): Promise<string | null> {
  * `incomplete` de la règle color-contrast : c'est précisément la règle qui a raté un
  * texte de contraste ~1:1 lors du calibrage de ce harnais.
  *
- * Deux exceptions étroites et documentées, chacune un élément DÉCORATIF précis et
+ * Trois exceptions étroites et documentées, chacune un élément DÉCORATIF précis et
  * REVU, dont la nature (gradient, pseudo-élément) empêche mathématiquement axe de
  * calculer un fond — jamais un signe de bug :
  *  - `.lueur` : halo décoratif (pseudo-élément `::before`, radial-gradient, opacité
@@ -128,11 +128,21 @@ export async function decrireFocus(page: Page): Promise<string | null> {
  *    au-dessus de la photo, pour garantir la lisibilité du texte — « ... due to a
  *    background gradient ». Le texte du hero porte sa propre couleur calibrée
  *    (breande-paper, 14,9:1 sur le fond nuit — voir global.css).
+ *  - `header` (ajouté vague A, chantier « coquille », 2026-08-19) : le filet de
+ *    laiton qui scelle l'en-tête au défilement est un pseudo-élément `::after` sur
+ *    <header class="entete"> (voir .entete::after, global.css) — même mécanique que
+ *    `.lueur`. Pour ce relatedNode précis, axe ne rapporte qu'un sélecteur de balise
+ *    nu (`["header"]`, sans classe) : le mot complet, pas `.entete`, est donc la
+ *    chaîne qui matche réellement `rn.target` ci-dessous. Le texte des liens de menu
+ *    porte sa propre couleur calibrée (breande-paper sur breande-night/nuit-profonde,
+ *    largement > 4,5:1 dans les deux états, scellé ou transparent — voir global.css) ;
+ *    le site n'a qu'un seul <header>, donc pas de risque de sur-filtrage aujourd'hui —
+ *    à resserrer si un jour un second `<header>` apparaît sur une page.
  * Toute AUTRE incertitude de contraste reste bloquante : c'est ce filtre qui a
  * démasqué, lors du calibrage de ce harnais, un texte injecté à un contraste ~1:1 sur
- * une page sans aucun de ces deux éléments.
+ * une page sans aucun de ces trois éléments.
  */
-const CAUSES_CONTRASTE_CONNUES_ET_REVUES = ['.lueur', '.bg-gradient-to-t'];
+const CAUSES_CONTRASTE_CONNUES_ET_REVUES = ['.lueur', '.bg-gradient-to-t', 'header'];
 
 export function violationsAxeAExiger(resultats: AxeResults) {
   const violationsGraves = resultats.violations.filter(
