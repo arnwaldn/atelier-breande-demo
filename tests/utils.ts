@@ -43,7 +43,19 @@ export async function attendreImmobilite(page: Page, delaiMaxMs = 5000): Promise
   await page.waitForFunction(
     () => {
       const anims = document.getAnimations ? document.getAnimations() : [];
-      return anims.every((a) => a.playState === 'finished' || a.playState === 'idle');
+      return anims.every(
+        (a) =>
+          a.playState === 'finished' ||
+          a.playState === 'idle' ||
+          // Les animations pilotées par le DÉFILEMENT (animation-timeline:
+          // scroll() — le sceau de l'en-tête, depuis le 19/08 au soir) sont
+          // en permanence « running » : leur horloge est la position de
+          // défilement, pas le temps. À défilement constant, elles SONT
+          // immobiles — c'est exactement ce que cette attente veut établir.
+          // Les compter comme mouvement bloquait les 17 tests qui passent
+          // par ici, en timeout, sans qu'aucun pixel ne bouge.
+          (a.timeline !== null && a.timeline !== document.timeline)
+      );
     },
     { timeout: delaiMaxMs }
   );

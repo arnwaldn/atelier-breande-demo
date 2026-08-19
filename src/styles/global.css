@@ -180,7 +180,7 @@
   );
 
   /* Rythme vertical. Toutes les valeurs sont des multiples de 8. */
-  --air-section: clamp(5rem, 3rem + 7vw, 11rem);
+  --air-section: clamp(4rem, 14svh, 11rem); /* svh : voir la note des trois airs */
   --air-bloc: clamp(2rem, 1.4rem + 2vw, 4rem);
   --marge-page: clamp(1.25rem, 0.8rem + 3vw, 5rem);
 
@@ -193,9 +193,16 @@
        - --air-courant (~240 px) entre deux idées — la valeur par défaut ;
        - --air-large   (~360 px) avant un changement de registre : la scène
          3D, l'appel final, juste avant le pied. */
-  --air-serie: clamp(4rem, 3rem + 2vw, 6rem);
-  --air-courant: clamp(6rem, 4rem + 4vw, 9rem);
-  --air-large: clamp(8rem, 5rem + 7vw, 13.5rem);
+  /* Les trois airs se mesurent désormais en HAUTEUR de fenêtre (svh), plus
+     en largeur (vw) — bêta-test in vivo du 19/08 au gabarit réel d'Arnaud :
+     à 1280 x 551 (échelle Windows 150 %), les airs calculés sur la LARGEUR
+     restaient dimensionnés pour un écran haut, et deux airs empilés (fin de
+     section + entrée de la suivante) produisaient des écrans entiers de
+     nuit vide — le visiteur croyait la page finie. Un air proportionné à la
+     hauteur réellement disponible respire pareil sur tous les écrans. */
+  --air-serie: clamp(3.5rem, 9svh, 6rem);
+  --air-courant: clamp(5rem, 13svh, 9rem);
+  --air-large: clamp(6rem, 20svh, 13.5rem);
 }
 
 @layer base {
@@ -572,10 +579,44 @@
   transition: opacity var(--ms-etat) var(--ease-etat);
 }
 .entete--scelle {
-  background-color: color-mix(in srgb, var(--color-breande-nuit-profonde) 92%, transparent);
+  /* OPAQUE, plus 92 % : au bêta-test in vivo du 19/08 au gabarit réel
+     d'Arnaud (fenêtre de 551 px de haut), les grands titres passaient sous
+     l'en-tête et se lisaient à travers — du texte sur du texte, sur toutes
+     les pages. Une translucidité de 8 % ne rapportait rien et coûtait
+     partout. */
+  background-color: var(--color-breande-nuit-profonde);
 }
 .entete--scelle::after {
   opacity: 0.55;
+}
+/* LE SCEAU SANS JAVASCRIPT NI OBSERVATEUR — même leçon que la garantie n° 5
+   des révélations : un IntersectionObserver ne notifie pas quand l'onglet
+   est caché, et le sceau posé par en-tete.ts peut donc manquer son moment.
+   Sur les navigateurs qui portent les animations de défilement (tous les
+   Chromium, dont le Samsung d'Arnaud), le fond est piloté DIRECTEMENT par la
+   position de défilement : aucun script, aucun état, aucun cas de course.
+   en-tete.ts reste en place pour Firefox et Safari. */
+@supports (animation-timeline: scroll()) {
+  .entete {
+    animation: sceau-entete linear both;
+    animation-timeline: scroll();
+    animation-range: 0 300px;
+  }
+  .entete::after {
+    animation: sceau-filet linear both;
+    animation-timeline: scroll();
+    animation-range: 0 300px;
+  }
+}
+@keyframes sceau-entete {
+  to {
+    background-color: var(--color-breande-nuit-profonde);
+  }
+}
+@keyframes sceau-filet {
+  to {
+    opacity: 0.55;
+  }
 }
 
 .entete__cadre {
@@ -2670,7 +2711,11 @@ html.lenis {
     --decalage-legende: 0%;
     inset-inline-start: var(--decalage-legende);
     inset-inline-end: 0;
-    padding: var(--air-bloc) var(--marge-page) 2.5rem;
+    /* --legende-garde : de combien la boite est sortie de l'ecran a gauche
+       pendant la traversee (ecrite par effets-scroll.ts). Le texte reste a
+       une marge de page du bord, quoi que fasse sa boite. */
+    padding: var(--air-bloc) var(--marge-page) 2.5rem
+      calc(var(--marge-page) + var(--legende-garde, 0px));
   }
   /* Le cadrage du panneau « Conseiller » (juste au-dessus, hors media query)
      ne corrige QUE le défaut mobile : à ce format le panneau est bien plus

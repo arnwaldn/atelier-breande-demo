@@ -20,6 +20,12 @@ interface Props {
   sizes?: string;
   /** Une seule image « prioritaire » par page : LCP, chargement immédiat. */
   prioritaire?: boolean;
+  /** Chargée D'AVANCE mais sans concurrencer le LCP (eager + priorité basse).
+   *  Pour les images qui doivent être PEINTES avant qu'on arrive dessus —
+   *  bêta-test du 19/08 : le repli de la scène 3D, en lazy, n'était pas
+   *  encore décodé pendant un défilement rapide et le bloc traversait
+   *  l'écran en noir complet, un écran entier de vide au gabarit d'Arnaud. */
+  avance?: boolean;
   class?: string;
 }
 
@@ -29,6 +35,7 @@ const {
   widths = [480, 800, 1200, 1600],
   sizes = '100vw',
   prioritaire = false,
+  avance = false,
   class: className,
 } = Astro.props;
 
@@ -46,8 +53,8 @@ if (!alt || alt.trim().length === 0) {
   fallbackFormat="jpg"
   widths={widths}
   sizes={sizes}
-  loading={prioritaire ? 'eager' : 'lazy'}
-  fetchpriority={prioritaire ? 'high' : 'auto'}
+  loading={prioritaire || avance ? 'eager' : 'lazy'}
+  fetchpriority={prioritaire ? 'high' : avance ? 'low' : 'auto'}
   decoding={prioritaire ? 'sync' : 'async'}
   class={className}
 />

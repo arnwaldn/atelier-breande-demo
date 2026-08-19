@@ -152,6 +152,11 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
   const legendes = panneaux.map((p) => p.querySelector<HTMLElement>(SELECTEUR_LEGENDE));
   const etiquetteKelvin = document.querySelector<HTMLElement>(SELECTEUR_ETIQUETTE_KELVIN);
   const entete = document.querySelector<HTMLElement>(SELECTEUR_ENTETE);
+  // L'echelle des kelvins s'efface pendant la traversee du ruban — meme
+  // regle que devant la lampe (echelle-kelvins.ts) : une cotation qui passe
+  // SUR son sujet est un detail faux (reserve R1 du DA), et au beta-test du
+  // 19/08 elle entrait en collision frontale avec le titre « Restaurer ».
+  const echelle = document.querySelector<HTMLElement>('.echelle-kelvins');
   const reperes = Array.from(section.querySelectorAll<HTMLElement>(SELECTEUR_REPERE));
 
   let distanceMax = 0;
@@ -162,6 +167,7 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
   // portée hors de la boucle pour appliquer l'hystérésis sans revenir sur le
   // DOM à chaque frame.
   let legendeActiveIndex = -1;
+  let decalagesLegendes: number[] = [];
 
   const mesurer = () => {
     distanceMax = Math.max(piste.scrollWidth - fenetre.clientWidth, 0);
@@ -170,6 +176,10 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
     );
     largeurFenetre = fenetre.clientWidth;
     bornesPanneaux = panneaux.map((p) => ({ gauche: p.offsetLeft, largeur: p.offsetWidth || 1 }));
+    // Position au repos de chaque boîte de légende DANS son panneau (le
+    // décalage diagonal 0 / 18 / 36 % résolu en pixels) — mesurée ici, jamais
+    // dans onUpdate, pour la garde du bord ci-dessous.
+    decalagesLegendes = legendes.map((l) => l?.offsetLeft ?? 0);
   };
 
   /** Fraction (0 à 1) du panneau `i` actuellement visible dans la fenêtre —
@@ -199,6 +209,18 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
     });
     legendes.forEach((legende, i) => {
       legende?.classList.toggle('ruban-gestes__legende--active', i === legendeActiveIndex);
+      // LA GARDE DU BORD (bêta-test in vivo du 19/08, gabarit 1280 x 551) :
+      // pendant la traversée, un panneau translaté porte sa boîte de légende
+      // hors de l'écran à gauche — le texte se collait au bord (x = 0) et
+      // entrait en collision avec l'échelle des kelvins. On calcule de
+      // combien la boîte est sortie, et le CSS l'ajoute au retrait du texte
+      // (padding-inline-start: calc(var(--marge-page) + var(--legende-garde)))
+      // — le TEXTE reste exactement à une marge de page du bord, quoi que
+      // fasse sa boîte. Purement arithmétique, aucune lecture DOM ici.
+      if (!legende) return;
+      const bornes = bornesPanneaux[i];
+      const boiteGauche = (bornes?.gauche ?? 0) + rubanX + (decalagesLegendes[i] ?? 0);
+      legende.style.setProperty('--legende-garde', `${Math.max(0, -boiteGauche).toFixed(1)}px`);
     });
     // Le repère de progression (important 6) suit la MÊME hystérésis que la
     // légende — un seul indice « actif » à raconter, jamais deux sources de
@@ -257,11 +279,23 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
     scrub: 1,
     invalidateOnRefresh: true,
     onRefresh: mesurer,
-    onEnter: () => entete?.classList.add('entete--retire'),
-    onEnterBack: () => entete?.classList.add('entete--retire'),
+    onEnter: () => {
+      entete?.classList.add('entete--retire');
+      echelle?.classList.add('echelle-kelvins--efface');
+    },
+    onEnterBack: () => {
+      entete?.classList.add('entete--retire');
+      echelle?.classList.add('echelle-kelvins--efface');
+    },
     // Garde n°2 : retour dès la sortie du ruban, dans les DEUX sens.
-    onLeave: () => entete?.classList.remove('entete--retire'),
-    onLeaveBack: () => entete?.classList.remove('entete--retire'),
+    onLeave: () => {
+      entete?.classList.remove('entete--retire');
+      echelle?.classList.remove('echelle-kelvins--efface');
+    },
+    onLeaveBack: () => {
+      entete?.classList.remove('entete--retire');
+      echelle?.classList.remove('echelle-kelvins--efface');
+    },
     onUpdate: (soi) => {
       // LE PALIER D'ENTRÉE (bloquant 3) — `soi.start`/`soi.end` plutôt que la
       // constante `declencheur` : ce callback peut être invoqué par GSAP
