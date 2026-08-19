@@ -59,10 +59,10 @@ const JS_CRITIQUE_MAX_KO_GZ = 8; // cumul du JS référencé par <script src> da
 const POLICES_MAX_KO = 95;
 
 // Les plages qu'un site en français fait réellement télécharger.
-const PLAGES_SERVIES = ['-latin-'];
+// Depuis le passage a l'API Fonts d'Astro, chaque variante est declaree avec
+// son unicodeRange : tout woff2 produit est un woff2 servi.
 // Celles qui sont produites sans jamais servir : gaspillage de construction,
 // signalé sans faire échouer — c'est l'import qu'il faut resserrer, pas la garde.
-const PLAGES_INUTILES = ['-latin-ext-', '-vietnamese-', '-cyrillic-', '-greek-', '-hebrew-'];
 
 const KO = 1024;
 const LARGEUR_POSTE = 70;
@@ -156,39 +156,19 @@ try {
     );
   }
 
-  // 4. Polices — cumul des sous-ensembles SERVIS à un lecteur francophone.
-  const fichiersPolices = fichiersAstro.filter((f) => f.endsWith('.woff2'));
+  // 4. Polices — cumul de tout ce qui est produit, car tout est servi :
+  // chaque variante est declaree avec son unicodeRange dans astro.config.mjs.
+  const fichiersPolices = listerTousLesFichiers(DOSSIER_DIST).filter((f) => f.endsWith('.woff2'));
   if (fichiersPolices.length === 0) {
-    console.log('OK     aucune police (dist/_astro/*.woff2) à mesurer.');
+    console.log('ECHEC  aucune police produite — la declaration des fontes est cassee.');
+    echecs += 1;
   } else {
-    const servies = fichiersPolices.filter((f) =>
-      PLAGES_SERVIES.some((p) => cheminRelatif(f).includes(p)) &&
-      !PLAGES_INUTILES.some((p) => cheminRelatif(f).includes(p))
-    );
-    const cumul = servies.reduce((n, f) => n + statSync(f).size, 0);
+    const cumul = fichiersPolices.reduce((n, f) => n + statSync(f).size, 0);
     ligne(
-      `POLICES servies au lecteur francais (${servies.length}/${fichiersPolices.length} fichiers)`,
+      `POLICES cumul des ${fichiersPolices.length} fichier(s) servi(s)`,
       cumul,
       POLICES_MAX_KO * KO
     );
-
-    const inutiles = fichiersPolices.filter((f) =>
-      PLAGES_INUTILES.some((p) => cheminRelatif(f).includes(p))
-    );
-    if (inutiles.length > 0) {
-      const poids = inutiles.reduce((n, f) => n + statSync(f).size, 0);
-      console.log(
-        `NOTE   ${inutiles.length} sous-ensemble(s) jamais servi(s) à un lecteur français ` +
-        `(${(poids / KO).toFixed(1)} Ko produits pour rien) : ` +
-        inutiles.map((f) => cheminRelatif(f)).join(', ')
-      );
-      console.log(
-        '       Ce n\'est pas un défaut du livrable servi, mais un import trop large.'
-      );
-      console.log(
-        '       À resserrer quand la typographie sera refaite (API Fonts d\'Astro).'
-      );
-    }
   }
 
   console.log('-'.repeat(110));

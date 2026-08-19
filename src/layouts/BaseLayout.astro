@@ -16,7 +16,7 @@ const { title, description, heroPleinEcran = false } = Astro.props;
   <head>
     <SeoHead title={title} description={description} />
   </head>
-  <body>
+  <body class="grain">
     <a class="skip-link" href="#contenu">Aller au contenu</a>
     <Header surImage={heroPleinEcran} />
     <main id="contenu" class="mx-auto max-w-5xl px-4">
