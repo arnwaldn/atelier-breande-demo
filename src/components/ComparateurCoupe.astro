@@ -41,6 +41,10 @@ const { photo, photoAlt, dessin, dessinAlt, class: className } = Astro.props;
     step="1"
     data-comparateur-curseur
     aria-label="Comparer la photo de la pièce et son dessin technique : déplacer pour révéler l’un ou l’autre"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow="50"
+    aria-valuetext="moitié dessin technique, moitié photographie"
   />
   <figcaption class="comparateur-coupe__legende">
     Déplacez le trait de laiton : à gauche le dessin technique, à droite la pièce photographiée.

@@ -164,6 +164,19 @@
   --air-section: clamp(5rem, 3rem + 7vw, 11rem);
   --air-bloc: clamp(2rem, 1.4rem + 2vw, 4rem);
   --marge-page: clamp(1.25rem, 0.8rem + 3vw, 5rem);
+
+  /* C4 (recette DA du 19/08) : trois valeurs d'air au lieu d'une. Toutes les
+     travées portaient ~149 px de haut ET de bas, indifférencié — aucun signal
+     de proximité entre blocs apparentés ni de pause avant un changement de
+     registre. Trois grains, posés par la prop `air` de <Bandeau> :
+       - --air-serie   (~150 px) entre blocs d'une même série (le triptyque
+         Créer / Restaurer / Conseiller) ;
+       - --air-courant (~240 px) entre deux idées — la valeur par défaut ;
+       - --air-large   (~360 px) avant un changement de registre : la scène
+         3D, l'appel final, juste avant le pied. */
+  --air-serie: clamp(4rem, 3rem + 2vw, 6rem);
+  --air-courant: clamp(6rem, 4rem + 4vw, 9rem);
+  --air-large: clamp(8rem, 5rem + 7vw, 13.5rem);
 }
 
 @layer base {
@@ -761,10 +774,14 @@
   color: var(--color-breande-paper);
   line-height: 1.2;
 }
+/* C7 (recette DA du 19/08) : prix et délai en PILE, jamais côte à côte avec
+   un point médian — le séparateur produisait un orphelin dès que l'une des
+   deux valeurs passait à la ligne. Deux lignes, c'est plus calme et ne
+   déborde jamais. */
 .carte-piece__specs {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.2rem;
   color: var(--color-breande-muted);
   font-size: var(--t-etiquette);
   font-variant-numeric: tabular-nums;
@@ -784,8 +801,20 @@
    ========================================================================== */
 .bandeau {
   width: 100%;
-  padding-block: var(--air-section);
+  padding-block: var(--air-courant);
   padding-inline: var(--marge-page);
+}
+/* C4 (recette DA du 19/08) : la prop `air` de <Bandeau> pose l'une de ces
+   trois classes (air-courant posé par défaut, donc la déclaration ci-dessus
+   n'est qu'un filet de sécurité si jamais elle manquait). */
+.bandeau--air-serie {
+  padding-block: var(--air-serie);
+}
+.bandeau--air-courant {
+  padding-block: var(--air-courant);
+}
+.bandeau--air-large {
+  padding-block: var(--air-large);
 }
 /* B1 (recette DA du 19/08) : la premiere version retirait le remplissage de
    la SECTION entiere — le texte collait au bord de la dalle sur les trois
@@ -1076,7 +1105,11 @@ html.mouvement [data-revele] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--air-bloc) 1.5rem;
 }
-@media (min-width: 768px) {
+/* C13 (recette DA du 19/08) : à 768 px pile, les quatre chiffres clés en une
+   seule rangée n'ont plus assez de place — la grille casse. 900 px est le
+   premier palier où les quatre colonnes tiennent confortablement ; sous ce
+   seuil, la grille 2×2 reste plus lisible qu'une rangée compressée. */
+@media (min-width: 900px) {
   .grille-reperes {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1370,6 +1403,13 @@ html.mouvement [data-revele] {
   background: transparent;
   cursor: ew-resize;
 }
+/* C11 (recette DA du 19/08) : appearance: none désactive le rendu natif du
+   curseur — et avec lui l'anneau de focus natif du navigateur. Le même
+   traitement que la molette (bande-scene__molette:focus-visible). */
+.comparateur-coupe__curseur:focus-visible {
+  outline: 2px solid var(--color-breande-amber);
+  outline-offset: -3px;
+}
 .comparateur-coupe__curseur::-webkit-slider-runnable-track {
   width: 100%;
   height: 100%;
@@ -1455,12 +1495,13 @@ html.mouvement [data-revele] {
   text-decoration: none;
   line-height: 1.1;
 }
+/* C7 (recette DA du 19/08) : même règle que .carte-piece__specs — pile, sans
+   point médian. */
 .carte-piece-large__specs {
   margin-top: 0.75rem;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
   color: var(--color-breande-muted);
   font-size: var(--t-etiquette);
   font-variant-numeric: tabular-nums;
@@ -1487,6 +1528,10 @@ html.mouvement [data-revele] {
   display: grid;
   grid-template-columns: 9rem 1fr;
   gap: 1rem 1.5rem;
+  /* C6 (recette DA du 19/08) : dt et dd n'ont pas la même taille de police —
+     un centrage vertical fait diverger leurs pieds de ligne de 6 px. La
+     ligne de base est le seul alignement qui les pose sur le même sol. */
+  align-items: baseline;
   padding-block: 0.9rem;
   border-bottom: 1px solid rgb(138 107 74 / 0.25);
 }
@@ -1703,13 +1748,21 @@ html.mouvement [data-revele] {
 }
 .accordeon-item__reponse {
   padding-bottom: 1.25rem;
-  max-width: var(--mesure-large);
+  /* C3 (recette DA du 19/08) : réponse de FAQ = corps de texte, 34rem. */
+  max-width: var(--mesure);
   color: var(--color-breande-muted);
 }
 
 /* --------------------------------------------------------------------------
    CONTACT — deux colonnes à partir de 1024 px.
    -------------------------------------------------------------------------- */
+/* C15 (recette DA du 19/08) : l'ascenseur natif du textarea reste blanc sur
+   une page sombre — un détail de chrome de navigateur qui casse la nuit
+   d'atelier. Support Firefox et Chromium/Edge récents (Safari continue de
+   rendre son propre ascenseur, sans régression : la propriété est ignorée). */
+.champ__textarea {
+  scrollbar-color: var(--color-breande-suie) transparent;
+}
 .contact-colonnes {
   display: grid;
   gap: 3rem;

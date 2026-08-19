@@ -15,6 +15,21 @@
   par la garde de livrable) : la valeur n'existe qu'après exécution, elle ne
   laisse aucune trace dans le HTML produit par la construction.
 */
+/*
+  aria-valuetext par paliers (C11, recette DA du 19/08) : role="slider" (natif
+  sur <input type="range">) expose déjà min/max/now au lecteur d'écran à
+  partir des attributs min/max/value — mais jamais le SENS de ces nombres.
+  Sans valuetext, l'annonce serait un pourcentage brut (« 50 »), muet sur ce
+  qui se révèle réellement. Cinq paliers, du dessin pur à la photo pure.
+*/
+function valuetextPalier(valeur: number): string {
+  if (valeur <= 0) return 'dessin technique';
+  if (valeur < 25) return 'surtout le dessin technique';
+  if (valeur < 75) return 'moitié dessin technique, moitié photographie';
+  if (valeur < 100) return 'surtout la photographie';
+  return 'photographie';
+}
+
 const curseurs = document.querySelectorAll<HTMLInputElement>('[data-comparateur-curseur]');
 
 for (const curseur of curseurs) {
@@ -23,6 +38,8 @@ for (const curseur of curseurs) {
 
   const appliquer = () => {
     conteneur.style.setProperty('--reveal', `${curseur.value}%`);
+    curseur.setAttribute('aria-valuenow', curseur.value);
+    curseur.setAttribute('aria-valuetext', valuetextPalier(Number(curseur.value)));
   };
 
   curseur.addEventListener('input', appliquer);

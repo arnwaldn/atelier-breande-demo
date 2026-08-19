@@ -22,7 +22,7 @@ test.describe('accessibilité', () => {
   }) => {
     await page.goto('/contact');
     await attendreImmobilite(page);
-    await page.getByRole('button', { name: 'Envoyer' }).click();
+    await page.getByRole('button', { name: 'Envoi désactivé' }).click();
     await expect(page.locator('#nom-erreur')).toBeVisible();
     // Seconde attente (vague B) : la page Contact porte maintenant ses propres
     // révélations au défilement (colonne de droite, voir data-revelation dans
@@ -86,7 +86,7 @@ test.describe('accessibilité', () => {
 
     // 5) Le bouton d'envoi suit directement le dernier champ.
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('button', { name: 'Envoyer' })).toBeFocused();
+    await expect(page.getByRole('button', { name: 'Envoi désactivé' })).toBeFocused();
     expect(await anneauFocusVisible(page)).toBe(true);
   });
 });

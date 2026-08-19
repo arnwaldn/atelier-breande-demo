@@ -101,7 +101,7 @@ const piecesVedettes = await Promise.all(
       const visuel = imagesGestes[entree.titre as keyof typeof imagesGestes];
       const palier = (2 + Math.min(i, 1)) as 2 | 3;
       return (
-        <Bandeau jour={palier} pleinBord={cote} ariaLabelledby={`geste-${entree.titre}`}>
+        <Bandeau jour={palier} pleinBord={cote} air="serie" ariaLabelledby={`geste-${entree.titre}`}>
           <div class="grid items-center gap-8 md:grid-cols-2 md:gap-12">
             <div
               class:list={[
@@ -157,20 +157,26 @@ const piecesVedettes = await Promise.all(
   </Bandeau>
 
   {/* 7 — LA PIÈCE QUE L'ON RÈGLE — à plus de 2 400 px sous la flottaison. */}
-  <Bandeau jour={5} ariaLabel="Régler la lumière">
+  <Bandeau jour={5} air="large" ariaLabelledby="titre-variateur">
     <div data-revelation>
-      <BandeScene>
-        <Visuel
-          src={imageRepli}
-          alt="Une suspension en laiton et verre soufflé, allumée, présentée sur fond neutre"
-          sizes="(min-width: 900px) 60vw, 100vw"
-        />
-      </BandeScene>
+      <TitreSection texte="la lumière se règle" id="titre-variateur" />
+      <p class="mesure mt-3 text-breande-muted">
+        Glissez la molette — ou réglez au clavier, flèches gauche et droite.
+      </p>
+      <div class="mt-8">
+        <BandeScene>
+          <Visuel
+            src={imageRepli}
+            alt="Une suspension en laiton et verre soufflé, allumée, présentée sur fond neutre"
+            sizes="(min-width: 900px) 60vw, 100vw"
+          />
+        </BandeScene>
+      </div>
     </div>
   </Bandeau>
 
   {/* 8 — PIÈCES MISES EN AVANT, ce que nous ne faisons pas, appel final. */}
-  <Bandeau jour={4} ariaLabelledby="titre-pieces-recentes">
+  <Bandeau jour={4} air="large" ariaLabelledby="titre-pieces-recentes">
     <TitreSection texte={titrePiecesRecentes} id="titre-pieces-recentes" filet />
     <div class="mt-10 grid gap-8 md:grid-cols-3">
       {
@@ -193,12 +199,12 @@ const piecesVedettes = await Promise.all(
       }
     </div>
 
-    <div class="mesure-large mt-16" data-revelation>
+    <div class="mesure mt-16" data-revelation>
       <TitreSection texte={ceQueNousNeFaisonsPas.titre} />
       <p class="mt-4 text-breande-muted">{ceQueNousNeFaisonsPas.texte}</p>
     </div>
 
-    <div class="mesure-large mt-10 border-l-2 border-breande-brass/40 pl-5" data-revelation>
+    <div class="mesure mt-10 border-l-2 border-breande-brass/40 pl-5" data-revelation>
       <p class="text-breande-muted">{ouEtRythme.texte}</p>
     </div>
 

@@ -80,7 +80,6 @@ const grandeDroite = parSlug['suspension-1930'];
             <p class="mesure mt-3 text-breande-muted">{grandeGauche.data.chapo}</p>
             <p class="carte-piece-large__specs">
               <span>à partir de {grandeGauche.data.prix}</span>
-              <span aria-hidden="true">·</span>
               <span>{grandeGauche.data.delaiCourant}</span>
             </p>
           </div>
@@ -130,7 +129,6 @@ const grandeDroite = parSlug['suspension-1930'];
             <p class="mesure mt-3 text-breande-muted">{grandeDroite.data.chapo}</p>
             <p class="carte-piece-large__specs">
               <span>à partir de {grandeDroite.data.prix}</span>
-              <span aria-hidden="true">·</span>
               <span>{grandeDroite.data.delaiCourant}</span>
             </p>
           </div>
@@ -139,7 +137,7 @@ const grandeDroite = parSlug['suspension-1930'];
     )
   }
 
-  <Bandeau jour={5}>
+  <Bandeau jour={5} air="large">
     <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
       <TitreSection texte={relance.titre} />
       <p class="mesure mt-4 text-breande-muted">{relance.texte}</p>

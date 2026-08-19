@@ -71,7 +71,13 @@ function estActif(href: string) {
           </span>
         </summary>
         <div class="entete__panneau-mobile">
-          <nav aria-label="Navigation principale">
+          {/* C-nav (recette DA du 19/08) : deux <nav> partageaient le même
+              nom accessible « Navigation principale » — un visiteur
+              d'assistance technologique ne pouvait plus les distinguer par
+              les repères de page (landmarks). Ce panneau réplique le même
+              menu sous un autre habillage (le repli mobile) : « Menu » le
+              nomme pour ce qu'il est. */}
+          <nav aria-label="Menu">
             <ul>
               {
                 liens.map((lien) => (

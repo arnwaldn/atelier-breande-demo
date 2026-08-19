@@ -151,7 +151,7 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
   {/* GARANTIES */}
   <Bandeau jour={5} ariaLabelledby="titre-garanties">
     <TitreSection texte="Garanties" id="titre-garanties" filet />
-    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+    <div class="mesure mt-4 text-breande-muted" data-revelation>
       {garanties.map((g) => <p class="mt-3 first:mt-0">{g}</p>)}
     </div>
   </Bandeau>
@@ -159,7 +159,7 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
   {/* TRAVAILLER AVEC UNE AGENCE */}
   <Bandeau jour={5} ariaLabelledby="titre-architecte">
     <TitreSection texte={avecUnArchitecte.titre} id="titre-architecte" filet />
-    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+    <div class="mesure mt-4 text-breande-muted" data-revelation>
       {avecUnArchitecte.texte.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
     </div>
   </Bandeau>
@@ -173,7 +173,7 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
   </Bandeau>
 
   {/* APPEL FINAL */}
-  <Bandeau jour={5}>
+  <Bandeau jour={5} air="large">
     <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
       <p class="mesure text-lg text-breande-paper">{appelServices.texte}</p>
       <div class="mt-6">

@@ -7,19 +7,22 @@
 const form = document.getElementById('contact-form') as HTMLFormElement;
 const etatDemo = document.getElementById('contact-demo-etat') as HTMLElement;
 
-type Regle = { valide: (v: string) => boolean; message: string };
+type Regle = { valide: (v: string) => boolean; message: (v: string) => string };
 const regles: Record<string, Regle> = {
   nom: {
     valide: (v) => v.trim().length > 0,
-    message: 'Le nom est obligatoire.',
+    message: () => 'Le nom est obligatoire.',
   },
   email: {
     valide: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
-    message: "L'adresse email n'est pas valide.",
+    // Champ vide et champ mal rempli sont deux fautes différentes : la
+    // première dit qu'il manque quelque chose, la seconde qu'il faut
+    // corriger ce qui a été saisi — même distinction que le champ nom.
+    message: (v) => (v.trim().length === 0 ? "L'adresse email est obligatoire." : "L'adresse email n'est pas valide."),
   },
   message: {
     valide: (v) => v.trim().length >= 10,
-    message: 'Le message est requis (10 caractères minimum).',
+    message: () => 'Le message est requis (10 caractères minimum).',
   },
 };
 
@@ -39,7 +42,7 @@ form.addEventListener('submit', (e) => {
   for (const id of ['nom', 'email', 'message']) {
     const champ = form.querySelector('#' + id) as HTMLInputElement | HTMLTextAreaElement;
     const ok = regles[id]!.valide(champ.value);
-    setErreur(id, !ok, regles[id]!.message);
+    setErreur(id, !ok, regles[id]!.message(champ.value));
     if (!ok && !premierFautif) premierFautif = champ;
   }
   if (premierFautif) {

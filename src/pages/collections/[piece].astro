@@ -61,7 +61,7 @@ const lignesCaracteristiques = [
   </Bandeau>
 
   <Bandeau jour={2}>
-    <div class="mesure-large corps-piece text-breande-paper" data-revelation>
+    <div class="mesure corps-piece text-breande-paper" data-revelation>
       <Content />
     </div>
   </Bandeau>
@@ -86,7 +86,7 @@ const lignesCaracteristiques = [
     )
   }
 
-  <Bandeau jour={4}>
+  <Bandeau jour={4} air="large">
     <div class="grid gap-8 sm:grid-cols-2" data-revelation>
       {
         voisines.map((v) => v && (
@@ -99,7 +99,6 @@ const lignesCaracteristiques = [
               <span class="carte-piece__nom">{v.data.nom}</span>
               <span class="carte-piece__specs">
                 <span>à partir de {v.data.prix}</span>
-                <span aria-hidden="true">·</span>
                 <span>{v.data.delaiCourant}</span>
               </span>
             </span>
@@ -121,5 +120,15 @@ const lignesCaracteristiques = [
       <AppelAction texte="Demander une pièce approchante" href="/contact" variante="plein" />
       <AppelAction texte="Voir toutes les pièces" href="/collections" variante="filet" class="ml-4" />
     </div>
+
+    {/*
+      Art. 50 (recette conformité du 19/08) : la fiche montre des images
+      générées sans le dire — un visiteur peut arriver directement dessus par
+      un moteur de recherche, sans être passé par le pied de page du site.
+      L'information doit exister à la première exposition de l'image.
+    */}
+    <p class="mt-10 text-breande-muted text-[length:var(--t-etiquette)]">
+      Images produites par intelligence artificielle — l’atelier est fictif, la pièce n’existe pas.
+    </p>
   </Bandeau>
 </BaseLayout>

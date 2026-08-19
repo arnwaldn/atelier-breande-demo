@@ -45,7 +45,7 @@ import { mentionsFormulaire } from '../data/contact-infos';
 <form autocomplete="off" id="contact-form" novalidate class="max-w-xl space-y-6">
 
   <div class="champ">
-    <label for="nom" class="mb-1 block font-semibold">Nom <span aria-hidden="true">*</span></label>
+    <label for="nom" class="etiquette mb-2 block">nom <span aria-hidden="true">*</span></label>
     <input
       type="text" id="nom" name="nom" required
       aria-describedby="nom-erreur"
@@ -55,7 +55,7 @@ import { mentionsFormulaire } from '../data/contact-infos';
   </div>
 
   <div class="champ">
-    <label for="email" class="mb-1 block font-semibold">Email <span aria-hidden="true">*</span></label>
+    <label for="email" class="etiquette mb-2 block">e-mail <span aria-hidden="true">*</span></label>
     <input
       type="email" id="email" name="email" required
       aria-describedby="email-erreur"
@@ -65,11 +65,11 @@ import { mentionsFormulaire } from '../data/contact-infos';
   </div>
 
   <div class="champ">
-    <label for="message" class="mb-1 block font-semibold">Message <span aria-hidden="true">*</span></label>
+    <label for="message" class="etiquette mb-2 block">message <span aria-hidden="true">*</span></label>
     <textarea
       id="message" name="message" required minlength="10" rows="6"
       aria-describedby="message-erreur"
-      class="w-full rounded border border-breande-brass/50 bg-breande-coal px-3 py-3 text-breande-paper"
+      class="w-full rounded border border-breande-brass/50 bg-breande-coal px-3 py-3 text-breande-paper champ__textarea"
     ></textarea>
     <p id="message-erreur" class="erreur mt-1 text-breande-error" hidden></p>
   </div>

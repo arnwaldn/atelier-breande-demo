@@ -38,7 +38,7 @@ test.describe('navigation', () => {
     await page.goto('/');
     await ouvrirMenuMobileSiNecessaire(page);
     for (const lien of LIENS_NAV) {
-      const item = page.locator(`nav[aria-label="Navigation principale"] a[href="${lien.chemin}"]:visible`);
+      const item = page.locator(`nav[aria-label="Navigation principale"] a[href="${lien.chemin}"]:visible, nav[aria-label="Menu"] a[href="${lien.chemin}"]:visible`);
       await expect(item, `entrée de menu manquante ou invisible : ${lien.chemin}`).toHaveCount(1);
       await expect(item).toHaveText(lien.libelle);
     }
@@ -48,7 +48,7 @@ test.describe('navigation', () => {
     test(`le lien de menu « ${lien.libelle} » mène vers ${lien.chemin}`, async ({ page }) => {
       await page.goto('/');
       await ouvrirMenuMobileSiNecessaire(page);
-      await page.locator(`nav[aria-label="Navigation principale"] a[href="${lien.chemin}"]:visible`).click();
+      await page.locator(`nav[aria-label="Navigation principale"] a[href="${lien.chemin}"]:visible, nav[aria-label="Menu"] a[href="${lien.chemin}"]:visible`).click();
       expect(new URL(page.url()).pathname).toBe(lien.chemin);
     });
   }
@@ -73,14 +73,18 @@ test.describe('navigation', () => {
     }) => {
       await page.goto(p.chemin);
       await ouvrirMenuMobileSiNecessaire(page);
-      const lienCourant = page.locator(`nav[aria-label="Navigation principale"] a[href="${p.chemin}"]:visible`);
+      const lienCourant = page.locator(
+        `nav[aria-label="Navigation principale"] a[href="${p.chemin}"]:visible, nav[aria-label="Menu"] a[href="${p.chemin}"]:visible`
+      );
       await expect(lienCourant).toHaveAttribute('aria-current', 'page');
 
       // Les autres liens de menu ne doivent PAS porter aria-current : sinon la page
       // courante ne serait plus identifiable sans ambiguïté.
       const autres = PAGES_ACTIVES.filter((l) => l.chemin !== p.chemin);
       for (const autre of autres) {
-        const lienAutre = page.locator(`nav[aria-label="Navigation principale"] a[href="${autre.chemin}"]:visible`);
+        const lienAutre = page.locator(
+          `nav[aria-label="Navigation principale"] a[href="${autre.chemin}"]:visible, nav[aria-label="Menu"] a[href="${autre.chemin}"]:visible`
+        );
         await expect(lienAutre).not.toHaveAttribute('aria-current', 'page');
       }
     });

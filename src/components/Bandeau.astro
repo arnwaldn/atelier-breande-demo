@@ -10,12 +10,19 @@
  * les compositions où une image touche le bord réel de la fenêtre — jamais
  * les deux côtés à la fois : l'écriture visuelle du site est asymétrique
  * (« la lumière tourne » en descendant la page).
+ *
+ * `air` (C4, recette DA du 19/08) choisit l'un des trois grains verticaux :
+ * 'serie' (~150 px) entre blocs d'une même série, 'large' (~360 px) avant un
+ * changement de registre (scène 3D, appel final, juste avant le pied),
+ * 'courant' (~240 px, défaut) partout ailleurs.
  */
 export type PalierJour = 1 | 2 | 3 | 4 | 5;
+export type Air = 'serie' | 'courant' | 'large';
 
 interface Props {
   jour: PalierJour;
   pleinBord?: 'gauche' | 'droite' | null;
+  air?: Air;
   id?: string;
   ariaLabelledby?: string;
   ariaLabel?: string;
@@ -25,6 +32,7 @@ interface Props {
 const {
   jour,
   pleinBord = null,
+  air = 'courant',
   id,
   ariaLabelledby,
   ariaLabel,
@@ -39,6 +47,7 @@ const {
   aria-label={ariaLabelledby ? undefined : ariaLabel}
   class:list={[
     'bandeau',
+    `bandeau--air-${air}`,
     pleinBord === 'gauche' && 'bandeau--plein-gauche',
     pleinBord === 'droite' && 'bandeau--plein-droite',
     className,

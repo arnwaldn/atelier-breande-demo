@@ -59,12 +59,14 @@ test.describe('formulaire de contact', () => {
     await page.goto('/contact');
     const urlDepart = page.url();
 
-    await page.getByRole('button', { name: 'Envoyer' }).click();
+    await page.getByRole('button', { name: 'Envoi désactivé' }).click();
 
     await expect(page.locator('#nom-erreur')).toBeVisible();
     await expect(page.locator('#nom-erreur')).toHaveText('Le nom est obligatoire.');
     await expect(page.locator('#email-erreur')).toBeVisible();
-    await expect(page.locator('#email-erreur')).toHaveText("L'adresse email n'est pas valide.");
+    // Champ vide : la même faute que le nom vide — « obligatoire », pas
+    // « n'est pas valide » (qui suppose une saisie déjà présente).
+    await expect(page.locator('#email-erreur')).toHaveText("L'adresse email est obligatoire.");
     await expect(page.locator('#message-erreur')).toBeVisible();
     await expect(page.locator('#message-erreur')).toHaveText('Le message est requis (10 caractères minimum).');
 
@@ -77,9 +79,12 @@ test.describe('formulaire de contact', () => {
     const urlDepart = page.url();
 
     await remplir(page, { nom: SAISIE_VALIDE.nom, email: 'pas-un-email', message: SAISIE_VALIDE.message });
-    await page.getByRole('button', { name: 'Envoyer' }).click();
+    await page.getByRole('button', { name: 'Envoi désactivé' }).click();
 
     await expect(page.locator('#email-erreur')).toBeVisible();
+    // Champ rempli mais mal formé : la faute est « n'est pas valide », jamais
+    // « obligatoire » (le champ n'est pas vide).
+    await expect(page.locator('#email-erreur')).toHaveText("L'adresse email n'est pas valide.");
     await expect(page.locator('#nom-erreur')).toBeHidden();
     await expect(page.locator('#message-erreur')).toBeHidden();
     expect(page.url()).toBe(urlDepart);
@@ -91,11 +96,11 @@ test.describe('formulaire de contact', () => {
   }) => {
     await page.goto('/contact');
     await remplir(page, { nom: SAISIE_VALIDE.nom, email: SAISIE_VALIDE.email, message: '123456789' });
-    await page.getByRole('button', { name: 'Envoyer' }).click();
+    await page.getByRole('button', { name: 'Envoi désactivé' }).click();
     await expect(page.locator('#message-erreur')).toBeVisible();
 
     await page.fill('#message', '1234567890');
-    await page.getByRole('button', { name: 'Envoyer' }).click();
+    await page.getByRole('button', { name: 'Envoi désactivé' }).click();
     await expect(page.locator('#contact-demo-etat')).toBeVisible();
   });
 
@@ -104,7 +109,7 @@ test.describe('formulaire de contact', () => {
     const urlDepart = page.url();
 
     await remplir(page, SAISIE_VALIDE);
-    await page.getByRole('button', { name: 'Envoyer' }).click();
+    await page.getByRole('button', { name: 'Envoi désactivé' }).click();
 
     await expect(page.locator('#contact-demo-etat')).toBeVisible();
     await expect(page.locator('#contact-demo-etat')).toContainText(/envoi est volontairement désactivé/i);
@@ -124,7 +129,7 @@ test.describe('formulaire de contact', () => {
     });
 
     await remplir(page, SAISIE_VALIDE);
-    await page.getByRole('button', { name: 'Envoyer' }).click();
+    await page.getByRole('button', { name: 'Envoi désactivé' }).click();
     await expect(page.locator('#contact-demo-etat')).toBeVisible();
 
     // Marge pour une éventuelle requête différée (fetch tardif, beacon).

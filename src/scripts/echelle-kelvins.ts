@@ -26,10 +26,22 @@ const LIBELLES: Record<string, string> = {
   '5': '2 200 K',
 };
 
-function appliquerPalier(palier: string) {
+/*
+ * C9 (recette DA du 19/08) : la section qui héberge la pièce que l'on règle
+ * (BandeScene, [data-scene]) porte data-jour="5" comme le reste de l'arc —
+ * cohérent pour la teinte de la page, mais la molette qu'elle contient a sa
+ * propre butée, FIXE, à 2 700 K (voir BandeScene.astro et l'ADR direction
+ * artistique). Tant que cette section gouverne l'échelle, l'affichage doit
+ * suivre la butée de la molette, pas le palier générique de la section — la
+ * jauge et le geste que le visiteur a sous les yeux doivent raconter le même
+ * chiffre.
+ */
+const LIBELLE_SCENE = '2 700 K';
+
+function appliquerPalier(palier: string, estScene: boolean) {
   if (!echelle || !valeurEl || !PALIERS_CONNUS.has(palier)) return;
   echelle.setAttribute('data-palier', palier);
-  valeurEl.textContent = LIBELLES[palier];
+  valeurEl.textContent = estScene ? LIBELLE_SCENE : LIBELLES[palier];
 }
 
 if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {
@@ -38,7 +50,7 @@ if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {
       // La section la plus proche du centre du viewport gouverne la valeur
       // affichée : plusieurs sections peuvent être partiellement visibles à
       // la fois, une seule doit gouverner l'échelle à un instant donné.
-      let meilleure: { palier: string; distance: number } | null = null;
+      let meilleure: { palier: string; distance: number; estScene: boolean } | null = null;
       for (const entree of entrees) {
         if (!entree.isIntersecting) continue;
         const palier = entree.target.getAttribute('data-jour');
@@ -46,10 +58,11 @@ if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {
         const centre = entree.boundingClientRect.top + entree.boundingClientRect.height / 2;
         const distance = Math.abs(centre - window.innerHeight / 2);
         if (!meilleure || distance < meilleure.distance) {
-          meilleure = { palier, distance };
+          const estScene = entree.target.querySelector('[data-scene]') !== null;
+          meilleure = { palier, distance, estScene };
         }
       }
-      if (meilleure) appliquerPalier(meilleure.palier);
+      if (meilleure) appliquerPalier(meilleure.palier, meilleure.estScene);
     },
     { threshold: [0, 0.25, 0.5, 0.75, 1] }
   );

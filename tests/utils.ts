@@ -180,6 +180,10 @@ const CAUSES_CONTRASTE_CONNUES_ET_REVUES = [
   'header',
   '.carte-piece',
   '.seuil-secondaire__voile',
+  // L'accent du logotype : glyphe decoratif aria-hidden (un e-accent
+  // clippe, superpose au e lisible en papier). Le contraste ne porte
+  // aucun sens : la lettre porteuse est deja mesuree, elle.
+  '.logotype__accent',
 ];
 
 export function violationsAxeAExiger(resultats: AxeResults) {

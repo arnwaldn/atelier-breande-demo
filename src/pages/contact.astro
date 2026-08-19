@@ -41,7 +41,12 @@ import { faqContact } from '../data/faq';
           <p class="contact-bloc__titre">{autresMoyens.titre}</p>
           <p class="contact-bloc__texte">{autresMoyens.texte}</p>
           <p class="mt-3">
-            <a href={identite.telephoneLien} class="etiquette">{identite.telephone}</a>
+            {/* C10 (recette DA du 19/08) : le canal que le site déclare
+                prioritaire tenait dans ~110×14 px — sous les 44×24 px de
+                cible tactile minimale. inline-block est nécessaire pour que
+                le padding vertical agrandisse réellement la zone cliquable
+                d'un lien par ailleurs purement en ligne. */}
+            <a href={identite.telephoneLien} class="etiquette inline-block py-2">{identite.telephone}</a>
           </p>
         </div>
 

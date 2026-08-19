@@ -60,7 +60,7 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
 
   {/* B2 — LE LIEU */}
   <Bandeau jour={2}>
-    <div class="mesure-large text-breande-muted" data-revelation>
+    <div class="mesure text-breande-muted" data-revelation>
       {leLieu.map((p) => <p class="mt-4 first:mt-0">{p}</p>)}
     </div>
   </Bandeau>
@@ -91,7 +91,7 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
   {/* B4 — LES PROCÉDÉS, en frise verticale numérotée */}
   <Bandeau jour={3} ariaLabelledby="titre-procedes">
     <TitreSection texte="Les procédés" id="titre-procedes" filet />
-    <p class="mesure-large mt-4 text-breande-muted">{procedesIntro}</p>
+    <p class="mesure mt-4 text-breande-muted">{procedesIntro}</p>
     <div class="frise-procedes mt-8" data-revelation>
       {
         procedes.map((procede) => (
@@ -112,7 +112,7 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
   {/* B5 — LA LUMIÈRE */}
   <Bandeau jour={3} ariaLabelledby="titre-lumiere">
     <TitreSection texte={laLumiere.titre} id="titre-lumiere" filet />
-    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+    <div class="mesure mt-4 text-breande-muted" data-revelation>
       {laLumiere.texte.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
     </div>
     <table class="tableau-lumiere mt-8" data-revelation>
@@ -136,14 +136,14 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
         }
       </tbody>
     </table>
-    <p class="mesure-large mt-6 text-breande-muted">{laLumiere.note}</p>
+    <p class="mesure mt-6 text-breande-muted">{laLumiere.note}</p>
   </Bandeau>
 
   {/* LA COUPE DE MATIÈRE — moment de bravoure n°3. Geste volontaire, pas de
       ScrollTrigger : marche à l'identique sous mouvement réduit. */}
   <Bandeau jour={4} ariaLabelledby="titre-coupe">
     <TitreSection texte="La coupe de matière" id="titre-coupe" filet />
-    <p class="mesure-large mt-4 text-breande-muted">
+    <p class="mesure mt-4 text-breande-muted">
       D’un côté la pièce photographiée, de l’autre le dessin technique qui l’a précédée —
       c’est le même objet, à deux moments du même geste.
     </p>
@@ -154,13 +154,17 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
         dessin={coupeDessin}
         dessinAlt="Dessin technique au trait de la même suspension, coté et annoté"
       />
+      {/* C16 (recette DA du 19/08) : le dessin technique porte des lignes de
+          cote sans valeurs — l'image n'est pas modifiable dans ce chantier,
+          la légende donne donc les deux cotes réelles (fiche doucine). */}
+      <p class="etiquette mt-4">Ø 240 mm · verre soufflé — H 214 mm, monture laiton</p>
     </div>
   </Bandeau>
 
   {/* B6 — CE QUI SE FAIT AILLEURS */}
   <Bandeau jour={4} ariaLabelledby="titre-ailleurs">
     <TitreSection texte={ceQuOnNeFaitPasTitre} id="titre-ailleurs" filet />
-    <div class="mesure-large mt-4 text-breande-muted" data-revelation>
+    <div class="mesure mt-4 text-breande-muted" data-revelation>
       {ceQuOnNeFaitPas.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
     </div>
   </Bandeau>
@@ -168,11 +172,11 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
   {/* B7 — OÙ, ET QUAND */}
   <Bandeau jour={5} ariaLabelledby="titre-ou-quand">
     <TitreSection texte={ouEtQuand.titre} id="titre-ou-quand" filet />
-    <p class="mesure-large mt-4 text-breande-muted" data-revelation>{ouEtQuand.texte}</p>
+    <p class="mesure mt-4 text-breande-muted" data-revelation>{ouEtQuand.texte}</p>
   </Bandeau>
 
   {/* B8 — APPEL */}
-  <Bandeau jour={5}>
+  <Bandeau jour={5} air="large">
     <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
       <p class="mesure text-lg text-breande-paper">{appel.texte}</p>
       <div class="mt-6">
