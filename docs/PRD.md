@@ -1,359 +1,464 @@
-# PRD — Atelier Bréande (site vitrine)
+# Plan de contenu — Atelier Bréande, site vitrine de démonstration (5 pages)
 
-> **Statut** : contrat produit verrouillé — source de vérité amont → aval.
-> **Auteur** : persona Product Manager (agence).
-> **Nature du projet** : projet témoin jetable de validation de la chaîne des 5 personas. Non commercial, données fictives.
-> **Contrainte technique imposée par l'agence** : Astro + Tailwind, site 100 % statique, aucun backend.
-> **Chemin canonique** : ce fichier (`docs/PRD.md`) est relu par le Tech Lead/Architecte (cadrage) et par le QA (validation finale).
+Rôle : Product Manager. Livrable = contrat de contenu pour le rédacteur, pas de prose finale.
+Date : 2026-08-19. Site actuel constaté : 3 pages, ~5,5 Ko de texte.
+Nom arrêté par le client ce jour : **Atelier Bréande** (remplace « Atelier Lumen »).
 
 ---
 
-## 0. Résumé en une phrase
+## 0. Journal de vérification des noms propres
 
-Un site vitrine de 3 pages (Accueil, Services, Contact) pour « Atelier Bréande », artisan fictif créateur de luminaires sur mesure à Lyon, qui présente son savoir-faire et permet à un visiteur de le contacter via un formulaire validé côté client et protégé contre le spam — le tout statique, rapide et accessible.
+Règle appliquée : **aucun nom propre n'entre dans ce document sans avoir été cherché sur le web dans son contexte métier.** Le verdict, la requête et la date sont consignés. C'est ce contrôle qui a fait tomber « Lumen ».
 
----
+### 0.1 Nom de l'atelier — retenu : Atelier Bréande
 
-## 1. Problème
+Recherches du 2026-08-19 : `"Bréande"` · `"Breande" France entreprise` · `"Atelier Bréande" OR "atelier-breande" OR "atelierbreande"`.
 
-Un artisan qui crée des luminaires sur mesure n'a aujourd'hui **aucune présence en ligne** permettant à un prospect de :
+- Au singulier, « Bréande » ne désigne **aucune entreprise, aucune marque, aucun modèle**. Rien en éclairage, rien à Lyon.
+- **Réserve à signaler, faible mais réelle** : au pluriel, « Les Bréandes » est un lieu-dit réel de Perrigny (Yonne, 89) — zone d'activités, club de football, clinique vétérinaire. Et surtout **« Les ateliers des Bréandes »** y désigne des ateliers de loisirs créatifs (peinture, cartonnage, meubles en carton), animés par une personne nommée.
+- Analyse : secteur différent (loisirs créatifs, pas éclairage), région différente (Yonne, à 350 km de Lyon), forme différente (singulier, sans article ni complément). Le risque de confusion est sans commune mesure avec celui de « Lumen » (même ville, même métier, même clientèle). **Verdict : nom retenable.** Le client tranche en connaissance de cause.
+- **Contrôles restants avant mise en ligne** (non faisables par recherche web) : `data.inpi.fr/recherche_avancee/marques` pour « BRÉANDE » en classes 11 (appareils d'éclairage) et 35 ; disponibilité du domaine `atelier-breande.fr` au whois ; disponibilité du sous-domaine Vercel.
 
-1. **Comprendre en quelques secondes** ce qu'il fait, pour qui, et à quel niveau de qualité (proposition de valeur + preuves visuelles de réalisations).
-2. **Identifier l'offre** qui correspond à son besoin (création, restauration, ou simple conseil).
-3. **Entrer en contact** sans friction et sans se demander si son message est bien parti.
+**Consigne de rédaction associée** : le mot « lumen » est brûlé. Il ne doit plus apparaître nulle part — ni dans le nom, ni en jeu de mots, ni comme unité de mesure dans une fiche technique. Voir §2.4 : l'intensité lumineuse s'exprime désormais en **équivalent d'ampoule incandescente en watts**. Bénéfice collatéral : c'est ainsi qu'un artisan parle à un client, et cela supprime un tell de précision robotique.
 
-Sans ce point de contact, le prospect (particulier ou architecte d'intérieur) repart chez un concurrent visible en ligne. Le problème à résoudre n'est donc **pas** « faire un joli site » : c'est **transformer un visiteur curieux en prise de contact qualifiée**, avec un site qui inspire confiance (haut de gamme) tout en restant accessible et chaleureux.
+Écartés en cours de route, et pourquoi :
+| Candidat | Verdict | Motif |
+|---|---|---|
+| **Lumen** | écarté | PROLUM ATELIER LUMEN, SIREN 847 633 195, Genas (69), commerce de gros de matériel d'éclairage, `atelierlumen.fr` — même métier, même agglomération, même clientèle déclarée |
+| **Falot** | écarté | aucun conflit trouvé, mais « falot » comme adjectif signifie terne, insignifiant. Rédhibitoire pour une maison de lumière |
+| **Mirandole** | écarté | voisinage gênant : « Atelier de Mirandol » (restauration de peintures), « La Mirandole » (brocante) |
+| **Rouve** | écarté | propre mais sans caractère, n'évoque ni la matière ni le geste |
 
-> Ce problème est énoncé indépendamment de toute solution technique : la contrainte Astro/Tailwind/statique est un choix d'agence, pas une exigence produit.
+### 0.2 Nom du fondateur
 
----
+Recherches du 2026-08-19 : `"Julien Bréande" OR "Julien Breande"` · `"Marc Vernier" luminaire OR éclairage OR artisan Lyon` · `"Antoine Ferrière" luminaire OR éclairage OR ferronnier Lyon` · `"Denis Berthaud" éclairage OR luminaire OR artisan`.
 
-## 2. Objectifs et non-objectifs
+| Candidat | Verdict | Motif |
+|---|---|---|
+| **Julien Bréande** | **écarté** | trop proche de **Julien Bréan**, chanteur lyrique réel (Opéra national de Bordeaux, fiches Ôlyrix et ResMusica) et d'un dirigeant d'entreprise du même nom. Le fondateur ne doit donc **pas** porter le nom de l'atelier |
+| **Marc Vernier** | **retenu** | aucun acteur du luminaire ou de l'éclairage à Lyon ni ailleurs ; aucune personnalité publique notable remontée sur ce couple prénom/nom |
+| Antoine Ferrière | réserve | rien dans le métier, mais homonymie graphique avec Claude-Marie Ferrier, photographe lyonnais du XIXe. Utilisable en repli |
+| Denis Berthaud | réserve | rien dans le métier, mais le patronyme porte deux personnalités publiques (Lise Berthaud, altiste ; Michel Berthaud, photographe). Utilisable en repli |
 
-### 2.1 Objectifs (ce que le site DOIT accomplir)
+**Recommandation** : **Marc Vernier**, fondateur, cité une à deux fois sur tout le site (page L'atelier, et rien de plus). L'atelier parle au « nous » partout ailleurs.
 
-- **O1 — Convaincre vite** : dès l'arrivée sur l'Accueil, le visiteur comprend la proposition de valeur (« luminaires sur mesure, artisanat lyonnais ») et voit 3 réalisations.
-- **O2 — Orienter** : le visiteur identifie clairement les 3 offres et laquelle le concerne.
-- **O3 — Convertir en contact** : le visiteur peut envoyer un message et **obtient une confirmation visible** que son message est parti.
-- **O4 — Inspirer confiance** : ton chaleureux, artisanal, haut de gamme accessible ; cohérence visuelle sur les 3 pages.
-- **O5 — Ne jamais frustrer** : navigation évidente, site rapide, lisible sur mobile, accessible au clavier.
+**Option à trancher, plus sûre encore** : ne nommer personne. Le site fonctionne parfaitement avec « l'atelier » et « nous » ; un artisan qui ne se met pas en avant est crédible. Nommer un fondateur ajoute du liant humain, mais aussi un nom de personne inventé de plus à défendre.
 
-### 2.2 Non-objectifs (ce que le site ne cherche PAS à faire dans cette version)
+**Point lié, à décider en même temps** : dès qu'un fondateur est nommé, la tentation d'un portrait suit. **Aucune photographie de personne réelle** ne peut figurer sur ce site. Recommandation : des mains au travail, un dos penché sur l'établi, jamais un visage identifiable — cela évite de fabriquer le portrait d'une personne qui n'existe pas.
 
-- **N1** — Vendre en ligne / paiement (pas d'e-commerce, pas de panier).
-- **N2** — Gérer des comptes utilisateurs, connexion, espace client.
-- **N3** — Envoyer réellement l'email côté serveur (aucun backend ; voir §5.4 pour le comportement attendu côté utilisateur).
-- **N4** — Blog, actualités, newsletter, multilingue.
-- **N5** — Système de gestion de contenu (CMS) : le contenu est en dur dans le code.
-- **N6** — Prise de rendez-vous / agenda / devis automatisé.
+### 0.3 Noms des neuf pièces
 
----
+Retenus après recherche individuelle (requête type : `luminaire "<nom>" suspension OR applique OR lampe modèle`) :
+**Traboule · Imposte · Cerce · Larmier · Meneau · Doucine · Encorbellement · Vasistas**, plus une pièce de restauration volontairement sans nom de modèle. Détail au §4.2.
 
-## 3. Utilisateur cible (personas)
+Écartés :
+| Candidat | Motif |
+|---|---|
+| **Coursive** | modèle réel : lampe murale de paquebot « Coursive » chez un éditeur français, et déclinaison « Ardle-Coursive » chez un fabricant irlandais |
+| **Grand Voile** | plusieurs suspensions « Voile » commercialisées en France (papier washi, voiles de bateau recyclées) |
+| **Cordelière** | désigne une pièce détachée réelle de lustrerie (suspension en passementerie). Confusion technique garantie |
+| **Éclisse** | écarté sans test : nom d'un luminaire d'éditeur italien parfaitement connu |
+| **Oculus, Navette** | écartés sans test : mots trop courants dans le design pour survivre à une vérification |
 
-Contexte : cibles **françaises**, contenu 100 % en français. Données de l'artisan **fictives** (aucune donnée personnelle réelle ne doit être inventée dans le code — utiliser les valeurs fictives du présent PRD ou des `{{PLACEHOLDERS}}`).
+Réserve honnête : la recherche web réduit fortement le risque, elle ne l'annule pas (catalogues non indexés, éditeurs confidentiels). **Cerce** est le nom le plus proche d'un existant sans être identique (« Cercle & Trait » chez un fabricant français). En cas de doute à la relecture, le remplacer par un autre terme de charpente ou de menuiserie, et refaire le contrôle.
 
-### Persona A — Camille, particulier en rénovation (cible principale)
-
-- **Qui** : 30-55 ans, rénove ou aménage son logement, sensible au « fait main » et aux belles pièces.
-- **Contexte** : navigue souvent **sur mobile**, le soir, entre deux tâches. Peu de patience pour un site lent ou confus.
-- **Contrainte principale** : veut vérifier en < 30 s que l'artisan est sérieux et « pour elle », puis poser une question simple sans créer de compte.
-- **Attente clé** : voir de belles réalisations + un moyen de contact rassurant.
-
-### Persona B — Julien, architecte d'intérieur (cible secondaire, à plus forte valeur)
-
-- **Qui** : prescripteur B2B, cherche des artisans fiables pour ses chantiers clients.
-- **Contexte** : navigue **sur ordinateur**, compare plusieurs prestataires, juge vite le niveau de gamme.
-- **Contrainte principale** : besoin de comprendre la capacité à faire du **sur mesure** et du **conseil éclairage**, et de garder un contact pro.
-- **Attente clé** : preuve de savoir-faire (réalisations, offres claires) + contact rapide et net.
-
-### Non-cibles
-
-- Chasseurs de promotions / bas de gamme.
-- Recruteurs, fournisseurs, spam commercial (traités par la protection anti-spam du formulaire).
-
----
-
-## 4. Golden path — première valeur utile
-
-> **Définition de la « première valeur utile »** : un prospect arrive sur le site, comprend l'offre, et **repart avec la certitude que sa demande de contact est bien partie** (confirmation visible). C'est le parcours minimal qui prouve que le site sert à quelque chose. Il est **entièrement testable au navigateur** par le QA et le bêta-testeur, sans backend.
-
-### Parcours nominal (du premier chargement à la confirmation)
-
-1. **Arrivée** — Le visiteur ouvre la page d'**Accueil** (`/`). En haut : nom « Atelier Bréande », une accroche claire (proposition de valeur), une image/visuel d'ambiance et un appel à l'action (« Nous contacter » / « Voir nos services »).
-2. **Preuve** — En descendant, il voit **3 réalisations** (visuel + titre + courte description chacune).
-3. **Orientation** — Il clique dans la navigation vers **Services** (`/services`). Il lit les **3 offres** : Création sur mesure, Restauration, Conseil éclairage. Chaque offre a un titre, une description et ce qu'elle apporte.
-4. **Décision de contact** — Depuis Services (ou la navigation), il clique vers **Contact** (`/contact`).
-5. **Saisie** — Il remplit le formulaire : **Nom**, **Email**, **Message**.
-6. **Validation** — Il envoie. Les champs sont validés côté client. S'ils sont valides et que le piège anti-spam (honeypot) est vide, la soumission est acceptée.
-7. **Confirmation (valeur atteinte)** — Le visiteur voit un **état/message de confirmation clair** en français (ex. « Merci, votre message a bien été envoyé. Nous vous répondrons rapidement. ») **sans quitter mentalement le site** et sans erreur. Le formulaire disparaît ou est remplacé par ce message de confirmation.
-
-> **Critère de réussite du golden path** : à l'étape 7, un testeur constate visuellement la confirmation. C'est le signal « produit qui marche ». Toute autre chose (ex. rester sur le formulaire sans retour, message d'erreur inattendu) = golden path échoué.
+### 0.4 Autres noms propres du document
+- **Aucun nom de rue.** Localisation au niveau de l'arrondissement seulement : Lyon 7e, rive gauche du Rhône. Les arrondissements et les communes sont des toponymes génériques, admis.
+- **Communes de la zone d'intervention** : Villeurbanne, Caluire-et-Cuire, Écully, Tassin, Sainte-Foy-lès-Lyon, Bron, Oullins, Vienne, Villefranche-sur-Saône, Bourgoin-Jallieu, Ambérieu-en-Bugey. Ce sont des communes réelles, citées comme territoire, jamais comme adresse d'établissement.
+- **Aucun fournisseur nommé.** Le verrier est « un verrier de la vallée du Rhône », l'applicateur de thermolaquage « un atelier de l'est lyonnais ». Le local d'origine est « un ancien local d'imprimerie », sans enseigne.
+- **Téléphone** : `04 65 71 08 42`, dans la plage `04 65 71 XX XX` réservée par l'ARCEP aux œuvres de fiction (vérifié le 19/08).
+- **Aucune adresse e-mail affichée** — cela éviterait d'exposer une adresse sur un domaine tiers.
 
 ---
 
-## 5. Critères d'acceptation (Given-When-Then)
+## 1. Cadre éditorial commun aux 5 pages
 
-> Convention : chaque critère est **vérifiable** (un testeur sait dire passé/échoué). Les identifiants `CA-x` servent de référence pour les scénarios QA et bêta-test.
+### 1.1 Double lecture
+Chaque bloc sert d'abord le client de l'atelier (particulier en rénovation, architecte d'intérieur). Il sert le prospect réel d'Arnaud **par sa seule qualité de structure** : jamais d'adresse au second lecteur, aucun clin d'œil méta, aucune auto-promotion dans le corps du site. Seule mention d'auteur : le pied de page.
 
-### 5.1 Navigation et structure globale (toutes pages)
+### 1.2 Mention de fiction — emplacements imposés, et nulle part ailleurs
+1. Pied de page des 5 pages : « Site fictif de démonstration — conçu et réalisé par Arnaud Porcel. »
+2. Bandeau du formulaire, page Contact, **avant** le formulaire.
+3. Page Mentions légales : explication complète et honnête (§7).
 
-- **CA-NAV-1**
-  - **Étant donné** que je suis sur n'importe laquelle des 3 pages,
-  - **Quand** je regarde l'en-tête,
-  - **Alors** je vois une navigation avec des liens vers **Accueil**, **Services** et **Contact**, tous en français.
+**À supprimer du site actuel** : la note « les trois pièces présentées sont illustratives — l'atelier est fictif » sous les cartes de réalisations de l'accueil. Elle viole la règle « une démonstration se montre, elle ne se commente pas », et c'est la deuxième chose qu'on lit sur la page.
 
-- **CA-NAV-2**
-  - **Étant donné** que je suis sur une page,
-  - **Quand** je clique sur un lien de navigation,
-  - **Alors** j'arrive sur la page correspondante (`/` pour Accueil, `/services` pour Services, `/contact` pour Contact) sans erreur 404.
+### 1.3 Dettes de voix humaine constatées sur le site actuel, à ne pas reconduire
+- Services : « **Ce que cela vous apporte :** » répété trois fois au mot près — tell (c) formule répétée + (f) symétrie mécanique. Ce moule est interdit.
+- Contact : la mention « formulaire de démonstration » figure deux fois, dont une avec justification de méthode (« sur un site livré, la délivrance des messages est vérifiée avant la remise ») — tell (a) méta-honnêteté + (d) auto-référence technique. Une seule mention, avant le formulaire, sans commentaire de méthode.
+- Accueil : le triptyque « crée, restaure et met en scène » passe une fois ; il ne doit pas devenir un gabarit ternaire de page en page.
 
-- **CA-NAV-3**
-  - **Étant donné** que je suis sur une page,
-  - **Quand** je regarde la navigation,
-  - **Alors** le lien de la page courante est visuellement distingué (état actif).
+### 1.4 Interdits durs
+- Aucun témoignage, avis, note, étoile, logo de client, « ils nous font confiance », ni compteur de clients.
+- Aucune qualification officielle inventée : **jamais** « Artisan d'art », « Entreprise du Patrimoine Vivant », « Meilleur Ouvrier de France », « labellisé », « certifié ». Ce sont des titres d'État réels.
+- Aucune marque de composant, de fournisseur, de verrier, de transporteur, d'applicateur.
+- Aucune adresse postale, aucune carte à épingle.
+- Aucune photographie de personne réelle, aucun visage identifiable.
+- **Le mot « lumen » nulle part**, y compris comme unité.
 
-- **CA-NAV-4**
-  - **Étant donné** que je consulte le site,
-  - **Quand** je regarde le pied de page,
-  - **Alors** je vois le nom « Atelier Bréande », une mention de localisation (Lyon) et l'année, le tout en français.
-
-- **CA-NAV-5**
-  - **Étant donné** que je navigue **au clavier uniquement** (touche Tab),
-  - **Quand** je parcours l'en-tête,
-  - **Alors** chaque lien reçoit un focus visible et est activable avec Entrée.
-
-### 5.2 Page Accueil (`/`)
-
-- **CA-HOME-1**
-  - **Étant donné** que j'ouvre la page d'accueil,
-  - **Quand** la page a fini de charger,
-  - **Alors** je vois le nom « Atelier Bréande » et une **proposition de valeur** explicite mentionnant les luminaires sur mesure et l'artisanat (Lyon).
-
-- **CA-HOME-2**
-  - **Étant donné** que je suis sur l'accueil,
-  - **Quand** je fais défiler la page,
-  - **Alors** je vois exactement **3 réalisations**, chacune avec un **visuel**, un **titre** et une **courte description**.
-
-- **CA-HOME-3**
-  - **Étant donné** que je suis sur l'accueil,
-  - **Quand** je cherche à passer à l'action,
-  - **Alors** je trouve au moins un **appel à l'action** menant vers Contact (et/ou Services).
-
-- **CA-HOME-4**
-  - **Étant donné** que chaque réalisation comporte une image,
-  - **Quand** j'inspecte les images,
-  - **Alors** chaque image possède un **texte alternatif** (`alt`) descriptif en français.
-
-- **CA-HOME-5**
-  - **Étant donné** que j'ouvre l'accueil sur mobile (largeur ≈ 375 px),
-  - **Quand** la page s'affiche,
-  - **Alors** le contenu est lisible sans défilement horizontal et les 3 réalisations s'empilent correctement.
-
-### 5.3 Page Services (`/services`)
-
-- **CA-SERV-1**
-  - **Étant donné** que j'ouvre la page Services,
-  - **Quand** la page a fini de charger,
-  - **Alors** je vois exactement **3 offres** : **Création sur mesure**, **Restauration**, **Conseil éclairage**.
-
-- **CA-SERV-2**
-  - **Étant donné** que je regarde une offre,
-  - **Quand** je la lis,
-  - **Alors** elle comporte un **titre**, une **description** claire et une indication de **ce qu'elle apporte** au client, en français.
-
-- **CA-SERV-3**
-  - **Étant donné** que je suis sur Services,
-  - **Quand** je souhaite passer à l'action,
-  - **Alors** je trouve un **appel à l'action** menant vers Contact.
-
-- **CA-SERV-4**
-  - **Étant donné** que j'ouvre Services sur mobile (largeur ≈ 375 px),
-  - **Quand** la page s'affiche,
-  - **Alors** les 3 offres s'empilent proprement, sans défilement horizontal.
-
-### 5.4 Page Contact et formulaire (`/contact`)
-
-> **Comportement produit tranché (côté utilisateur)** — le formulaire est validé **côté client** puis, s'il est valide et non détecté comme spam, il **affiche un état de confirmation** sans rechargement perceptible ni erreur. Aucun email réel n'est envoyé (pas de backend). L'implémentation exacte de la « soumission » (endpoint factice `/api/contact` simulé, ou `mailto:` encodé, ou interception JavaScript affichant la confirmation) est laissée au **Tech Lead** ; seul le **résultat observable côté utilisateur** décrit ci-dessous fait foi pour la validation.
-
-#### Structure et champs
-
-- **CA-CONT-1**
-  - **Étant donné** que j'ouvre la page Contact,
-  - **Quand** la page a fini de charger,
-  - **Alors** je vois un formulaire avec trois champs étiquetés en français : **Nom**, **Email**, **Message**, et un bouton d'envoi (ex. « Envoyer »).
-
-- **CA-CONT-2**
-  - **Étant donné** que chaque champ du formulaire,
-  - **Quand** j'inspecte l'accessibilité,
-  - **Alors** chaque champ a une étiquette (`label`) associée et le champ obligatoire est identifiable (attribut `required` et/ou indication visuelle).
-
-- **CA-CONT-3 (honeypot présent mais invisible)**
-  - **Étant donné** que le formulaire contient un **champ piège anti-spam (honeypot)**,
-  - **Quand** un utilisateur humain regarde la page,
-  - **Alors** ce champ est **invisible et non focusable** (masqué à l'écran et retiré de l'ordre de tabulation), et n'est donc jamais rempli par un humain.
-
-#### Cas nominal (succès)
-
-- **CA-CONT-4 (envoi valide → confirmation)**
-  - **Étant donné** que je saisis un **Nom non vide**, un **Email au format valide** et un **Message non vide** (longueur minimale respectée), et que le champ honeypot reste vide,
-  - **Quand** je clique sur « Envoyer »,
-  - **Alors** un **message/état de confirmation** en français s'affiche (ex. « Merci, votre message a bien été envoyé. »), le formulaire n'affiche **aucune erreur**, et aucune page d'erreur n'apparaît.
-
-- **CA-CONT-5 (le formulaire ne reste pas dans l'état initial après succès)**
-  - **Étant donné** un envoi valide,
-  - **Quand** la confirmation s'affiche,
-  - **Alors** le formulaire de saisie est soit remplacé par la confirmation, soit réinitialisé et accompagné du message de confirmation — de sorte que l'utilisateur comprend sans ambiguïté que l'action a réussi.
-
-#### Cas d'erreur (validation côté client)
-
-- **CA-CONT-6 (champs vides)**
-  - **Étant donné** que je laisse **tous les champs vides**,
-  - **Quand** je clique sur « Envoyer »,
-  - **Alors** la soumission est **bloquée**, **aucune confirmation** n'apparaît, et un **message d'erreur en français** signale les champs obligatoires manquants.
-
-- **CA-CONT-7 (nom vide)**
-  - **Étant donné** que Email et Message sont valides mais que **Nom est vide**,
-  - **Quand** je clique sur « Envoyer »,
-  - **Alors** la soumission est bloquée et une erreur en français indique que le **Nom est obligatoire**.
-
-- **CA-CONT-8 (email invalide)**
-  - **Étant donné** que je saisis un **Email au format invalide** (ex. `camille`, `camille@`, `camille@exemple`, `camille exemple.fr`),
-  - **Quand** je clique sur « Envoyer »,
-  - **Alors** la soumission est bloquée, **aucune confirmation** n'apparaît, et un **message d'erreur en français** indique que l'email n'est pas valide.
-
-- **CA-CONT-9 (email valide accepté)**
-  - **Étant donné** que je saisis un email au format valide (ex. `camille@exemple.fr`),
-  - **Quand** les autres champs sont valides et que j'envoie,
-  - **Alors** l'email n'est **pas** rejeté et le parcours de succès (CA-CONT-4) s'applique.
-
-- **CA-CONT-10 (message vide ou trop court)**
-  - **Étant donné** que Nom et Email sont valides mais que **Message est vide** (ou plus court que la longueur minimale attendue),
-  - **Quand** je clique sur « Envoyer »,
-  - **Alors** la soumission est bloquée et une erreur en français indique que le **Message est requis** (et le cas échéant sa longueur minimale).
-
-- **CA-CONT-11 (honeypot rempli → soumission rejetée silencieusement)**
-  - **Étant donné** qu'un robot (simulé en QA en renseignant le champ honeypot via les outils navigateur) remplit **le champ piège** ainsi que des champs valides,
-  - **Quand** le formulaire est soumis,
-  - **Alors** la soumission est **traitée comme du spam** : **aucun message de contact n'est considéré comme envoyé** et **l'état de confirmation nominal (CA-CONT-4) n'est PAS atteint**. Le comportement est cohérent et reproductible (pas d'erreur JavaScript bloquante visible).
-  - *Note QA : ce cas se teste en rendant le champ honeypot visible via les outils de développement puis en le remplissant. Un humain en usage normal ne peut pas déclencher ce cas.*
-
-- **CA-CONT-12 (correction d'erreur possible)**
-  - **Étant donné** qu'une erreur de validation s'est affichée,
-  - **Quand** je corrige les champs fautifs et renvoie le formulaire,
-  - **Alors** l'erreur disparaît et, si tout est valide, la confirmation (CA-CONT-4) s'affiche.
-
-#### Accessibilité du formulaire
-
-- **CA-CONT-13 (navigation clavier)**
-  - **Étant donné** que je navigue au clavier,
-  - **Quand** je tabule dans le formulaire,
-  - **Alors** j'atteins successivement Nom, Email, Message puis le bouton Envoyer (le honeypot n'est **jamais** atteint), chaque élément a un focus visible.
-
-- **CA-CONT-14 (erreurs annoncées)**
-  - **Étant donné** qu'une erreur de validation survient,
-  - **Quand** elle s'affiche,
-  - **Alors** le message d'erreur est associé au champ concerné (lien programmatique, ex. `aria-describedby`) afin d'être compréhensible pour un lecteur d'écran.
+### 1.5 Volumes cibles
+| Page | Mots (hors navigation et pied de page) |
+|---|---|
+| Accueil | 600 – 750 |
+| L'atelier | 950 – 1 150 |
+| Collections — index | 280 – 350 |
+| Collections — 9 fiches | 9 × 200 – 260 = 1 800 – 2 340 |
+| Services (FAQ de 8 questions comprise) | 1 400 – 1 650 |
+| Contact (4 questions comprises) | 650 – 800 |
+| **Total** | **5 680 – 7 040 mots**, soit 10 à 12 fois le contenu actuel |
 
 ---
 
-## 6. Exigences non-fonctionnelles
+## 2. Données inventées — référentiel unique
 
-> Ces exigences sont des **critères de recette** au même titre que les CA. Elles sont mesurables.
+Toute valeur ci-dessous est définie **à un seul endroit**. Le rédacteur n'en réinvente aucune en cours de route.
 
-### 6.1 Langue et ton
+### 2.1 Identité et logistique
+| Donnée | Valeur |
+|---|---|
+| Nom | **Atelier Bréande** |
+| Fondateur | **Marc Vernier** (ou personne nommée — cf. §0.2) |
+| Création | 2011 |
+| Effectif | trois personnes, une seule nommée au plus |
+| Lieu | Lyon 7e, rive gauche du Rhône — ancien local d'imprimerie, 70 m², trois établis |
+| Horaires | mardi à vendredi 9 h – 12 h 30 / 14 h – 18 h ; samedi matin sur rendez-vous ; fermé trois semaines en août |
+| Réception | sur rendez-vous, pas de showroom |
+| Téléphone | 04 65 71 08 42 (plage ARCEP réservée à la fiction) |
+| E-mail | aucun affiché |
+| Délai de réponse | deux jours ouvrés |
+| Zone incluse | Lyon, Villeurbanne, Caluire-et-Cuire, Écully, Tassin, Sainte-Foy-lès-Lyon, Bron, Oullins |
+| Zone étendue | jusqu'à 60 km : Vienne, Villefranche-sur-Saône, Bourgoin-Jallieu, Ambérieu-en-Bugey |
+| Au-delà | sur devis (Grenoble, Saint-Étienne, Chambéry) ; expédition partout en France |
+| Déplacement | inclus dans la métropole ; 0,60 €/km au-delà de 30 km, ou forfait 90 € |
 
-- **NF-LANG-1** — L'intégralité du contenu visible (textes, étiquettes, boutons, messages d'erreur, confirmation, `alt` des images, pied de page) est en **français**. Aucun texte en anglais visible par l'utilisateur.
-- **NF-LANG-2** — L'attribut de langue du document est `lang="fr"`.
-- **NF-TON-1** — Le ton rédactionnel est **chaleureux, artisanal, haut de gamme accessible** : pas de jargon, pas de superlatifs creux ; on parle de savoir-faire, de matière, de sur-mesure.
+### 2.2 Matières
+- **Laiton et cuivre** : laiton brossé verni mat, laiton poli, laiton patiné brun à la cire, laiton étamé pour l'intérieur des réflecteurs, cuivre rosé, bronze d'ornement (restauration seulement).
+- **Verre** : soufflé bouche clair, ambré, fumé gris, opalin blanc ; verre strié ; verre sablé ; verre gravé à l'acide ; opaline ancienne (restauration) ; albâtre pour les pièces d'exception.
+- **Bois** : noyer huilé, chêne massif brossé, frêne olivier, hêtre étuvé pour le cintrage, érable sycomore.
+- **Acier et finitions** : acier thermolaqué noir texturé (RAL 9005), blanc cassé (RAL 9010), vert profond (RAL 6009) ; fonte pour les bases de lampadaire.
+- **Souple** : câble textile coton torsadé (noir, écru, bordeaux, vert bouteille), cordelière de suspension, abat-jour lin lavé écru ou coton gratté.
+- Comportements à faire dire dans le texte : le laiton non verni fonce en six mois ; le verre soufflé n'est jamais deux fois identique ; le noyer travaille avec l'hygrométrie.
 
-### 6.2 Responsive / mobile
+### 2.3 Procédés, dans l'ordre réel
+1. Dessin à l'échelle 1 sur papier kraft, gabarit carton.
+2. Débit du laiton à la cisaille et à la scie à ruban métal.
+3. Cintrage sur gabarit, roulage du tube et du plat.
+4. Repoussage au tour pour les réflecteurs.
+5. Brasure à l'argent ; soudure TIG sur l'acier.
+6. Satinage à la toile abrasive (grain 240 puis 320) ou polissage au touret.
+7. Patine chimique au foie de soufre, puis cire microcristalline.
+8. Câblage : H05VV-F 3G0,75, douille porcelaine ou thermoplastique, mise à la terre, serre-câble.
+9. Essai en charge pendant vingt-quatre heures avant le départ.
+10. Emballage en caisse bois sur mesure pour les grandes pièces.
 
-- **NF-RESP-1** — Le site est utilisable et lisible de **375 px** (mobile) à **≥ 1280 px** (bureau), sans défilement horizontal parasite.
-- **NF-RESP-2** — Une balise `meta viewport` est présente.
-- **NF-RESP-3** — Les cibles tactiles (liens, bouton d'envoi) sont suffisamment grandes pour un usage au doigt.
+Sous-traité, à dire franchement : le soufflage du verre, chez un verrier de la vallée du Rhône ; le thermolaquage, chez un applicateur de l'est lyonnais.
 
-### 6.3 Accessibilité de base
+### 2.4 Lumière — kelvins et équivalents-watts (aucun « lumen »)
+L'intensité s'exprime en **équivalent d'ampoule incandescente**, comme un artisan le dit à un client.
 
-- **NF-A11Y-1** — Chaque page a **un seul `h1`** et une hiérarchie de titres cohérente.
-- **NF-A11Y-2** — Toutes les images informatives ont un `alt` pertinent ; les images purement décoratives ont un `alt` vide.
-- **NF-A11Y-3** — Le contraste texte/fond respecte au minimum le ratio **AA** (4,5:1 pour le texte courant).
-- **NF-A11Y-4** — Tout le site est **navigable au clavier**, avec focus visible.
-- **NF-A11Y-5** — Les champs de formulaire ont des `label` correctement associés.
+| Pièce du logement | Température | Intensité par point |
+|---|---|---|
+| Salon | 2 400 – 2 700 K | équivalent d'une ampoule de 40 à 50 W |
+| Salle à manger | 2 700 K | équivalent 50 W |
+| Cuisine, plan de travail | 3 000 K | équivalent 60 à 75 W |
+| Couloir | 2 700 K | équivalent 25 W |
+| Chambre | 2 200 – 2 400 K | équivalent 25 à 40 W |
+| Miroir de salle de bains | 3 000 K, IRC 95 | équivalent 40 W |
+| Bureau | 3 000 – 4 000 K | équivalent 60 W |
+| Escalier | 2 700 K | équivalent 40 W par niveau |
 
-### 6.4 Performance (Lighthouse)
+Indice de rendu des couleurs (IRC) ≥ 90 par défaut, 95 sur demande. Culots E27, E14, G9, GU10, ou module LED **remplaçable** — jamais de LED noyée dans la pièce, argument de réparabilité. Variation : variateur mural compatible, sources dimmables, dim-to-warm de 2 700 vers 2 200 K.
 
-- **NF-PERF-1** — Score **Lighthouse Performance > 90** sur l'Accueil (mobile).
-- **NF-PERF-2** — Score **Lighthouse Accessibilité > 90** sur les 3 pages.
-- **NF-PERF-3** — Score **Lighthouse Bonnes pratiques (Best Practices) > 90**.
-- **NF-PERF-4** — Score **Lighthouse SEO > 90** (titres `<title>` uniques par page, meta description, structure sémantique).
-- **NF-PERF-5** — Les images sont optimisées (format et dimensions adaptés) pour ne pas dégrader le score de performance.
+### 2.5 Délais
+| Prestation | Délai |
+|---|---|
+| Devis après visite | 5 à 10 jours ouvrés |
+| Création sur mesure | 6 à 10 semaines (+3 si verre soufflé) |
+| Série de 3 à 8 appliques | 8 à 12 semaines |
+| Restauration — remise aux normes | 2 à 3 semaines |
+| Restauration complète | 6 à 12 semaines |
+| Conseil éclairage (plan) | 2 à 3 semaines après relevé |
+| Verre de remplacement | 2 à 4 semaines |
+| Retouche, service après-vente | sous 10 jours |
 
-### 6.5 Contrainte de plateforme
+### 2.6 Prix (TTC)
+| Prestation | Fourchette |
+|---|---|
+| Applique sur mesure | 380 – 900 € |
+| Série de 6 appliques identiques | 2 200 € |
+| Suspension simple (laiton et verre soufflé) | 750 – 1 800 € |
+| Grande suspension d'escalier | 2 400 – 6 500 € |
+| Lampe à poser | 450 – 1 100 € |
+| Lampadaire, liseuse | 900 – 2 200 € |
+| Plafonnier | 650 – 1 100 € |
+| Restauration — remise aux normes seule | 180 – 350 € |
+| Restauration complète | 450 – 2 500 € |
+| Visite et relevé (conseil) | 180 €, déduits en cas de commande |
+| Plan d'éclairage d'un logement | 650 – 1 400 € |
+| Pose sur point existant | 120 € par point |
+| Acompte | 40 % à la commande, solde à la livraison |
 
-- **NF-TECH-1** — Site **statique**, **aucun backend**, aucune base de données, aucun appel réseau tiers nécessaire au fonctionnement des 3 pages.
-- **NF-TECH-2** — Aucune donnée personnelle réelle n'est présente dans le code ; l'artisan et ses réalisations sont **fictifs**.
-- **NF-TECH-3** — Aucune donnée saisie dans le formulaire n'est stockée ni transmise à un tiers (cohérent avec l'absence de backend et de traitement réel).
+### 2.7 Garanties et normes
+- Deux ans sur la partie électrique, cinq ans sur la structure et les finitions ; usure normale et patine d'usage exclues.
+- Pièces détachées tenues disponibles dix ans : verres, douilles, câbles, molettes.
+- Un passage de réglage sous trois mois après la pose, sans frais dans la métropole.
+- Fabrication conforme à la NF C 15-100, composants marqués CE, classe I ou II selon la pièce ; IP20 en intérieur sec, IP44 en volume 2 de salle de bains, IP65 en extérieur abrité.
+- Le câblage textile d'origine d'une pièce ancienne n'est jamais conservé — point de sécurité à écrire noir sur blanc.
 
 ---
 
-## 7. Roadmap (tranches courtes, ordonnées par valeur)
+## 3. Page par page
 
-> Ordonnancement par **valeur décroissante** : chaque tranche est livrable et vérifiable indépendamment. Le golden path (§4) est atteint dès la fin de la Tranche 3.
+### 3.1 ACCUEIL — 600 à 750 mots
 
-- **T0 — Ossature & design system** *(fondation)*
-  Projet Astro + Tailwind initialisé, layout commun (en-tête + navigation + pied de page), palette et typographie posant le ton chaleureux/haut de gamme, 3 routes vides (`/`, `/services`, `/contact`).
-  *Vérifiable par* : CA-NAV-1 à CA-NAV-5, NF-LANG-2, NF-RESP-2.
+**Intention.** En partant, le visiteur sait qu'il existe à Lyon un atelier qui dessine et fabrique lui-même ses luminaires, il a vu des pièces réelles avec leur prix et leur délai, et il sait comment engager la conversation.
 
-- **T1 — Page Accueil** *(première impression, forte valeur)*
-  Proposition de valeur + visuel d'ambiance + 3 réalisations + appel à l'action.
-  *Vérifiable par* : CA-HOME-1 à CA-HOME-5.
+| # | Bloc | Rôle | Type | Mots | Matière à couvrir |
+|---|---|---|---|---|---|
+| A1 | Hero | situer en trois secondes | H1 + 1 phrase + 2 boutons + image pleine largeur (pièce allumée, le soir) | 30 – 45 | le lieu, le geste (dessiné et fabriqué à l'établi), la promesse (une pièce faite pour un endroit précis) |
+| A2 | Repères | crédibilité chiffrée non promotionnelle | 4 items courts | 25 – 40 | atelier depuis 2011 ; fabrication à Lyon 7e ; délai courant de 6 à 10 semaines ; devis sous 10 jours ouvrés |
+| A3 | Trois entrées de métier | orienter | 3 blocs titrés + lien « en détail » | 3 × 45 – 60 | création, restauration, conseil : ce que c'est, ce que ça change concrètement. **Trois amorces de phrase différentes** |
+| A4 | Trois pièces récentes | prouver par l'objet | 3 cartes : image, nom, typologie, 2 matières, 1 ligne de contexte | 90 – 120 | Imposte, Larmier, la pièce restaurée. Aucune légende auto-justificative |
+| A5 | Un chantier raconté | démontrer la méthode | texte long + image avant / image après | 130 – 170 | la demande (salle à manger sombre, 3,10 m sous plafond) ; la contrainte (point lumineux décentré de 40 cm) ; ce qui a été fait (déport et cercle de laiton) ; le résultat (huit points à 2 400 K, équivalent 25 W chacun, sur variateur) ; lien vers la fiche Cerce |
+| A6 | La matière, l'établi | donner envie de la page atelier | texte court + 2 images de détail | 70 – 90 | copeaux de laiton, brasure, le tour à repousser ; lien « Voir l'atelier » |
+| A7 | Où, et à quel rythme | qualifier le visiteur | texte court + liste de communes | 45 – 60 | métropole incluse, 60 km au-delà, réception sur rendez-vous, délai du moment |
+| A8 | Appel final | convertir | 1 phrase + bouton + téléphone | 30 – 40 | « Parler de votre projet » → /contact |
 
-- **T2 — Page Services** *(orientation)*
-  Les 3 offres détaillées + appel à l'action vers Contact.
-  *Vérifiable par* : CA-SERV-1 à CA-SERV-4.
-
-- **T3 — Page Contact + formulaire (golden path complet)** *(conversion — valeur cœur)*
-  Formulaire Nom/Email/Message, validation côté client, honeypot, état de confirmation, gestion de tous les cas d'erreur.
-  *Vérifiable par* : CA-CONT-1 à CA-CONT-14. **Golden path (§4) atteint.**
-
-- **T4 — Durcissement non-fonctionnel** *(qualité de recette)*
-  Optimisation images, passes accessibilité et contraste, méta SEO par page, mesures Lighthouse.
-  *Vérifiable par* : NF-A11Y-*, NF-PERF-*, NF-RESP-*.
-
-- **T5 — Recette finale par le QA et le bêta-testeur** *(validation contrat)*
-  Exécution des scénarios dérivés des CA au navigateur, y compris cas d'erreur et honeypot ; vérification que le golden path passe de bout en bout.
+**Critères d'acceptation**
+- Étant donné la page d'accueil, quand on mesure le contenu rédactionnel hors navigation et pied de page, alors il compte entre 600 et 750 mots.
+- Étant donné le premier écran, quand on le lit sans faire défiler, alors on y trouve la ville, le métier et un bouton de contact, et **aucune** mention de démonstration ou de fiction.
+- Étant donné les trois entrées de métier, quand on compare leurs premières phrases, alors aucune n'emploie la même amorce ni la même construction.
+- Étant donné le bloc des pièces récentes, quand on cherche une légende justifiant le caractère illustratif des visuels, alors il n'y en a aucune.
+- Étant donné le bloc « un chantier raconté », quand on le lit, alors il énonce une contrainte concrète et la manière dont elle a été réglée, et il renvoie à la fiche de la pièce.
+- Étant donné tout chiffre affiché, quand on le compare au référentiel du §2, alors il est identique.
 
 ---
 
-## 8. Hors périmètre (explicite)
+### 3.2 L'ATELIER — 950 à 1 150 mots
 
-Les éléments suivants sont **volontairement exclus** de cette version. Toute demande de les inclure relève d'une évolution de contrat, pas d'un correctif :
+**Intention.** Le visiteur comprend comment une pièce naît, avec quelles matières, par quels gestes, et pourquoi cela prend des semaines — il repart avec le sentiment d'avoir vu quelqu'un travailler.
 
-1. **Envoi réel d'email / traitement serveur** du formulaire (aucun backend ; seule la confirmation côté utilisateur est requise).
-2. **Stockage ou transmission** des messages saisis (pas de base de données, pas de CRM, pas d'API tierce).
-3. **E-commerce** : vente en ligne, panier, paiement, devis chiffré automatique.
-4. **Comptes utilisateurs** : inscription, connexion, espace client.
-5. **CMS / back-office** : le contenu est en dur dans le code, non éditable par un non-développeur.
-6. **Blog, actualités, newsletter, avis clients dynamiques.**
-7. **Multilingue / internationalisation** : le site est en français uniquement.
-8. **Pages légales complètes** (mentions légales, politique de confidentialité détaillées, bandeau cookies) : hors périmètre car projet témoin fictif sans collecte réelle de données ni cookies non essentiels. À réintroduire pour tout usage réel en production.
-9. **Prise de rendez-vous / calendrier / chat en direct.**
-10. **Analytics, pixels de suivi, cookies de mesure d'audience.**
-11. **Intégration réseaux sociaux dynamique** (flux, boutons de partage traqués).
+| # | Bloc | Rôle | Type | Mots | Matière à couvrir |
+|---|---|---|---|---|---|
+| B1 | Titre + chapô | annoncer | H1 + 2 phrases | 30 – 45 | le lieu, l'année, ce qu'on y fait un mardi ordinaire |
+| B2 | L'atelier | incarner | texte long + 1 image large | 180 – 220 | installation en 2011 dans un ancien local d'imprimerie ; 70 m², trois établis ; le tour à repousser acheté d'occasion en 2016 et remis en état ; ce qui n'est pas fait sur place et pourquoi. **C'est ici, et une seule fois, que le fondateur est nommé.** **Une aspérité obligatoire** : un ratage assumé — une série de patines refusée puis refaite — sans morale ni leçon |
+| B3 | Les matières | rassurer sur la qualité | 4 familles titrées, texte court + 1 image de détail chacune | 200 – 260 | laiton et cuivre ; verre ; bois ; acier et finitions. Pour chacune, comment la matière se comporte dans le temps (§2.2) |
+| B4 | Les procédés | montrer le savoir-faire | liste ordonnée de 8 étapes | 180 – 240 | §2.3, 20 à 30 mots par étape, vocabulaire de métier assumé : brasure à l'argent, repoussage, foie de soufre |
+| B5 | La lumière | démontrer la compétence technique | texte + tableau 3 colonnes | 140 – 180 | pourquoi 2 700 K par défaut, quand descendre, quand monter ; l'IRC ; le choix de sources remplaçables plutôt qu'une LED noyée dans la pièce ; tableau §2.4, **en équivalents-watts** |
+| B6 | Ce qui se fait ailleurs | honnêteté et cadrage | texte court, **en phrases pleines** | 70 – 100 | l'électricité de bâtiment relève d'un électricien ; la dorure à la feuille est confiée ; au-delà d'une vingtaine de pièces identiques, ce n'est plus le bon atelier. Interdiction d'écrire ce bloc en triade « ni… ni… ni… » |
+| B7 | Où, et quand | pratique | texte court | 60 – 80 | Lyon 7e, sur rendez-vous, horaires, fermeture d'août, ce qu'on voit en venant : des pièces en cours, pas une boutique |
+| B8 | Appel | enchaîner | 1 phrase + bouton | 25 – 35 | « Voir les pièces sorties d'ici » → /collections |
+
+**Critères d'acceptation**
+- Étant donné la page L'atelier, quand on mesure le contenu rédactionnel, alors il compte entre 950 et 1 150 mots.
+- Étant donné le bloc B2, quand on le lit, alors il contient au moins un fait qui n'embellit pas l'atelier — un ratage, une limite, un achat d'occasion — énoncé sans justification ni leçon.
+- Étant donné le site entier, quand on compte les occurrences du nom du fondateur, alors il n'apparaît qu'une fois, dans le bloc B2.
+- Étant donné le bloc B4, quand on compte les étapes, alors elles sont huit, ordonnées, et emploient au moins six termes techniques du métier.
+- Étant donné le tableau B5, quand on le compare au §2.4, alors les valeurs sont identiques et aucune n'est exprimée en lumens.
+- Étant donné le bloc B6, quand on cherche une énumération ternaire négative ou une antithèse « X, pas Y », alors on n'en trouve aucune.
+- Étant donné toute la page, quand on cherche le nom d'un fournisseur, d'un verrier ou d'un applicateur, alors aucun n'est nommé — seuls le métier et la région le sont.
 
 ---
 
-## Annexe — Contenu fictif de référence (pour le Dev, à ne pas prendre pour des données réelles)
+### 3.3 COLLECTIONS — index 280 à 350 mots + 9 fiches de 200 à 260 mots
 
-> Valeurs **fictives** destinées à peupler les pages. Le Dev peut les affiner tant que le ton et la structure sont respectés. **Ne remplacer par aucune donnée personnelle réelle.**
+**Intention de l'index.** Le visiteur mesure l'étendue de ce que l'atelier sait faire et trouve vite la pièce qui ressemble à son besoin.
+**Intention de la fiche.** Le visiteur sait exactement ce qu'est la pièce, ce qu'elle coûte, en combien de temps elle se refait, et dans quelle situation elle a été posée.
 
-- **Nom de l'atelier** : Atelier Bréande
-- **Localisation** : Lyon
-- **Accroche possible (Accueil)** : « Des luminaires façonnés à la main, pensés pour votre lumière. »
-- **3 réalisations (exemples de titres)** : « Suspension laiton — appartement haussmannien », « Lampe de table en verre soufflé », « Applique murale sur mesure — boutique ».
-- **3 offres (Services)** :
-  1. **Création sur mesure** — conception d'un luminaire unique, du croquis à la pose.
-  2. **Restauration** — remise en état de luminaires anciens, dans le respect de la pièce.
-  3. **Conseil éclairage** — accompagnement (particuliers et architectes d'intérieur) pour composer une ambiance lumineuse cohérente.
-- **Email de contact affiché (si mailto utilisé)** : `{{EMAIL_CONTACT_FICTIF}}` (à définir par le Tech Lead, ex. `contact@atelier-breande.fr` — domaine fictif non enregistré).
+| # | Bloc de l'index | Type | Mots | Matière |
+|---|---|---|---|---|
+| C1 | Titre + chapô | H1 + 2 phrases | 35 – 50 | ces pièces ont toutes été faites pour un endroit précis ; elles se refont, jamais tout à fait à l'identique |
+| C2 | Entrées par typologie | 5 libellés cliquables | 15 – 25 | suspensions · appliques · lampes et lampadaires · plafonniers · restaurations |
+| C3 | Grille | 9 cartes : image, nom, typologie, 2 matières, prix « à partir de », délai | 9 × 20 – 30 | cf. §4.2 |
+| C4 | Vous ne trouvez pas | texte court + bouton | 40 – 60 | tout part d'un dessin ; décrire l'endroit plutôt que l'objet |
+| C5 | Passerelle Services | bandeau | 25 – 35 | comment se passe une commande → /services |
+
+**Critères d'acceptation**
+- Étant donné l'index Collections, quand on compte les pièces publiées, alors il y en a neuf, dont au moins une restauration, et chaque carte porte un prix et un délai.
+- Étant donné une carte de l'index, quand on la compare à sa fiche, alors le nom, le prix de départ et le délai sont identiques.
+- Étant donné une fiche quelconque, quand on la confronte au gabarit du §4.1, alors les dix-sept champs sont renseignés, sans champ vide ni « à venir ».
+- Étant donné chaque nom de pièce, quand on le recherche sur le web accompagné de « luminaire », alors aucun résultat ne désigne un modèle réellement commercialisé, et la requête, sa date et son verdict sont consignés.
+- Étant donné la prose d'une fiche, quand on la compare aux huit autres, alors elle n'emploie ni la même phrase d'ouverture ni le même moule de conclusion.
+- Étant donné le délai affiché sur les neuf fiches, quand on le modifie dans le référentiel, alors une seule valeur est à changer.
+
+---
+
+### 3.4 SERVICES — 1 400 à 1 650 mots, FAQ de 8 questions comprise
+
+**Intention.** Le visiteur sait laquelle des trois prestations le concerne, ce qu'elle coûte, combien de temps elle prend, ce qui est inclus, et ce qu'on attend de lui.
+
+| # | Bloc | Rôle | Type | Mots | Matière |
+|---|---|---|---|---|---|
+| D1 | Titre + chapô | annoncer | H1 + 2 phrases | 30 – 45 | trois manières d'entrer dans l'atelier, **sans triade rhétorique** |
+| D2 | Création sur mesure | vendre | texte long + liste inclus / non inclus + 2 vignettes de pièces | 200 – 250 | pour qui ; inclus : relevé, croquis coté, choix des matières, essai d'ampoules à domicile, fabrication, essai de 24 h, pose ou expédition, réglage à trois mois ; non inclus : les travaux électriques ; fourchettes §2.6 ; délai ; ce qu'il faut préparer (photos de jour, hauteur sous plafond, position des points) |
+| D3 | Restauration | vendre et rassurer | texte long + 1 avant/après | 200 – 250 | ce qui se restaure ; ce qui ne se restaure pas (verre sur mesure introuvable, transformateur d'origine) ; le câblage textile n'est jamais conservé ; patine d'origine respectée, éclats stabilisés et non repeints ; prix et délais §2.5-2.6 ; photos à envoyer : le dessus, la douille, le câble, les marques éventuelles |
+| D4 | Conseil éclairage | vendre l'immatériel | texte long + extrait de plan | 180 – 230 | pour un particulier en rénovation et pour un architecte d'intérieur ; livrable : un plan pièce par pièce (implantation, températures, intensités, variateurs, type de sources) ; visite 180 € déductibles ; plan 650 – 1 400 € ; ce qu'on regarde : orientation, couleur des murs, usages du soir |
+| D5 | Comment ça se passe | lever l'inconnu | liste ordonnée de 8 étapes | 110 – 175 | premier contact → visite et relevé → croquis et devis sous 10 jours → acompte de 40 % → dessin d'exécution validé par écrit → fabrication et essai de 24 h → pose ou expédition → réglage sous trois mois |
+| D6 | Délais et tarifs | trancher la question du prix | **tableau** 3 colonnes, 8 lignes | 60 + tableau | extrait des §2.5 et 2.6 |
+| D7 | Garanties | rassurer après l'achat | texte court | 90 – 120 | §2.7, en phrases, sans énumération mécanique |
+| D8 | Travailler avec un architecte | capter le prescripteur | texte court | 80 – 110 | dessin coté et fiche technique par pièce, planning calé sur le chantier, livraison groupée, facturation directe ou via l'agence, échantillons de finition prêtés |
+| D9 | Questions fréquentes | lever les freins | 8 questions, réponses de 45 à 70 mots | 400 – 560 | questions 1 à 8 du §5 |
+| D10 | Appel final | convertir | 1 phrase + bouton | 25 – 35 | « Prendre rendez-vous » → /contact |
+
+**Critères d'acceptation**
+- Étant donné la page Services, quand on mesure le contenu rédactionnel, alors il compte entre 1 400 et 1 650 mots.
+- Étant donné les trois blocs de prestation, quand on lit leurs intertitres et leurs dernières phrases, alors aucun gabarit n'est reconduit d'un bloc à l'autre — en particulier « Ce que cela vous apporte » n'apparaît nulle part.
+- Étant donné chaque prestation, quand on la lit, alors elle affiche une fourchette de prix, un délai, ce qui est inclus et au moins une chose qui ne l'est pas.
+- Étant donné le tableau D6, quand on le compare aux §2.5 et 2.6, alors aucune valeur ne diverge.
+- Étant donné la FAQ, quand on compte les questions, alors il y en a huit, formulées à la première personne du client, et aucune ne duplique une question de la page Contact.
+- Étant donné le bloc D3, quand on cherche l'information de sécurité sur le câblage d'origine, alors elle est présente et affirmative.
+
+---
+
+### 3.5 CONTACT — 650 à 800 mots, 4 questions logistiques comprises
+
+**Intention.** Le visiteur sait comment joindre l'atelier, ce qu'il doit préparer, ce qui se passera ensuite — et il comprend avant tout clic que le formulaire de démonstration n'envoie rien.
+
+| # | Bloc | Rôle | Type | Mots | Matière |
+|---|---|---|---|---|---|
+| E1 | Titre + chapô | accueillir | H1 + 2 phrases | 30 – 45 | décrire l'endroit plutôt que l'objet ; une photo prise de jour vaut mieux qu'un long texte |
+| E2 | Bandeau formulaire désactivé | honnêteté, **avant** le formulaire | encadré visible sans défilement | 25 – 35 | l'envoi est désactivé sur cette démonstration, aucun message n'est transmis. Une seule fois, sans commentaire de méthode |
+| E3 | Formulaire, désactivé | démontrer la qualification du besoin | 10 champs + aides d'une ligne + bouton désactivé libellé « Envoi désactivé » | 90 – 130 | nom ; e-mail ; téléphone (facultatif) ; type de projet (création, restauration, conseil, autre) ; pièce concernée ; hauteur sous plafond (facultatif) ; budget envisagé, par fourchettes ; échéance souhaitée ; message ; photos (désactivé) ; consentement |
+| E4 | Autres moyens | joindre autrement | texte court | 60 – 80 | téléphone §2.1, créneaux d'appel, réponse sous deux jours ouvrés, rendez-vous à l'atelier |
+| E5 | Ce qui se passe ensuite | rassurer | 4 étapes courtes | 60 – 90 | accusé de réception, questions de cadrage, visite ou échange téléphonique, croquis et devis sous dix jours |
+| E6 | Venir à l'atelier | pratique | texte court | 60 – 80 | Lyon 7e rive gauche, sur rendez-vous, pas de showroom, ce qu'on peut voir. **Ni adresse postale, ni carte à épingle** |
+| E7 | Zone d'intervention | qualifier | texte + liste | 50 – 70 | §2.1 |
+| E8 | Quatre questions logistiques | lever les derniers freins | 4 questions, 40 à 55 mots | 160 – 220 | questions 9 à 12 du §5 |
+
+**Critères d'acceptation**
+- Étant donné la page Contact affichée sur un mobile de 360 px de large, quand on la charge sans faire défiler, alors la mention de formulaire désactivé est déjà lisible.
+- Étant donné le formulaire, quand on tente de le soumettre, alors rien n'est envoyé, le bouton est inopérant et libellé sans ambiguïté, et aucune donnée saisie ne quitte le navigateur.
+- Étant donné la page, quand on compte les mentions du caractère désactivé du formulaire, alors il y en a exactement une dans le corps de page, plus la ligne du pied de page.
+- Étant donné la page, quand on cherche une adresse postale, un numéro de rue ou une carte interactive, alors il n'y en a aucune.
+- Étant donné le numéro de téléphone affiché, quand on vérifie son préfixe, alors il appartient à la plage `04 65 71 XX XX` réservée à la fiction.
+- Étant donné les quatre questions de E8, quand on les compare aux huit de Services, alors aucune n'est redondante.
+
+---
+
+## 4. La fiche de pièce
+
+### 4.1 Gabarit — 17 champs, tous obligatoires
+1. `nom`
+2. `typologie` — suspension | applique | lampe à poser | lampadaire | plafonnier | restauration
+3. `annee` — 2022 à 2026
+4. `photos` — 1 principale + 3 à 5 secondaires : éteinte de jour, allumée le soir, un détail de fabrication, la pièce en situation
+5. `chapo` — 35 à 55 mots : d'où vient la demande, pour quel endroit
+6. `matieres` — 3 à 6 entrées
+7. `finition` — une ligne
+8. `dimensions` — Ø ou L × H, hauteur de suspension réglable, poids
+9. `lumiere` — nombre de sources, culot, **intensité en équivalent-watt par point**, température en K, IRC, variation possible ou non
+10. `fabrication` — durée en semaines + 45 à 70 mots sur les gestes marquants
+11. `contexte_de_pose` — 45 à 70 mots : type de pièce, hauteur sous plafond, contrainte rencontrée et solution
+12. `prix` — fourchette + ce qui la fait varier
+13. `declinaisons` — finitions, tailles, nombre de points
+14. `delai_actuel` — valeur unique, gérée au référentiel
+15. `pieces_voisines` — 2 liens
+16. `service_lie` — 1 lien
+17. `cta` — « Demander une pièce approchante » → /contact
+
+### 4.2 Les neuf pièces
+
+| # | Nom | Typologie | Matières | Dimensions | Lumière | Fabrication | Prix | Contexte de pose |
+|---|---|---|---|---|---|---|---|---|
+| 1 | **Traboule** | suspension d'escalier | laiton patiné brun, 5 verres soufflés opalins, câble textile coton noir, contrepoids acier | H réglable 2,80 m, Ø 32 cm par verre, 9,4 kg | 5 × E14, 2 700 K, équivalent 40 W par point, IRC 92, variable | 9 semaines, dont 3 chez le verrier | 3 900 – 5 200 € | cage d'escalier d'un immeuble ancien, 6,40 m sous plafond ; fixation sur solive avec platine de reprise, pose au treuil à deux |
+| 2 | **Imposte** | suspension linéaire de table | laiton brossé verni mat, réflecteur repoussé, verre strié clair | L 96 cm, H 18 cm, suspension 65 – 120 cm, 4,2 kg | 3 × E27, 2 700 K, équivalent 50 W par point, IRC 90, variateur | 7 semaines | 1 450 – 1 900 € | table de 200 cm, plafond à 2,55 m, boîte de sortie décentrée : tige de déport de 40 cm |
+| 3 | **Cerce** | suspension circulaire | laiton poli, cercle roulé Ø 90 cm, 8 tiges, verres coniques ambrés | Ø 90 cm, H 24 cm, 7,8 kg | 8 × G9, 2 400 K, équivalent 25 W par point, IRC 90 | 10 semaines | 3 200 – 4 100 € | salle à manger sous verrière, 3,10 m ; triple point de fixation, un cercle ne pardonne pas le faux-plomb |
+| 4 | **Larmier** | applique à casquette | acier thermolaqué noir texturé, intérieur laiton étamé | L 22 cm, P 11 cm, H 14 cm, 1,3 kg | 1 × E14, 2 700 K, équivalent 25 W, IRC 90, lumière rasante | 5 semaines ; 8 pour une série de 6 | 420 – 560 € l'unité ; 2 200 € les six | couloir d'appartement, boîtiers existants à 1,90 m, gabarit de perçage fourni |
+| 5 | **Meneau** | applique verticale | laiton brossé, diffuseur verre sablé | H 62 cm, l 6 cm, P 8 cm, 1,9 kg | module LED remplaçable, 2 700 K, équivalent 40 W, IRC 95, IP44 | 6 semaines | 590 – 780 € | de part et d'autre d'un miroir de salle de bains ; alimentation sortant sous le carrelage, platine de rattrapage |
+| 6 | **Doucine** | lampe à poser | globe soufflé fumé gris, socle noyer huilé tourné, tige laiton, câble textile écru, interrupteur à pied | H 44 cm, Ø 24 cm, 2,6 kg | 1 × E27, 2 400 K, équivalent 40 W, IRC 92 | 6 semaines | 680 – 890 € | bout de canapé ; prise éloignée de 2,20 m, câble de 3 m posé le long de la plinthe |
+| 7 | **Encorbellement** | lampadaire liseuse | acier noir mat, bras laiton, réflecteur repoussé, base fonte de 6 kg | H 168 cm, déport 78 cm, 9,1 kg | 1 × E27, 2 700 K, équivalent 60 W, IRC 90, variateur au pied | 8 semaines | 1 250 – 1 650 € | coin lecture, le bras passe au-dessus du dossier d'un fauteuil |
+| 8 | **Vasistas** | plafonnier plat | cadre laiton brossé, verre opalin, joint feutre | Ø 38 cm, H 9 cm, 2,8 kg | module LED remplaçable, 3 000 K, équivalent 75 W, IRC 90 | 6 semaines | 740 – 950 € | couloir sous combles, 2,10 m sous plafond, pose au ras |
+| 9 | **Suspension d'atelier des années 1930, remise en lumière** | restauration, sans nom de modèle ni marque | tôle émaillée blanche à l'intérieur, verte à l'extérieur ; potence acier | Ø 40 cm, H 22 cm | 1 × E27, 2 700 K, équivalent 60 W | 3 semaines | 320 € l'intervention | dépose complète du câblage textile, douille porcelaine neuve, mise à la terre, redressage de la collerette, molette refaite au tour, éclats d'émail stabilisés et non repeints |
+
+---
+
+## 5. FAQ — 12 questions, réparties
+
+**Sur Services (D9), 8 questions**
+1. **Combien de temps avant d'avoir ma pièce ?** Six à dix semaines, trois de plus si le verre est soufflé. Ce qui allonge vraiment : l'hésitation sur le verre, les séries, un devis validé tard.
+2. **Quel budget prévoir ?** Fourchettes par typologie ; ce qui fait bouger le prix : le verre, le nombre de points, la finition, la hauteur de suspension.
+3. **Comment se passe une commande ?** Les huit étapes, du premier appel au réglage à trois mois. Acompte de 40 %.
+4. **Est-ce aux normes, et qui raccorde ?** Fabrication conforme, classe I ou II, IP adapté à la pièce ; le luminaire est posé sur un point existant, tout le reste relève d'un électricien.
+5. **Peut-on choisir la couleur de la lumière ?** De 2 200 à 3 000 K en habitat, IRC 90 au minimum ; des ampoules d'essai sont prêtées avant validation.
+6. **Peut-on faire varier l'intensité ?** Oui, avec un variateur compatible et des sources dimmables ; les vieux variateurs à triac et les LED premier prix posent problème.
+7. **Mon ancien luminaire est-il récupérable ?** Le plus souvent oui. Restent irrécupérables un verre sur mesure introuvable et certains transformateurs d'origine. Le câblage textile n'est jamais conservé.
+8. **Et si quelque chose casse ?** Deux ans sur l'électrique, cinq ans sur la structure, pièces détachées tenues dix ans, verre refait en deux à quatre semaines.
+
+**Sur Contact (E8), 4 questions**
+9. **Vous déplacez-vous chez moi ?** Métropole incluse, jusqu'à 60 km, au-delà sur devis. Ce qu'on regarde pendant la visite : hauteur, points existants, orientation, couleur des murs.
+10. **Livrez-vous hors région ?** Oui, en caisse bois sur mesure par transporteur ; la pose revient à un électricien local, le plan de fixation est fourni.
+11. **J'ai une échéance serrée, c'est possible ?** Parfois, en jouant sur une pièce déjà dessinée ou une finition disponible ; l'atelier le dit franchement quand ce n'est pas tenable.
+12. **Peut-on se voir un samedi ?** Le samedi matin sur rendez-vous, hors fermeture d'août.
+
+**Critères d'acceptation**
+- Étant donné les douze questions, quand on les lit, alors chacune est formulée comme un client la poserait, à la première personne, et non comme un intertitre marketing.
+- Étant donné chaque réponse, quand on la lit, alors elle contient au moins une donnée concrète — durée, prix, norme, matière — issue du §2.
+- Étant donné l'ensemble des réponses, quand on cherche une formule d'ouverture répétée, alors aucune n'apparaît deux fois.
+- Étant donné au moins deux réponses, quand on les lit, alors elles énoncent franchement une limite ou un refus, sans compensation immédiate.
+
+---
+
+## 6. Maillage et appels à l'action
+
+**En-tête** : Accueil · L'atelier · Collections · Services · Contact, plus un bouton persistant « Prendre rendez-vous ».
+**Pied de page des 5 pages** : plan du site ; zone d'intervention et horaires ; téléphone ; liens Mentions légales et Confidentialité ; ligne d'auteur unique « Site fictif de démonstration — conçu et réalisé par Arnaud Porcel ».
+
+| Page | Liens sortants | Appel principal | Appel secondaire |
+|---|---|---|---|
+| Accueil | 3 fiches, /latelier, /collections, /services, /contact | « Parler de votre projet » → /contact | « Voir les pièces » → /collections |
+| L'atelier | /collections, /services, /contact | « Voir les pièces sorties d'ici » → /collections | « Prendre rendez-vous » → /contact |
+| Collections (index) | 9 fiches, /services | « Demander une pièce approchante » → /contact | « Comment se passe une commande » → /services#etapes |
+| Fiche de pièce | 2 pièces voisines, le service lié, /services#etapes, /collections | « Demander une pièce approchante » → /contact | « Voir toutes les pièces » → /collections |
+| Services | 2 fiches par prestation, /latelier, /contact | « Prendre rendez-vous » → /contact | « Voir les pièces » → /collections |
+| Contact | /collections, /services#faq | le formulaire, désactivé | le téléphone |
+
+Règles : chaque fiche est atteignable en deux clics depuis l'accueil ; aucune page n'est un cul-de-sac ; un même libellé de bouton ne désigne jamais deux destinations ; les liens contextuels sont écrits dans la phrase, jamais en « cliquez ici ».
+
+---
+
+## 7. Ce qui manque à la liste des 5 pages — dit franchement
+
+**Indispensable et absent, à ajouter hors des 5 pages, en lien de pied de page**
+1. **Mentions légales.** Obligation légale française pour tout site public (LCEN, article 6-III). Elles nomment l'éditeur **réel** — Arnaud Porcel — et l'hébergeur, et disent en toutes lettres que l'atelier présenté est une création destinée à démontrer un savoir-faire. C'est là, et nulle part ailleurs, que la fiction s'explique. Sans cette page, le site est en défaut, et un prospect qui le remarque en tire exactement la mauvaise conclusion.
+2. **Politique de confidentialité.** Dès qu'un formulaire affiche des champs nom, e-mail et photos, il faut dire ce qui serait collecté, pourquoi, combien de temps et comment s'y opposer — même si l'envoi est désactivé. Y ajouter la mention de mesure d'audience si un outil est branché.
+3. **Page 404 tenue.** Un lien mort sur une démonstration de vitrine se paie cash.
+
+**Recommandé, à arbitrer**
+4. **Un journal d'atelier**, trois à cinq billets courts : une pièce en cours, un problème de patine, un chantier. C'est le seul substitut honnête aux témoignages interdits pour donner de la fraîcheur et du référencement local. Coût : de la rédaction récurrente.
+5. **Une page par zone d'intervention**, classique en référencement local d'artisan. Aujourd'hui traité en bloc dans Accueil et Contact, ce qui suffit à la démonstration.
+
+**Vigilances que la liste ne couvre pas**
+6. **La preuve sans témoignage.** Les avis étant interdits, la réassurance repose entièrement sur les chantiers datés et racontés avec leurs contraintes, les matières nommées, les procédés détaillés, les garanties écrites, les prix affichés, les délais annoncés. Le plan les répartit exprès sur les cinq pages. Le rédacteur ne doit surtout pas compenser l'absence d'avis par des superlatifs.
+7. **La production visuelle.** Ce plan appelle **45 à 55 visuels** : neuf fiches à quatre ou six images, plus une douzaine pour Accueil, L'atelier et Services. Sans eux, les pages seront des murs de texte et la démonstration se retournera contre son auteur. C'est le vrai poste de charge, et un arbitrage à poser avant d'écrire une ligne.
+8. **Aucun label officiel.** « Artisan d'art », « Entreprise du Patrimoine Vivant », « Meilleur Ouvrier de France » sont des titres réels et protégés. Interdits, même en décor.
+9. **Le portrait du fondateur.** Si Marc Vernier est nommé, aucune photo de visage ne doit apparaître (cf. §0.2).
+
+---
+
+## 8. Critères d'acceptation transverses
+
+- Étant donné le corpus complet, quand on recherche « lumen », « Lumen » ou l'unité « lm », alors on obtient **zéro occurrence**, y compris dans les fiches techniques et les attributs d'images.
+- Étant donné le corpus complet, quand on recherche « ce que cela vous apporte », alors on obtient zéro occurrence.
+- Étant donné les cinq pages, quand on additionne le contenu rédactionnel, alors le total est compris entre 5 680 et 7 040 mots.
+- Étant donné le corpus complet, quand on cherche une phrase de plus de six mots répétée à l'identique dans deux pages différentes, alors on n'en trouve aucune.
+- Étant donné le corpus complet, quand on cherche des énumérations ternaires négatives et des antithèses en moule, alors on en compte au plus deux sur l'ensemble du site.
+- Étant donné le corpus complet, quand on cherche une phrase qui commente le site, sa méthode de fabrication ou son statut de démonstration ailleurs qu'au pied de page, dans le bandeau du formulaire et dans les mentions légales, alors on n'en trouve aucune.
+- Étant donné le corpus complet, quand on cherche le nom d'Arnaud Porcel, alors il n'apparaît que dans le pied de page et les mentions légales.
+- Étant donné **chaque nom propre inventé** — atelier, fondateur, pièces — quand on ouvre le journal du §0, alors on y trouve sa requête, sa date et son verdict, et aucun ne désigne une entreprise, une marque, un modèle ou une personne identifiable dans le métier.
+- Étant donné les données chiffrées, quand on les compare entre deux pages, alors elles sont strictement cohérentes, et chacune n'est définie qu'à un seul endroit.
+- Étant donné le site, quand on cherche un témoignage, un avis, une note, une étoile, un logo de client ou un compteur de clients, alors on n'en trouve aucun.
+- Étant donné le site, quand on cherche une adresse postale, une carte à épingle, un numéro hors plage de fiction ou une photographie de visage, alors on n'en trouve aucun.
+- Étant donné une lecture à voix haute d'une page au hasard, quand on écoute, alors on entend un artisan qui parle de son travail, avec au moins une aspérité par page : un refus, une limite, un ratage, une préférence non justifiée.
+
+---
+
+## 9. Ordre de production conseillé
+
+1. Décisions à prendre par le client : fondateur nommé ou non (§0.2), volume de visuels (§7.7).
+2. Contrôles restants sur le nom : INPI classes 11 et 35, whois du domaine, sous-domaine Vercel (§0.1).
+3. Gel du référentiel §2 — une seule source, tenue à part.
+4. Rédaction des neuf fiches : le plus long, le plus structurant, et ce qui alimente toutes les autres pages.
+5. Services, puis L'atelier.
+6. Accueil en dernier : c'est une vitrine des quatre autres, elle s'écrit une fois le fond posé.
+7. Contact, puis les pages légales.
+8. Relecture « oreille » sur les tells, contrôle des critères transverses (§8), recherche finale de « lumen » sur tout le dépôt.
