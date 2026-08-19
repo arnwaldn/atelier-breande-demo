@@ -5,8 +5,6 @@ annee: 2023
 image: ../../assets/pieces/larmier/principale.jpg
 imageAlt: "Applique murale à casquette en acier noir texturé, intérieur en laiton étamé, lumière rasante sur un mur de couloir"
 galerie:
-  - fichier: ../../assets/pieces/larmier/ambiance.jpg
-    alt: "Le couloir la nuit, six appliques alignées posant chacune une nappe de lumière sur le sol"
   - fichier: ../../assets/pieces/larmier/detail.jpg
     alt: "Détail du pli de la casquette d’acier et de la feuille de laiton étamé qui tapisse l’intérieur"
 chapo: "Un couloir d’appartement de dix-huit mètres, six boîtiers électriques déjà posés à 1,90 m du sol et des murs peints la semaine précédente. Il fallait une applique qui éclaire le sol et le mur sans jamais montrer sa source, à hauteur d’œil."

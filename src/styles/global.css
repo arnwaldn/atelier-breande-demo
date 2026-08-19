@@ -616,16 +616,16 @@
 .logotype__e {
   color: var(--color-breande-paper);
 }
+/* C1 (recette DA) : la barre approximative flottait un cadratin trop haut et
+   se lisait comme un eclat egare — le mot se lisait « Breande ». Le seul
+   accent juste est celui de la fonte : un « e accent » complet, superpose au
+   « e » nu, clippe pour ne montrer QUE l'accent. Meme chasse, meme dessin,
+   meme place, a toutes les tailles. */
 .logotype__accent {
   position: absolute;
-  top: -0.6em;
-  left: 0.06em;
-  width: 0.46em;
-  height: 0.15em;
-  background: var(--color-breande-amber);
-  border-radius: 1px;
-  transform: rotate(-40deg);
-  transform-origin: 0% 100%;
+  inset: 0;
+  color: var(--color-breande-amber);
+  clip-path: inset(0 0 68% 0);
 }
 .logotype__accent::after {
   content: '';
@@ -787,11 +787,20 @@
   padding-block: var(--air-section);
   padding-inline: var(--marge-page);
 }
-.bandeau--plein-gauche {
-  padding-inline: 0 var(--marge-page);
-}
+/* B1 (recette DA du 19/08) : la premiere version retirait le remplissage de
+   la SECTION entiere — le texte collait au bord de la dalle sur les trois
+   largeurs, et la jauge de kelvins se superposait aux mots. La marge de page
+   ne se retire JAMAIS de la section : c'est la CELLULE D'IMAGE qui deborde,
+   par marge negative, du seul cote nomme. */
+.bandeau--plein-gauche,
 .bandeau--plein-droite {
-  padding-inline: var(--marge-page) 0;
+  padding-inline: var(--marge-page);
+}
+.bandeau__deborde-gauche {
+  margin-inline-start: calc(-1 * var(--marge-page));
+}
+.bandeau__deborde-droite {
+  margin-inline-end: calc(-1 * var(--marge-page));
 }
 
 /* ==========================================================================
@@ -1771,7 +1780,15 @@ html.mouvement [data-revele] {
 .bande-scene__reglage { position: relative; z-index: 2; }
 .bande-scene__repli { transition: opacity 450ms ease-out; }
 [data-scene][data-scene-active='oui'] .bande-scene__repli { opacity: 0; }
-.bande-scene__molette { cursor: ew-resize; touch-action: none; }
+.bande-scene__molette {
+  cursor: ew-resize;
+  touch-action: none;
+  /* Le glissement selectionnait les libelles (poignees de selection sur
+     telephone, surlignage sur bureau) : un geste de reglage ne selectionne
+     jamais du texte. */
+  user-select: none;
+  -webkit-user-select: none;
+}
 .bande-scene__molette:focus-visible { outline: 2px solid var(--color-breande-amber); outline-offset: 6px; }
 @media (min-width: 64rem) {
   .bande-scene__bouton { display: none; }

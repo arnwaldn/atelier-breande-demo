@@ -159,8 +159,11 @@ async function monterScene(
   hote: HTMLElement,
   contrat: ContratQualite
 ): Promise<EtatScene> {
-  const largeur = hote.clientWidth;
-  const hauteur = hote.clientHeight;
+  // La scene remplit la zone du repli (ou elle se substitue a l'image),
+  // jamais l'hote entier — qui contient aussi la molette et le titre.
+  const zoneMesure = hote.querySelector<HTMLElement>('.bande-scene__repli') ?? hote;
+  const largeur = zoneMesure.clientWidth;
+  const hauteur = zoneMesure.clientHeight;
 
   // --- Tranche 1 : le contexte graphique -------------------------------
   const rendu = new WebGLRenderer({
@@ -287,12 +290,21 @@ async function monterScene(
   const teinteEteinte = new Color(0x2a1a10);
   const teinteAllumee = new Color(0xffd9a0);
   const teinteCourante = new Color();
+  // Les deux bouts de l'echelle de la molette, sur la courbe du corps noir.
+  const teinte2200 = new Color(0xff9224);
+  const teinte4000 = new Color(0xffd1a3);
   const allumage = { valeur: 0 };
+  // 0..1 sur l'echelle 2200-4000 K ; 0,278 = 2700 K, la position de repos.
+  const temperature = { valeur: 0.278 };
   const appliquer = () => {
     const t = allumage.valeur;
+    // La teinte de la lampe suit la molette ; son intensite suit l'allumage.
+    teinteCourante.copy(teinte2200).lerp(teinte4000, temperature.valeur);
     lumiere.intensity = t * 9;
-    teinteCourante.copy(teinteEteinte).lerp(teinteAllumee, t);
-    (filament.material as MeshBasicMaterial).color.copy(teinteCourante);
+    lumiere.color.copy(teinteCourante);
+    (filament.material as MeshBasicMaterial).color
+      .copy(teinteEteinte)
+      .lerp(teinteCourante, t);
     verreExterieur.opacity = 0.22 + t * 0.08;
     (halo.material as SpriteMaterial).opacity = t * 0.55;
     scene.environmentIntensity = 0.55 + t * 0.45;
@@ -365,8 +377,8 @@ async function monterScene(
   document.addEventListener('visibilitychange', surVisibilite);
 
   const surRedimension = () => {
-    const l = hote.clientWidth;
-    const h = hote.clientHeight;
+    const l = zoneMesure.clientWidth;
+    const h = zoneMesure.clientHeight;
     camera.aspect = l / h;
     camera.updateProjectionMatrix();
     rendu.setSize(l, h);
@@ -379,7 +391,10 @@ async function monterScene(
   canevas.style.inset = '0';
   canevas.style.pointerEvents = 'none';
   canevas.setAttribute('aria-hidden', 'true');
-  hote.appendChild(canevas);
+  // Dans la ZONE DU REPLI, jamais sur l'hote entier : sur mobile le bloc est
+  // vertical et un canevas plein hote passait PAR-DESSUS la molette.
+  const zone = hote.querySelector<HTMLElement>('.bande-scene__repli') ?? hote;
+  zone.appendChild(canevas);
 
   return {
     rendu,

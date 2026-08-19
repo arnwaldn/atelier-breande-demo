@@ -41,7 +41,7 @@ function initialiserMolette(molette: SVGElement): void {
     const separateur = String.fromCharCode(0x202f); // espace fine insecable — jamais en litteral (piege n. 20 du poste)
     label.textContent = `${String(kelvins).slice(0, 1)}${separateur}${String(kelvins).slice(1)}${separateur}K`;
     molette.setAttribute('aria-valuenow', String(kelvins));
-    molette.setAttribute('aria-valuetext', `${kelvins} kelvins`);
+    molette.setAttribute('aria-valuetext', `${String(kelvins).slice(0, 1)}${separateur}${String(kelvins).slice(1)} kelvins`);
     // L'allumage de la scène : 0 à 2 200 K froid éteint… non — la consigne
     // est une TEMPÉRATURE ; l'intensité de la scène suit la proximité de
     // 2 700 K par le haut : plus on descend vers le chaud, plus elle donne.
@@ -52,7 +52,12 @@ function initialiserMolette(molette: SVGElement): void {
 
   const reglerDepuis = (clientX: number): void => {
     const boite = molette.getBoundingClientRect();
-    t = Math.min(1, Math.max(0, (clientX - boite.left) / boite.width));
+    // L'arc ne couvre que 20 a 180 sur un viewBox de 200 : mapper la course
+    // du doigt sur la largeur TOTALE laissait les extremes inatteignables
+    // (le beta-test plafonnait a 3 880 K). On mappe sur l'empan de l'arc.
+    const gauche = boite.left + boite.width * 0.1;
+    const empan = boite.width * 0.8;
+    t = Math.min(1, Math.max(0, (clientX - gauche) / empan));
     appliquer();
   };
 

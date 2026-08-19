@@ -52,8 +52,10 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
           <div class="service-travee">
             <div
               class:list={[
-                'aspect-[4/5] overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]',
-                cote === 'droite' ? 'md:order-1' : 'md:order-2',
+                'aspect-[4/5] overflow-hidden rounded-[2px] shadow-[var(--recoit-lumiere)]',
+                cote === 'droite'
+                  ? 'md:order-1 bandeau__deborde-gauche'
+                  : 'md:order-2 bandeau__deborde-droite',
               ]}
             >
               <Visuel src={visuel.image} alt={visuel.alt} sizes="(min-width: 900px) 50vw, 100vw" class="h-full w-full object-cover" />

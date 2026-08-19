@@ -65,7 +65,7 @@ const grandeDroite = parSlug['suspension-1930'];
     grandeGauche && (
       <Bandeau jour={2} pleinBord="gauche" ariaLabel={`La pièce ${grandeGauche.data.nom}`}>
         <div class="carte-piece-large" data-revelation>
-          <a href={`/collections/${grandeGauche.id}`} class="carte-piece-large__cadre">
+          <a href={`/collections/${grandeGauche.id}`} class="carte-piece-large__cadre bandeau__deborde-gauche">
             <Visuel
               src={grandeGauche.data.image}
               alt={grandeGauche.data.imageAlt}
@@ -114,7 +114,7 @@ const grandeDroite = parSlug['suspension-1930'];
       <Bandeau jour={4} pleinBord="droite" ariaLabel={`La pièce ${grandeDroite.data.nom}`}>
         <div class="carte-piece-large" data-revelation>
           <div class="md:order-2">
-            <a href={`/collections/${grandeDroite.id}`} class="carte-piece-large__cadre">
+            <a href={`/collections/${grandeDroite.id}`} class="carte-piece-large__cadre bandeau__deborde-droite">
               <Visuel
                 src={grandeDroite.data.image}
                 alt={grandeDroite.data.imageAlt}

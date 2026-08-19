@@ -68,7 +68,7 @@ const piecesVedettes = await Promise.all(
         <AppelAction texte={appelFinal.bouton} href={appelFinal.href} variante="plein" />
         <AppelAction texte={appelFinal.boutonSecondaire} href={appelFinal.hrefSecondaire} variante="filet" />
       </div>
-      <p class="mt-8 max-w-md text-xs leading-relaxed text-breande-paper/55">
+      <p class="mt-8 max-w-md text-[0.8125rem] leading-relaxed text-breande-paper/90">
         Image produite par intelligence artificielle. Atelier Bréande n’existe pas :
         ni ce lieu, ni ces objets, ni cette scène ne sont réels.
       </p>
@@ -105,8 +105,10 @@ const piecesVedettes = await Promise.all(
           <div class="grid items-center gap-8 md:grid-cols-2 md:gap-12">
             <div
               class:list={[
-                'aspect-[4/3] overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]',
-                cote === 'droite' ? 'md:order-1' : 'md:order-2',
+                'aspect-[4/3] overflow-hidden rounded-[2px] shadow-[var(--recoit-lumiere)]',
+                cote === 'droite'
+                  ? 'md:order-1 bandeau__deborde-gauche'
+                  : 'md:order-2 bandeau__deborde-droite',
               ]}
             >
               <Visuel
