@@ -86,3 +86,55 @@ Cinq gardes de construction et sept campagnes de test, écrites en parallèle su
 périmètres disjoints. **Chaque garde doit être vue échouer pour la raison
 qu'elle annonce** avant d'être admise : une garde qu'on n'a jamais vue rouge
 n'est pas une garde, c'est un fichier qui se termine par `exit 0`.
+
+### Clôture du lot 1 — 2026-08-19, 03h00
+
+| Contrôle | Résultat |
+|---|---|
+| Types (`astro check`) | 0 erreur, 0 avertissement, 0 indice |
+| `npm run build` + 4 gardes | code de sortie **0** |
+| Campagne Playwright, 2 profils | **99 passés, 1 ignoré, 0 échec** (26,5 s) |
+| Lighthouse — accessibilité / bonnes pratiques / référencement | **100 / 100 / 100** (ordinateur) |
+| Lighthouse — performance | **97**, trois tirages à 97, plancher retenu (mobile bridé) |
+| `<style>` inline, `<script>` sans src, attribut `style=` | **0 / 0 / 0** |
+| **Intégration continue, runner propre** | **completed / success** |
+
+#### Les gardes ont mordu sur du réel
+
+Deux défauts de mon propre travail, attrapés à la première exécution :
+14 apostrophes droites (`index.astro`, `ContactForm.astro`) et une description
+de mentions légales sans le mot « fictif ». Corrigés.
+
+#### Mesure des polices : la garde a été reprise
+
+Première version : seuil assoupli à « par fichier », parce que les cinq fichiers
+pèsent 123 Ko cumulés. **Prémisse fausse** — ce sont des sous-ensembles Unicode
+à `unicode-range` distincts, et un lecteur français n'en télécharge que deux,
+soit **65,2 Ko** pour un budget de 95.
+
+La garde mesure désormais **ce qu'un visiteur reçoit**, et signale à part les
+55 Ko produits pour rien (latin étendu, vietnamien) — sans faire échouer, car ce
+n'est pas un défaut du livrable servi mais un import trop large, à resserrer
+quand la typographie sera refaite au lot 2.
+
+*On corrige la mesure, jamais le seuil : une garde qui s'adapte au livrable
+cesse d'être une garde.*
+
+#### Deux trouvailles du harnais, à ne pas perdre
+
+- **axe-core classe certains vrais défauts de contraste en `incomplete`** et non
+  en `violations`, dès qu'il ne peut pas garantir le calcul (image, dégradé,
+  pseudo-élément). Un test qui ne lit que `violations` — l'usage standard —
+  laisse passer un texte quasi invisible. Le harnais lit donc aussi les
+  `incomplete` de `color-contrast`, avec deux exceptions **nommées et portant
+  sur la CAUSE** de l'incertitude, pas sur des pages en liste blanche.
+- **Chromium n'émet aucun événement réseau vers un domaine `.invalid`** (TLD
+  réservé). Le premier contrôle d'exfiltration donnait donc un faux vert — pas
+  parce que le test était mauvais, mais parce que la cible n'existait pas.
+
+#### Point reporté au lot 2, tracé
+
+Le halo `.lueur` est à 0,28 d'opacité. La direction artistique plafonne à
+**0,18** tout halo traversé par du texte. Le texte principal est à 14,9:1 sur
+fond nu, donc largement au-dessus du seuil même sous le halo — ce n'est pas un
+défaut, c'est un réglage à reprendre avec la nouvelle palette.
