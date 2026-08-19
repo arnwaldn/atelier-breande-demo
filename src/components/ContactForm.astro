@@ -18,16 +18,12 @@
   n'est transmis.
 </p>
 
-<form id="contact-form" novalidate class="max-w-xl space-y-6">
-  <div class="hp-field" aria-hidden="true">
-    <label for="site-web">Ne remplissez pas ce champ</label>
-    <input type="text" id="site-web" name="website" tabindex="-1" autocomplete="off" />
-  </div>
+<form autocomplete="off" id="contact-form" novalidate class="max-w-xl space-y-6">
 
   <div class="champ">
     <label for="nom" class="mb-1 block font-semibold">Nom <span aria-hidden="true">*</span></label>
     <input
-      type="text" id="nom" name="nom" required autocomplete="name"
+      type="text" id="nom" name="nom" required
       aria-describedby="nom-erreur"
       class="w-full rounded border border-breande-brass/50 bg-breande-coal px-3 py-3 text-breande-paper"
     />
@@ -37,7 +33,7 @@
   <div class="champ">
     <label for="email" class="mb-1 block font-semibold">Email <span aria-hidden="true">*</span></label>
     <input
-      type="email" id="email" name="email" required autocomplete="email"
+      type="email" id="email" name="email" required
       aria-describedby="email-erreur"
       class="w-full rounded border border-breande-brass/50 bg-breande-coal px-3 py-3 text-breande-paper"
     />
