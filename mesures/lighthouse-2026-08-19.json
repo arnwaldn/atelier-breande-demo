@@ -1,0 +1,71 @@
+{
+  "date": "2026-08-19",
+  "horodatage": "2026-08-19T00:39:08.165Z",
+  "url": "http://localhost:52299/",
+  "page": "accueil (dist/index.html)",
+  "lighthouseVersion": "13.4.1",
+  "seuils": {
+    "structurel": 100,
+    "performance": 95
+  },
+  "profils": {
+    "ordinateur": {
+      "intitule": "ordinateur",
+      "drapeaux": [
+        "--preset=desktop"
+      ]
+    },
+    "mobile": {
+      "intitule": "mobile bridé",
+      "drapeaux": [
+        "--form-factor=mobile",
+        "--screenEmulation.mobile",
+        "--throttling-method=simulate"
+      ]
+    }
+  },
+  "notes": {
+    "accessibilite": {
+      "cle": "accessibilite",
+      "categorie": "accessibility",
+      "profil": "ordinateur",
+      "seuil": 100,
+      "intitule": "Accessibilité",
+      "mesure": 100,
+      "conforme": true
+    },
+    "bonnesPratiques": {
+      "cle": "bonnesPratiques",
+      "categorie": "best-practices",
+      "profil": "ordinateur",
+      "seuil": 100,
+      "intitule": "Bonnes pratiques",
+      "mesure": 100,
+      "conforme": true
+    },
+    "referencement": {
+      "cle": "referencement",
+      "categorie": "seo",
+      "profil": "ordinateur",
+      "seuil": 100,
+      "intitule": "Référencement",
+      "mesure": 100,
+      "conforme": true
+    },
+    "performance": {
+      "cle": "performance",
+      "categorie": "performance",
+      "profil": "mobile",
+      "seuil": 95,
+      "intitule": "Performance",
+      "tirages": [
+        97,
+        97,
+        97
+      ],
+      "plancher": 97,
+      "conforme": true
+    }
+  },
+  "conforme": true
+}

@@ -1,0 +1,65 @@
+# Chaine de verification du site de demonstration Atelier Breande.
+#
+# Elle est BLOQUANTE, et c'est le point : sur le chantier precedent, six jours
+# de production ont tourne avec une note de rapidite a 56 sous une chaine de
+# gardes qui affichait « OK », parce que la seule note qui bouge n'etait ni
+# publiee ni gardee. Une note qu'on refuse de garder PARCE QU'ELLE BOUGE est
+# exactement celle qu'il fallait garder ; les notes stables se gardent seules.
+#
+# Les mesures Lighthouse ne sont volontairement PAS dans `npm run build` : une
+# garde d'une minute imposee a chaque construction locale finit desactivee,
+# ce qui est pire que pas de garde du tout.
+
+name: verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: verification-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Installer les dependances
+        run: npm ci
+
+      - name: Controle des types
+        run: npm run check
+
+      - name: Construire et passer les gardes
+        run: npm run build
+
+      - name: Installer le navigateur de test
+        run: npx playwright install --with-deps chromium
+
+      - name: Campagne de tests, deux profils
+        run: npm test
+
+      - name: Les quatre notes, deux profils
+        run: npm run verifier-notes
+
+      - name: Conserver les traces en cas d'echec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traces-et-mesures
+          path: |
+            playwright-report/
+            test-results/
+            mesures/
+          retention-days: 14

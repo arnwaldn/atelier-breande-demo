@@ -34,14 +34,7 @@ function setErreur(id: string, actif: boolean, texte: string) {
 form.addEventListener('submit', (e) => {
   e.preventDefault();
 
-  // 1) Honeypot rempli => spam : reset silencieux, aucun état affiché (CA-CONT-11)
-  const piege = form.querySelector('#site-web') as HTMLInputElement | null;
-  if (piege && piege.value.trim() !== '') {
-    form.reset();
-    return;
-  }
-
-  // 2) Validation champ par champ
+  // Validation champ par champ
   let premierFautif: HTMLElement | null = null;
   for (const id of ['nom', 'email', 'message']) {
     const champ = form.querySelector('#' + id) as HTMLInputElement | HTMLTextAreaElement;

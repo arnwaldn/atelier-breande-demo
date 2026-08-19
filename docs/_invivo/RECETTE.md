@@ -1,34 +1,88 @@
-Scénarios in-vivo exécutés le 2026-07-20 (recette T5) :
-- Beta-tester (Playwright MCP) : S1 golden path PASSE (preuve : 2026-07-20-s1-confirmation-golden-path.png), S2-S6+S8 PASSE, bonus XSS adversarial PASSE.
-- Session principale (Chrome DevTools MCP, emulation 375x812) : S7 mobile PASSE sur les 3 pages (zero debordement, empilement OK, bouton 48px, golden path re-valide en mobile).
-- Lighthouse mobile : Accessibilite 100, Best Practices 100, SEO 100 (47 audits, 0 echec). Performance non chiffree par l'outil : acquise par construction (statique, SVG locaux, polices systeme).
-- QA statique : 0 bloquant. Security-review : SUR (1 finding MOYEN documentaire, corrige par amendement ADR-001 §11bis).
+# Journal de recette — Atelier Bréande
 
-## Recette du 2026-07-31 — correctif mobile + en-tetes de securite
+Une entrée par lot. Chaque affirmation porte sa preuve : une commande, une
+mesure, une capture. Ce qui n'a pas été vérifié est écrit comme non vérifié.
 
-Declencheur : bêta test du 31/07. Sur 360x740 (Pixel 5, iPhone 13), le titre du
-hero passait sous l'en-tete superpose et sa premiere ligne etait rognee. La
-recette mobile du 20/07 avait ete faite en 375x812, AVANT la refonte visuelle
-du 29/07 qui a introduit le hero en position absolue : le defaut n'existait pas
-encore au moment du test.
+---
 
-Preuves : `2026-07-31-bug-hero-mobile-360x740-avant.png` (defaut) et
-`2026-07-31-hero-mobile-360x740-apres.png` (production corrigee).
+## Lot 0 — Bascule d'identité · 2026-08-19, 01h20 → 02h10
 
-- Mesures Playwright, 3 pages x 6 largeurs (360, 390, 412, 768, 1280, 1440) sur
-  la PRODUCTION : 18 combinaisons, chevauchement titre/en-tete 0 px partout
-  (136 px avant sur 360), aucun titre rogne, aucun defilement horizontal,
-  console vide, aucune requete en echec.
-- Formulaire de contact re-teste sous la CSP reelle : 3 messages d'erreur sur
-  envoi vide, aucune confirmation abusive, confirmation affichee sur envoi
-  valide, formulaire masque. Zero erreur console.
-- Lighthouse 12.8.2 en ligne, mobile : accueil 99/100/100/100 (LCP 2,1 s,
-  CLS 0, TBT 0 ms) · services 100/100/100/100 · contact 100/100/100/100.
-  Desktop accueil : 100/100/100/100 (LCP 0,5 s). Poids accueil 304 Ko.
-  Progression de la performance mobile : 97 -> 99.
-- En-tetes verifies en ligne sur les 3 pages : CSP stricte, HSTS 2 ans,
-  nosniff, Referrer-Policy, X-Frame-Options DENY, COOP, CORP,
-  Permissions-Policy, X-Permitted-Cross-Domain-Policies.
-- Piege attrape en cours de route : `connect-src 'none'` bloque le fetch que
-  Lighthouse execute depuis la page pour lire /robots.txt -> note SEO 100 -> 92.
-  Corrige en `connect-src 'self'` (mesure A/B sur le meme build).
+### Ce qui a été fait
+
+La démonstration a changé de nom : « Atelier Lumen » est le nom d'une société
+d'éclairage réelle de l'agglomération lyonnaise (détail et remédiation :
+`decisions/ADR-006`). Elle s'appelle désormais **Atelier Bréande**.
+
+### Preuves
+
+| Contrôle | Commande | Résultat |
+|---|---|---|
+| Audit de secrets sur l'historique | `git log --all -p \| grep -E 'sk_\|ghp_\|AKIA\|PRIVATE KEY'` | aucune correspondance |
+| Fichiers sensibles ayant existé | `git log --all --name-only \| grep -Ei '\.env\|secret\|token'` | `.env.example` seul, sans valeur |
+| Purge du nom | script Node, 17 fichiers | **132 remplacements**, 0 occurrence restante |
+| Construction après purge | `npm run build` | 3 pages, sans erreur |
+| Dépôt public | `gh repo view` | `visibility: PUBLIC` |
+| Ancien dépôt | `gh repo view validation-agence` | `isArchived: true` |
+| Nouvelle adresse | `curl -I` | **HTTP 200** |
+| Ancienne adresse | `curl -I` | **HTTP 308** vers la nouvelle, sous-pages comprises |
+| Déploiements historiques | `vercel project rm` | **supprimés** (9 déploiements) |
+| Sous-domaine libéré | projet vide recréé | **repris**, redirige en 308 |
+
+### Corrections de conformité, même session
+
+Issues de la note du juriste-relecteur du 19/08.
+
+| Défaut | Preuve du défaut | Correction | Preuve de la correction |
+|---|---|---|---|
+| Image de tête montrant un **visage humain identifiable**, généré par IA | fichier `hero-atelier.webp` 2048×1152, visage de trois quarts | remplacée par un établi désert, sans présence humaine | 85 608 octets (contre 118 758), `magick identify` : 0 métadonnée |
+| Aucune mention de fiction dans `<title>`, description et `og:` | HTML servi au `curl` | mention portée sur les trois pages | `<title>` servi contrôlé en ligne |
+| Le mot « photographiées » sous des images générées | prose de l'accueil | retiré | `grep -c 'photographi' dist/index.html` → 0 |
+| Aucune mention d'origine IA | absente du site | légende posée **au contact de l'image, dans le premier écran** | contrôlée dans le livrable et en ligne |
+| Pages légales absentes | aucun lien légal sur aucune page | `/mentions-legales` + lien permanent en pied | HTTP 200, rendu contrôlé à l'écran |
+| Formulaire invitant au préremplissage | `autocomplete="name"`, `"email"` | `autocomplete="off"` sur le formulaire | — |
+| Piège anti-robot sur un formulaire inerte | `div.hp-field` | retiré | — |
+
+### Contrôles finaux du lot
+
+- **Console du navigateur : 0 erreur, 0 avertissement** (Playwright, page en ligne).
+- Aucune violation de la politique de sécurité.
+- Rendu vérifié à l'écran sur l'accueil et sur les mentions légales.
+
+### Reste à faire, tracé
+
+- Marques France et UE via TMview (classes 11, 20, 35) et réseaux sociaux, pour
+  clore les six canaux sur « Bréande ».
+- Supprimer le projet redirecteur **six mois après la mise en ligne**, quand
+  plus rien n'y pointera.
+
+---
+
+## Lot 1 — Fondations · 2026-08-19, en cours
+
+### Socle posé
+
+| Élément | État |
+|---|---|
+| `package.json` | nom, moteurs (Node ≥ 22.12), scripts de garde, dépendances de test |
+| `astro.config.mjs` | `inlineStylesheets: 'never'`, `assetsInlineLimit: 0`, `cssMinify: 'esbuild'`, sitemap, `trailingSlash: 'never'` |
+| `vercel.json` | préréglage Astro, 4 directives de sécurité ajoutées |
+| CI | chaîne bloquante : types → gardes → campagne → **quatre notes** |
+| ADR | 005 (budget et sécurité), 006 (identité) |
+| README | réécrit — il annonçait « projet témoin jetable » sur un dépôt public |
+| LICENSE | MIT |
+| `robots.txt` + sitemap | posés ; ils rendaient 404 |
+
+### Contrôles
+
+| Contrôle | Commande | Résultat |
+|---|---|---|
+| Types | `npm run check` | **0 erreur, 0 avertissement, 0 indice** |
+| Construction | `npm run build:nu` | 4 pages + sitemap, sans avertissement |
+| Site en ligne | `curl -I` ×3 | 200 · 200 · 308 |
+
+### En cours
+
+Cinq gardes de construction et sept campagnes de test, écrites en parallèle sur
+périmètres disjoints. **Chaque garde doit être vue échouer pour la raison
+qu'elle annonce** avant d'être admise : une garde qu'on n'a jamais vue rouge
+n'est pas une garde, c'est un fichier qui se termine par `exit 0`.

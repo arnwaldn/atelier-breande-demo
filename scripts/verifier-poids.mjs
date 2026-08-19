@@ -1,0 +1,209 @@
+#!/usr/bin/env node
+/**
+ * GARDE DU POIDS — mesure gzip (niveau 9) du livrable, comparée à des
+ * seuils fixes. Affiche un tableau utile même quand tout passe : c'est lui
+ * qui montre la dérive arriver, avant qu'elle ne devienne un dépassement.
+ *
+ * Quatre postes, sur dist/**\/*.html et dist/_astro/* (le site en gagnera
+ * d'autres pages plus tard — jamais de liste en dur, tout part d'un
+ * parcours réel du dossier) :
+ *   1. chaque page HTML, individuellement ;
+ *   2. le CSS, en cumul ;
+ *   3. le JS « critique » — seulement ce qu'un <script src> du HTML charge
+ *      réellement au chargement, jamais un fragment chargé par import() ;
+ *   4. chaque police, individuellement (voir la justification de ce choix
+ *      juste sous POLICES_MAX_KO).
+ *
+ * Usage : node scripts/verifier-poids.mjs (chaîné dans `npm run gardes`).
+ */
+
+import { readFileSync, statSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
+import { join } from 'node:path';
+import {
+  DOSSIER_ASTRO,
+  DOSSIER_DIST,
+  EchecDeGarde,
+  cheminRelatif,
+  extraireAttributs,
+  listerPagesHtml,
+  listerTousLesFichiers,
+  verifierDistPresent,
+} from './_lib-dist.mjs';
+
+/*
+ * SEUILS — donnés tels quels par la mission de recette du chantier « cinq
+ * scripts de garde » (2026-08-19). Ce script les applique à la lettre, il
+ * ne les invente pas.
+ */
+const HTML_MAX_KO = 18; // par page HTML.
+const CSS_MAX_KO_GZ = 14; // cumul de dist/_astro/*.css.
+const JS_CRITIQUE_MAX_KO_GZ = 8; // cumul du JS référencé par <script src> dans le HTML.
+/*
+ * POLICES_MAX_KO = 95 : appliqué au CUMUL DES SOUS-ENSEMBLES RÉELLEMENT SERVIS
+ * à un visiteur francophone, et non au cumul de tout ce que la construction
+ * produit ni au poids de chaque fichier pris isolément.
+ *
+ * Motif, vérifié sur le livrable du 19/08/2026 : Fontsource découpe chaque
+ * police par plage Unicode et déclare un unicode-range par @font-face. Le
+ * navigateur ne télécharge QUE les plages dont la page a besoin. Les cinq
+ * fichiers produits pèsent 123 Ko cumulés, mais un lecteur français n'en
+ * reçoit que deux — les sous-ensembles « latin » — soit 66,6 Ko. Le
+ * vietnamien et le latin étendu ne partent jamais sur le réseau.
+ *
+ * Mesurer le cumul de tout serait donc FAUX (on compterait des octets que
+ * personne ne télécharge) ; mesurer fichier par fichier serait AVEUGLE (deux
+ * polices de 90 Ko passeraient, alors que le budget serait doublé). La seule
+ * mesure honnête est celle de ce qu'un visiteur reçoit.
+ */
+const POLICES_MAX_KO = 95;
+
+// Les plages qu'un site en français fait réellement télécharger.
+const PLAGES_SERVIES = ['-latin-'];
+// Celles qui sont produites sans jamais servir : gaspillage de construction,
+// signalé sans faire échouer — c'est l'import qu'il faut resserrer, pas la garde.
+const PLAGES_INUTILES = ['-latin-ext-', '-vietnamese-', '-cyrillic-', '-greek-', '-hebrew-'];
+
+const KO = 1024;
+const LARGEUR_POSTE = 70;
+
+function gzip(cheminAbsolu) {
+  return gzipSync(readFileSync(cheminAbsolu), { level: 9 }).length;
+}
+
+let echecs = 0;
+
+/** Une ligne du tableau : mesure / seuil / marge, préfixée OK ou ECHEC. */
+function ligne(poste, mesureOctets, seuilOctets, details = '') {
+  const passe = mesureOctets <= seuilOctets;
+  if (!passe) echecs += 1;
+  const statut = passe ? 'OK   ' : 'ECHEC';
+  const margeOctets = seuilOctets - mesureOctets;
+  const mesure = (mesureOctets / KO).toFixed(2).padStart(8);
+  const seuil = (seuilOctets / KO).toFixed(0).padStart(4);
+  const signeEtMarge = `${margeOctets >= 0 ? '+' : '-'}${(Math.abs(margeOctets) / KO).toFixed(2)}`.padStart(9);
+  const suffixe = details ? `  ${details}` : '';
+  console.log(
+    `${statut}  ${poste.padEnd(LARGEUR_POSTE)} ${mesure} Ko / ${seuil} Ko   marge ${signeEtMarge} Ko${suffixe}`,
+  );
+}
+
+try {
+  verifierDistPresent();
+
+  console.log(
+    `${'Poste'.padEnd(LARGEUR_POSTE + 6)} Mesure  /  Seuil     Marge restante`,
+  );
+  console.log('-'.repeat(110));
+
+  // 1. Chaque page HTML.
+  const pages = listerPagesHtml();
+  if (pages.length === 0) {
+    throw new EchecDeGarde(['ÉCHEC — aucune page HTML trouvée sous dist/.']);
+  }
+  for (const page of pages) {
+    ligne(`HTML    ${cheminRelatif(page)}`, gzip(page), HTML_MAX_KO * KO);
+  }
+
+  // Fichiers de dist/_astro/ — absent si le livrable n'a aucun asset compilé.
+  let fichiersAstro = [];
+  try {
+    fichiersAstro = listerTousLesFichiers(DOSSIER_ASTRO);
+  } catch {
+    console.log('OK     aucun dossier dist/_astro/ à mesurer.');
+  }
+
+  // 2. CSS — poids total de dist/_astro/*.css.
+  const fichiersCss = fichiersAstro.filter((f) => f.endsWith('.css'));
+  const totalCss = fichiersCss.reduce((somme, f) => somme + gzip(f), 0);
+  ligne('CSS     total de dist/_astro/*.css', totalCss, CSS_MAX_KO_GZ * KO, `(${fichiersCss.length} fichier(s))`);
+
+  // 3. JS critique — uniquement ce qui apparaît en <script src="..."> dans
+  // le HTML. Un fragment chargé par import() n'est jamais sur ce chemin :
+  // on ne lit que les balises <script> du HTML, jamais le contenu des
+  // bundles pour y chercher des import() dynamiques.
+  const referencesJs = new Set();
+  for (const page of pages) {
+    const html = readFileSync(page, 'utf8');
+    for (const m of html.matchAll(/<script\b[^>]*>/giu)) {
+      const attributs = extraireAttributs(m[0]);
+      const src = attributs.get('src');
+      if (!src || !src.startsWith('/_astro/') || !src.endsWith('.js')) continue;
+      referencesJs.add(join(DOSSIER_DIST, src));
+    }
+  }
+  let totalJsCritique = 0;
+  const jsIntrouvables = [];
+  for (const chemin of referencesJs) {
+    try {
+      totalJsCritique += gzip(chemin);
+    } catch {
+      jsIntrouvables.push(chemin);
+    }
+  }
+  ligne(
+    'JS      critique, référencé par <script src> dans le HTML',
+    totalJsCritique,
+    JS_CRITIQUE_MAX_KO_GZ * KO,
+    `(${referencesJs.size} fichier(s))`,
+  );
+  if (jsIntrouvables.length > 0) {
+    echecs += 1;
+    console.log(
+      `ECHEC  référence(s) <script src> vers un fichier JS introuvable sur disque : ${jsIntrouvables
+        .map(cheminRelatif)
+        .join(', ')}`,
+    );
+  }
+
+  // 4. Polices — cumul des sous-ensembles SERVIS à un lecteur francophone.
+  const fichiersPolices = fichiersAstro.filter((f) => f.endsWith('.woff2'));
+  if (fichiersPolices.length === 0) {
+    console.log('OK     aucune police (dist/_astro/*.woff2) à mesurer.');
+  } else {
+    const servies = fichiersPolices.filter((f) =>
+      PLAGES_SERVIES.some((p) => cheminRelatif(f).includes(p)) &&
+      !PLAGES_INUTILES.some((p) => cheminRelatif(f).includes(p))
+    );
+    const cumul = servies.reduce((n, f) => n + statSync(f).size, 0);
+    ligne(
+      `POLICES servies au lecteur francais (${servies.length}/${fichiersPolices.length} fichiers)`,
+      cumul,
+      POLICES_MAX_KO * KO
+    );
+
+    const inutiles = fichiersPolices.filter((f) =>
+      PLAGES_INUTILES.some((p) => cheminRelatif(f).includes(p))
+    );
+    if (inutiles.length > 0) {
+      const poids = inutiles.reduce((n, f) => n + statSync(f).size, 0);
+      console.log(
+        `NOTE   ${inutiles.length} sous-ensemble(s) jamais servi(s) à un lecteur français ` +
+        `(${(poids / KO).toFixed(1)} Ko produits pour rien) : ` +
+        inutiles.map((f) => cheminRelatif(f)).join(', ')
+      );
+      console.log(
+        '       Ce n\'est pas un défaut du livrable servi, mais un import trop large.'
+      );
+      console.log(
+        '       À resserrer quand la typographie sera refaite (API Fonts d\'Astro).'
+      );
+    }
+  }
+
+  console.log('-'.repeat(110));
+  if (echecs > 0) {
+    console.log(`ECHEC — ${echecs} poste(s) au-dessus du seuil.`);
+    process.exitCode = 1;
+  } else {
+    console.log('OK — tous les postes sont sous leur seuil.');
+  }
+} catch (erreur) {
+  console.log('');
+  if (erreur instanceof EchecDeGarde) {
+    for (const l of erreur.lignes) console.log(l);
+  } else {
+    console.log(`ECHEC — erreur inattendue : ${erreur?.stack ?? erreur}`);
+  }
+  process.exitCode = 1;
+}
