@@ -65,6 +65,16 @@ const grandeDroite = parSlug['suspension-1930'];
     grandeGauche && (
       <Bandeau jour={2} pleinBord="gauche" ariaLabel={`La pièce ${grandeGauche.data.nom}`}>
         <div class="carte-piece-large" data-revelation>
+          {/* Le geste signature de cette page (recette DA du 19/08) : le
+              cadre s'ouvre en clip-path, de gauche à droite — voir
+              .carte-piece-large[data-revele] .carte-piece-large__cadre dans
+              global.css. Piloté par le data-revele DU PARENT (celui-ci,
+              juste au-dessus), jamais un data-revelation propre au cadre :
+              un élément à clip-path de surface nulle n'est plus considéré
+              « intersectant » par l'IntersectionObserver de Chromium — un
+              second observateur sur le cadre ne se serait donc JAMAIS
+              déclenché (piège vérifié en recette du 19/08, capture à
+              l'appui). Même déclencheur, un seul écrivain. */}
           <a href={`/collections/${grandeGauche.id}`} class="carte-piece-large__cadre bandeau__deborde-gauche">
             <Visuel
               src={grandeGauche.data.image}

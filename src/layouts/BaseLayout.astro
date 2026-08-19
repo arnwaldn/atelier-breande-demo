@@ -31,6 +31,20 @@ const {
 <html lang="fr">
   <head>
     <SeoHead title={title} description={description} />
+    {/*
+      Script classique (jamais type="module", donc jamais différé) qui pose
+      html.js AVANT tout rendu du corps de page : c'est de cette classe que
+      dépend la hauteur qui confisque le défilement du ruban des gestes
+      (voir .ruban-gestes, global.css) — sans elle, aucun script ne traduit
+      la piste et le visiteur descendrait des écrans vides devant une image
+      immobile. Fichier brut dans public/ (pas src/scripts/) : Astro
+      empaquette tout <script src="../scripts/…"> en module différé, ce qui
+      arriverait ici APRÈS le premier rendu et produirait exactement le
+      décalage de mise en page (CLS) que ce garde-fou doit éviter. is:inline
+      laisse la balise telle quelle — src reste conforme à la CSP
+      (script-src 'self', aucun contenu en ligne).
+    */}
+    <script is:inline src="/detection-js.js"></script>
   </head>
   <body class="grain">
     {/* Hors flux, ne pousse jamais le contenu : voir global.css. */}

@@ -7,6 +7,7 @@ import CartePiece from '../components/CartePiece.astro';
 import BandeScene from '../components/BandeScene.astro';
 import AppelAction from '../components/AppelAction.astro';
 import Visuel from '../components/Visuel.astro';
+import RubanGestes from '../components/RubanGestes.astro';
 import { getEntry } from 'astro:content';
 import {
   titreSeuil,
@@ -27,12 +28,18 @@ import imageRestauration from '../assets/services/restauration.jpg';
 import imageConseil from '../assets/services/conseil.jpg';
 import imageChantier from '../assets/pieces/cerce/ambiance.jpg';
 import imageRepli from '../assets/repli/luminaire-repli.jpg';
+import imageHero from '../assets/hero/hero-atelier.webp';
 
 const imagesGestes = {
   Créer: { image: imageCreation, alt: 'Croquis à l’échelle 1 et gabarit de carton, punaisés au mur de l’atelier' },
   Restaurer: { image: imageRestauration, alt: 'Suspension ancienne démontée sur l’établi, câblage textile déposé' },
   Conseiller: { image: imageConseil, alt: 'Plan d’éclairage annoté et ampoules d’essai posées sur une table' },
 };
+
+const gestesDuRuban = entreesMetier.map((entree) => ({
+  ...entree,
+  ...imagesGestes[entree.titre as keyof typeof imagesGestes],
+}));
 
 const piecesVedettes = await Promise.all(
   piecesMisesEnAvant.map((slug) => getEntry('pieces', slug))
@@ -43,16 +50,18 @@ const piecesVedettes = await Promise.all(
   description="Site de démonstration : Atelier Bréande est un atelier fictif. Création, restauration et conseil éclairage à Lyon — dessinés et fabriqués à l’établi, pour un endroit précis."
   heroPleinEcran
 >
-  {/* 1 — LE SEUIL. L'image reste en <img> direct : c'est le LCP, mesuré à 97,
-      elle ne porte aucune animation propre. Seul le texte change. */}
+  {/* 1 — LE SEUIL. C'est le LCP, mesuré à 97 : elle ne porte aucune animation
+      propre (seul le texte change), reste prioritaire et passe par
+      Visuel.astro comme toute image du projet (importante 5 du chantier
+      bêta du 19/08 : servie 85 Ko à l'identique à 360 px avant cette
+      correction — voir le rapport de chantier pour la mesure avant/après). */}
   <section class="allumage relative overflow-hidden" aria-label="L’atelier" data-jour="1">
-    <img
-      src="/images/hero-atelier.webp"
+    <Visuel
+      src={imageHero}
       alt="L’établi de l’atelier le soir : pièces de laiton, globes de verre soufflé et une suspension allumée qui éclaire le plan de travail"
-      width="2048"
-      height="1152"
-      loading="eager"
-      fetchpriority="high"
+      prioritaire
+      sizes="100vw"
+      widths={[480, 800, 1200, 1600, 2048]}
       class="absolute inset-0 h-full w-full object-cover"
     />
     <div
@@ -93,44 +102,16 @@ const piecesVedettes = await Promise.all(
     <p class="phrase-seule" data-revelation>{phraseSeule}</p>
   </Bandeau>
 
-  {/* 4 — LES TROIS GESTES : trois travées plein-bord, alternées, data-jour
-      descendant. */}
-  {
-    entreesMetier.map((entree, i) => {
-      const cote = i % 2 === 0 ? 'droite' : 'gauche';
-      const visuel = imagesGestes[entree.titre as keyof typeof imagesGestes];
-      const palier = (2 + Math.min(i, 1)) as 2 | 3;
-      return (
-        <Bandeau jour={palier} pleinBord={cote} air="serie" ariaLabelledby={`geste-${entree.titre}`}>
-          <div class="grid items-center gap-8 md:grid-cols-2 md:gap-12">
-            <div
-              class:list={[
-                'aspect-[4/3] overflow-hidden rounded-[2px] shadow-[var(--recoit-lumiere)]',
-                cote === 'droite'
-                  ? 'md:order-1 bandeau__deborde-gauche'
-                  : 'md:order-2 bandeau__deborde-droite',
-              ]}
-            >
-              <Visuel
-                src={visuel.image}
-                alt={visuel.alt}
-                sizes="(min-width: 768px) 50vw, 100vw"
-                class="h-full w-full object-cover"
-              />
-            </div>
-            <div data-revelation class:list={[cote === 'droite' ? 'md:order-2' : 'md:order-1']}>
-              <TitreSection texte={entree.titre} id={`geste-${entree.titre}`} />
-              <p class="mesure mt-4 text-breande-muted">{entree.texte}</p>
-              <a href={entree.lienHref} class="etiquette mt-6 inline-block">{entree.lienTexte}</a>
-            </div>
-          </div>
-        </Bandeau>
-      );
-    })
-  }
+  {/* 4 — LES TROIS GESTES : le ruban horizontal (voir RubanGestes.astro),
+      geste signature transposé de la référence qiqiglobal.com. */}
+  <RubanGestes gestes={gestesDuRuban} jour={3} ariaLabel="Les trois gestes de l’atelier : créer, restaurer, conseiller" />
 
-  {/* 5 — LE CHANTIER RACONTÉ */}
-  <Bandeau jour={3} ariaLabelledby="titre-chantier">
+  {/* 5 — LE CHANTIER RACONTÉ. jour={4} et non {3} (recette DA du 19/08) : le
+      ruban qui précède interpole maintenant --part-de-jour EN CONTINU
+      jusqu'à 0,30 pendant sa propre traversée (voir effets-scroll.ts) — ce
+      bandeau doit repartir exactement là où le geste l'a laissé, jamais
+      remonter d'un palier. */}
+  <Bandeau jour={4} ariaLabelledby="titre-chantier">
     <div class="chantier-raconte">
       <div class="chantier-raconte__image" data-revelation>
         <Visuel
@@ -161,7 +142,7 @@ const piecesVedettes = await Promise.all(
     <div data-revelation>
       <TitreSection texte="la lumière se règle" id="titre-variateur" />
       <p class="mesure mt-3 text-breande-muted">
-        Glissez la molette — ou réglez au clavier, flèches gauche et droite.
+        Faites glisser le cadran — ou réglez au clavier, flèches gauche et droite.
       </p>
       <div class="mt-8">
         <BandeScene>

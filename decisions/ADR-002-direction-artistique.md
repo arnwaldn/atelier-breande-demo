@@ -36,6 +36,12 @@ de la journée. Vaubrune claque ; Bréande monte en régime.
   à 0,30 le texte secondaire tombe à 4,20:1) ; `--halo-ambiance: 0.34` pour ce
   qu'aucun texte ne traverse. Quatre arrêts minimum par dégradé. Le flou se
   peint, jamais `filter: blur()` sur une grande surface, jamais `backdrop-filter`.
+- **Voiles sur photo** (ajout du 19/08/2026) : `--voile-image: 0.46` plafond
+  ABSOLU sous du texte, `--voile-image-ambiance: 0.12` ailleurs, et **jamais
+  de voile sur plus de 45 % de la hauteur d'une image**. Motif : `--halo-lisible`
+  plafonne la lumière AJOUTÉE ; rien ne plafonnait la lumière RETIRÉE, et c'est
+  par ce trou qu'un voile pleine surface a divisé par 11,2 la luminance d'une
+  photo du ruban. Un voile est un SOCLE ancré en bas, jamais un `inset: 0`.
 - **Le grain** : 3,5 %, fixe, posé PAR-DESSUS les halos — c'est lui qui casse
   le banding sur Android. Servi en fichier (`/grain.svg`), jamais en `data:`
   (refusé par `img-src 'self'`).
@@ -51,7 +57,10 @@ de la journée. Vaubrune claque ; Bréande monte en régime.
   plie, il ne s'arrondit pas) ; le bois n'existe qu'en photo.
 - **Mouvement** : vocabulaire FERMÉ (5 durées, 3 courbes, aucun ease-in, aucun
   `transition: all`). Les révélations sont DÉFINITIVES (jamais de re-masquage
-  en remontant). L'élément LCP ne porte JAMAIS d'animation.
+  en remontant). **L'élément LCP de CHAQUE page** — pas seulement le hero de
+  l'accueil — ne porte JAMAIS d'animation. Précisé le 19/08/2026 : la règle
+  avait été lue comme visant la seule page d'accueil, ce qui a failli faire
+  animer l'image de tête des sept fiches de pièce, qui portent `prioritaire`.
 
 ## Les trois moments de bravoure
 
@@ -71,11 +80,25 @@ de la journée. Vaubrune claque ; Bréande monte en régime.
 ## Les refus (ne pas rouvrir sans fait nouveau)
 
 Curseur personnalisé (sauf `ew-resize` système sur la molette) · préchargeur ·
-défilement lissé (Lenis — casse le défilement natif Android) · kinetic
-typography · parallaxe multi-couches (toléré 1× : plan unique, 6 %, seuil) ·
+kinetic
+typography · parallaxe multi-couches (toléré 1× PAR PAGE : plan unique, 6 %, seuil —
+précision du 19/08/2026 : sans ce « par page », le ruban de l'accueil
+consommerait la tolérance pour tout le site et la règle deviendrait
+inapplicable) ·
 compteurs animés · faux témoignages · verre dépoli/backdrop-filter · vidéo de
 fond de hero · bascule clair/sombre (le site EST une nuit d'atelier) · marquee ·
 textures bois/métal en CSS · rayons d'angle > 2 px.
+
+**Renversement du 19/08/2026 — le défilement lissé sort des refus.** Lenis y
+figurait au motif qu'il « casse le défilement natif d'Android ». Fait nouveau,
+double : la référence d'animation retenue par le client (qiqiglobal.com) repose
+sur ce lissage, et la configuration par défaut de Lenis ne lisse QUE la molette
+et le trackpad — `syncTouch: false`, le tactile reste natif. L'objection ne
+portait donc pas sur ce que Lenis fait réellement. Il est réintégré, instancié
+sous `surMouvement()` seul, piloté par `gsap.ticker` (une seule horloge), et
+retiré proprement si la préférence de mouvement bascule. Corollaire appliqué le
+même jour : `scroll-behavior: smooth` disparaît de la feuille — deux lissages
+sur le même axe se battent.
 
 ## Recette (juger à l'écran, aux 4 largeurs + Samsung réel)
 

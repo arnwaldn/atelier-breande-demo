@@ -258,3 +258,31 @@ publie 95** — le chiffre tenu à chaque tirage, décision d'Arnaud du 19/08.
 - Le MCP nanobanana n'est pas chargeable en sous-agent — configuration du
   poste à vérifier.
 - Supprimer le projet Vercel redirecteur atelier-lumen-demo dans six mois.
+
+## Décision d'Arnaud du 19/08 à 15h47 — la galerie de profondeur remplacera la lampe
+
+Arnaud a signalé deux références d'animation en cours de chantier :
+- `https://codepen.io/moussamamadou/full/WbNepNG` — **écartée** : grande photo
+  plein écran + titre monumental en capitales. Le ruban de l'accueil fait déjà
+  mieux (il se déplace latéralement), et deux éléments y sont interdits par
+  l'ADR-002 : le visage humain en gros plan et le titre monumental en capitales
+  (marqueur Vaubrune n° 2).
+- `https://tympanus.net/Tutorials/DepthGallery/` — **RETENUE POUR PLUS TARD, en
+  remplacement de la scène 3D du luminaire** (arbitrage d'Arnaud : « je suis
+  prêt à sacrifier la lampe »). Structure relevée sur pièces : une image par
+  écran, numéro + nom dans la marge gauche, fiche technique dans la marge
+  droite, fond teinté de la couleur de l'image. C'est presque exactement la
+  structure d'une fiche de pièce de Bréande.
+
+**Ce qui a été dit à Arnaud et qu'il faudra vérifier avant de commencer** :
+l'effet de DepthGallery tient à sa COMPOSITION, pas à ses shaders. La
+transposition peut se faire sans WebGL, avec ScrollTrigger et `--part-de-jour`
+— donc sans forcément sacrifier la lampe. Le sacrifice reste sa décision, mais
+il n'est peut-être pas nécessaire.
+
+**Ce qu'il faudra refuser de la référence** (ADR-002) : le monospace partout,
+les capitales interlettrées, la cotation en tableau, le fond clair. Trois
+marqueurs interdits sur quatre — la forme est à réécrire entièrement, seule la
+structure se reprend.
+
+Priorité fixée par Arnaud le 19/08 : **finir le chantier en cours d'abord.**

@@ -6,8 +6,15 @@
  * rue se donne au téléphone. Le numéro et les délais viennent d’identite.ts.
  */
 
+/**
+ * Composé à la main, une ligne par retour, comme titreSeuil (accueil.ts) —
+ * le découpage se fait ici, au build, jamais à l'exécution (geste du 19/08 :
+ * trois lignes montantes en entrée de page, voir .titre-contact__ligne dans
+ * global.css). Le gabarit ne coupe rien.
+ */
+export const titreContact: string[] = ['Contacter', 'l’atelier,', 'à Lyon 7e.'];
+
 export const contactEnTete = {
-  titre: 'Contact',
   chapo:
     'Le plus utile, pour commencer, c’est de décrire l’endroit plutôt que l’objet. Une photo prise de jour, la hauteur sous plafond et l’emplacement des points existants nous en disent plus que trois paragraphes.',
 };

@@ -76,7 +76,16 @@ const { id, class: className } = Astro.props;
 
       <text class="bande-scene__label" x="12" y="119">2 200</text>
       <text class="bande-scene__label" x="158" y="119">4 000</text>
-      <text class="bande-scene__label bande-scene__label--actif" x="30" y="34">2 700 K</text>
+      {/* Ancrage FIXE au centre, sous le moyeu (finition 9, chantier bêta du
+          19/08) : l'aiguille balaie tout l'arc, y compris ses deux bornes où
+          elle descend sous l'horizontale (jusqu'à y≈121, voir molette.ts) —
+          aucune position qui la SUIT n'est lisible aux deux bornes sans
+          recouvrir l'une des étiquettes fixes ci-dessus. Le centre (x=100,
+          sous le moyeu à 100,100) est le seul point que l'aiguille
+          n'atteint jamais : chaque fois qu'elle est proche de x=100, elle
+          est haute (y≈38, au sommet de l'arc) ; chaque fois qu'elle est
+          basse (y≈121), elle est loin de x=100 (≈42 ou ≈158). */}
+      <text class="bande-scene__label bande-scene__label--actif" x="100" y="119" text-anchor="middle">2 700 K</text>
     </svg>
 
     <AppelAction

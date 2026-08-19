@@ -143,6 +143,17 @@
   --halo-lisible: 0.18;   /* PLAFOND ABSOLU sous du texte */
   --halo-ambiance: 0.34;  /* décoratif — aucun texte ne le traverse */
 
+  /* Même logique que les halos ci-dessus, mais pour la lumière RETIRÉE par un
+     voile posé sur une PHOTOGRAPHIE (jamais sur un aplat) : --halo-lisible
+     plafonnait ce qu'on AJOUTE, rien ne plafonnait ce qu'on ENLÈVE — c'est ce
+     qui a produit un voile couvrant le panneau entier à 75-100 % d'opacité
+     (recette DA du 19/08, ruban des gestes : 63,8 % du texte sous 4,5:1 sur
+     la capture réelle). Règle qui en découle, à ne jamais renégocier au coup
+     par coup : un voile de lisibilité ne couvre JAMAIS plus de 45 % de la
+     hauteur d'une image ; au-delà, c'est un défaut de recette, pas un choix. */
+  --voile-image: 0.46;          /* PLAFOND ABSOLU sous du texte, sur photo */
+  --voile-image-ambiance: 0.12; /* zone SANS texte, purement décorative */
+
   /* Ombres. Jamais noires. Le troisième ingrédient — le liséré qui reçoit la
      lumière — est celui qui fait la matière. */
   --ombre-contact: 0 2px 6px rgb(12 8 5 / 0.55);
@@ -196,7 +207,12 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-behavior: smooth;
+    /* scroll-behavior: smooth retiré (recette DA du 19/08) : Lenis lisse déjà
+       tout le défilement (voir socle.ts) — les deux lissages superposés sur
+       le même axe sont le genre de doublon qui produit un flottement. La
+       valeur par défaut du navigateur (auto) suffit ; html.lenis plus bas
+       reste posée pour la raison documentée juste à côté (anti-conflit
+       ancre + Lenis), même si elle ne fait plus que confirmer ce défaut. */
   }
 
   body {
@@ -454,7 +470,21 @@
   display: flex;
   align-items: center;
   background-color: transparent;
-  transition: background-color var(--ms-etat) var(--ease-etat);
+  transition:
+    background-color var(--ms-etat) var(--ease-etat),
+    transform var(--ms-survol) var(--ease-deplace);
+}
+/* Retrait pendant la traversée du ruban des gestes (recette DA du 19/08) :
+   en position: fixed, l'en-tête couvre les 73 px du haut de la fenêtre
+   épinglée, le panneau n'est alors jamais plein écran. Posée et retirée par
+   effets-scroll.ts, sur le même déclencheur que le scrub — jamais par CSS
+   seul, jamais par un second écrivain. DEUX GARDES tiennent cette classe
+   hors du chemin de l'accessibilité : elle est retirée au premier `focusin`
+   dans l'en-tête (un lien qui reçoit le focus clavier doit être visible,
+   jamais caché hors écran) et à la sortie du ruban, dans les deux sens de
+   défilement (onLeave ET onLeaveBack). */
+.entete--retire {
+  transform: translateY(-100%);
 }
 .entete::after {
   content: '';
@@ -862,11 +892,24 @@
   width: 2px;
   pointer-events: none;
   background-color: var(--couleur-jour, var(--color-breande-k5000));
-  transition: background-color var(--ms-etat) var(--ease-etat);
+  transition:
+    background-color var(--ms-etat) var(--ease-etat),
+    opacity var(--ms-etat) var(--ease-etat);
 }
 .echelle-kelvins__trait,
 .echelle-kelvins__valeur {
   display: none;
+}
+/* La marge active porte la température liée au DÉFILEMENT ; la molette de
+   la bande-scène (BandeScene.astro) porte celle de la LAMPE, réglable par
+   le visiteur. Les deux ne coïncident qu'au repos — dès qu'on touche au
+   réglage, laisser les deux visibles affiche deux kelvins différents à
+   quelques centimètres l'un de l'autre (finition importante 8, chantier
+   bêta du 19/08). Une seule valeur de température visible à la fois : la
+   marge s'efface tant que le bloc de la lampe est à l'écran (voir
+   echelle-kelvins.ts, estScene), et réapparaît à la sortie. */
+.echelle-kelvins--efface {
+  opacity: 0;
 }
 
 @media (min-width: 1024px) {
@@ -977,6 +1020,35 @@
   margin-top: var(--air-section);
   background-color: var(--color-breande-nuit-profonde);
   overflow: hidden;
+}
+/* BLOQUANT 4, chantier bêta du 19/08 — cause réelle, mesurée au navigateur
+   (pas supposée) : sur la page d'accueil, en bas de page, l'en-tête
+   (position: fixed, 72 px) recouvrait à 100 % les deux boutons de l'appel
+   final. L'en-tête n'était PAS resté rétracté (aucune classe .entete--retire
+   à cet endroit, hors de portée du ruban) : la cause est géométrique. La
+   dernière section de l'accueil porte déjà `air="large"` (~180 px de
+   padding-bottom) PRÉCISÉMENT « avant un changement de registre… juste
+   avant le pied » (voir Bandeau.astro) — et le pied de page ajoutait PAR-
+   DESSUS son propre `margin-top: var(--air-section)` (~149 px à 1440 px de
+   large) : un second intervalle, non voulu, empilé sur le premier. Total
+   mesuré ≈ 330 px d'air avant le pied, quand ~180 px suffisaient déjà par
+   construction — l'excédent poussait le point de défilement maximal assez
+   loin pour que les boutons retombent dans la bande des 72 px que l'en-tête
+   couvre en permanence, sans plus aucun défilement disponible pour les en
+   sortir. Le sélecteur ci-dessous supprime CE SEUL doublon (uniquement
+   quand `--air-large` a déjà réservé la place) ; les autres pages, qui
+   n'ont pas cette section juste avant le pied, gardent leur
+   `--air-section` intact.
+
+   `:has()` plutôt qu'un simple sélecteur de fratrie (essayé d'abord, sans
+   effet — CORRIGÉ) : le pied de page n'est PAS le frère direct de la
+   section, il est le frère de <main> qui la CONTIENT (voir BaseLayout.astro,
+   <main><slot /></main> puis <PiedDePage />) — `.bandeau--air-large +
+   .pied-de-page` ne matche jamais, aucun ancêtre commun immédiat. `:has()`
+   regarde DANS <main> pour vérifier son dernier enfant, exactement la
+   relation qu'il faut. */
+main:has(> .bandeau--air-large:last-child) + .pied-de-page {
+  margin-top: 0;
 }
 .pied-de-page__cadre {
   position: relative;
@@ -1444,6 +1516,38 @@ html.mouvement [data-revele] {
   color: var(--color-breande-muted);
   font-size: var(--t-etiquette);
 }
+/* LE BALAYAGE D'ENTRÉE (L'atelier, recette DA du 19/08) : une transition
+   CSS, jamais un tween GSAP — la courbe --ease-deplace (cubic-bezier) n'est
+   lisible par GSAP qu'avec le plugin CustomEase, refusé (budget GSAP fermé,
+   aucun plugin supplémentaire). La transition porte EXACTEMENT les mêmes
+   jetons et coûte zéro octet de script. [data-coupe-balaye] n'est posé que
+   le temps du balayage (effets-scroll.ts) : en dehors de cette fenêtre, un
+   glissement manuel du curseur reste instantané, jamais amorti. */
+.comparateur-coupe[data-coupe-balaye] .comparateur-coupe__photo {
+  transition: clip-path var(--ms-signature) var(--ease-deplace);
+}
+.comparateur-coupe[data-coupe-balaye] .comparateur-coupe__trait {
+  transition: left var(--ms-signature) var(--ease-deplace);
+}
+/* Passage en plein-bord (L'atelier, recette DA du 19/08) : le comparateur
+   mesurait 640 px dans une page de 1280 — plafond de largeur donné par la
+   mission, desktop seulement (mobile garde son gabarit d'origine, déjà
+   plein-bord via bandeau__deborde-droite). */
+.coupe-travee {
+  display: grid;
+  gap: 2.5rem;
+}
+@media (min-width: 900px) {
+  .coupe-travee {
+    grid-template-columns: 1fr auto;
+    gap: 3rem;
+    align-items: center;
+  }
+  .comparateur-coupe--large {
+    width: clamp(720px, 62vw, 900px);
+    max-width: none;
+  }
+}
 
 /* --------------------------------------------------------------------------
    LA GRILLE DES COLLECTIONS — rythme de tailles (grand / petit / moyen).
@@ -1488,6 +1592,27 @@ html.mouvement [data-revele] {
   object-fit: cover;
   display: block;
 }
+/* LE GESTE SIGNATURE DE LA PAGE COLLECTIONS (recette DA du 19/08) : les deux
+   cadres plein-bord s'ouvrent en clip-path au défilement, la lumière entre
+   par le bord de page — jamais la translation générique de [data-revelation]
+   (RÉVÉLATIONS, plus haut) : sur une image, un clip qui s'ouvre EST le
+   geste, une translation par-dessus le brouillerait.
+   PILOTÉ PAR LE data-revele DU PARENT (.carte-piece-large, qui porte SEUL
+   data-revelation), jamais un second data-revelation posé sur le cadre
+   lui-même : un élément dont le clip-path réduit la surface peinte à zéro
+   n'est plus jamais vu « intersectant » par l'IntersectionObserver de
+   Chromium (mesuré en recette du 19/08 — data-revele ne se posait tout
+   simplement jamais). Un seul écrivain, un seul piège évité. */
+html.mouvement .carte-piece-large:not([data-revele]) .carte-piece-large__cadre.bandeau__deborde-gauche {
+  clip-path: inset(0 100% 0 0); /* de gauche à droite */
+}
+html.mouvement .carte-piece-large:not([data-revele]) .carte-piece-large__cadre.bandeau__deborde-droite {
+  clip-path: inset(0 0 0 100%); /* de droite à gauche */
+}
+html.mouvement .carte-piece-large[data-revele] .carte-piece-large__cadre {
+  clip-path: inset(0);
+  transition: clip-path 720ms var(--ease-deplace);
+}
 .carte-piece-large__nom {
   font-family: var(--font-display);
   font-size: var(--t-section);
@@ -1513,6 +1638,20 @@ html.mouvement [data-revele] {
    -------------------------------------------------------------------------- */
 .corps-piece p + p {
   margin-top: 1.1rem;
+}
+
+/* --------------------------------------------------------------------------
+   GALERIE « EN SITUATION » — le geste signature de la fiche de pièce
+   (recette DA du 19/08) : parallaxe à plan unique, jamais sur l'image de
+   tête (LCP). Le cadre (.aspect-[4/3], dans la page) garde le rôle du
+   masque ; ce wrapper est translaté à l'intérieur, avec 56 px de jeu
+   vertical (2 × 28 px, l'amplitude — voir effets-scroll.ts) pour ne jamais
+   découvrir de vide en haut ou en bas du cadre. */
+.galerie-piece__mouvement {
+  height: calc(100% + 56px);
+  margin-top: -28px;
+  transform: translate3d(0, var(--galerie-image-y, 0px), 0);
+  will-change: transform;
 }
 
 /* --------------------------------------------------------------------------
@@ -1649,9 +1788,36 @@ html.mouvement [data-revele] {
   font-size: var(--t-etiquette);
 }
 
+/* LE GESTE SIGNATURE DE LA PAGE SERVICES (recette DA du 19/08) : un filet de
+   laiton vertical se tire au défilement (0 à 100 % de --filet-hauteur, en
+   px — voir demarrerFriseEtapes(), effets-scroll.ts), et chaque étape se
+   révèle quand il l'atteint. PAS la même famille que le ruban ou la coupe
+   de matière : un filet qui se tire est la matière de l'atelier, pas un
+   emprunt à la référence Qiqi. */
 .frise-etapes {
+  position: relative;
+  padding-left: 1.5rem;
   display: grid;
   gap: 1.75rem;
+}
+.frise-etapes__filet {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: var(--filet-hauteur, 0px);
+  background: var(--laiton-brosse);
+}
+html.mouvement .frise-etape:not([data-filet-atteint]) {
+  opacity: 0;
+  transform: translateY(12px);
+}
+html.mouvement .frise-etape[data-filet-atteint] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--ms-revele) var(--ease-monte),
+    transform var(--ms-revele) var(--ease-monte);
 }
 @media (min-width: 768px) {
   .frise-etapes {
@@ -1831,8 +1997,21 @@ html.mouvement [data-revele] {
 [data-scene] { position: relative; }
 [data-scene] canvas { z-index: 1; }
 .bande-scene__reglage { position: relative; z-index: 2; }
-.bande-scene__repli { transition: opacity 450ms ease-out; }
-[data-scene][data-scene-active='oui'] .bande-scene__repli { opacity: 0; }
+/* CORRECTION DU 19/08/2026 — ne JAMAIS masquer le conteneur du repli.
+   Le moteur monte le canevas WebGL DANS .bande-scene__repli (moteur.ts :
+   « dans la zone du repli, jamais sur l'hote entier », sinon le canevas passe
+   par-dessus la molette sur mobile). Poser opacity:0 sur ce conteneur effacait
+   donc la scene 3D EN MEME TEMPS que l'image qu'elle remplace : le bloc restait
+   vide, molette seule — exactement ce qu'un visiteur a signale.
+   On efface l'IMAGE, pas son conteneur. */
+.bande-scene__repli > picture,
+.bande-scene__repli > img {
+  transition: opacity 450ms ease-out;
+}
+[data-scene][data-scene-active='oui'] .bande-scene__repli > picture,
+[data-scene][data-scene-active='oui'] .bande-scene__repli > img {
+  opacity: 0;
+}
 .bande-scene__molette {
   cursor: ew-resize;
   touch-action: none;
@@ -1845,4 +2024,488 @@ html.mouvement [data-revele] {
 .bande-scene__molette:focus-visible { outline: 2px solid var(--color-breande-amber); outline-offset: 6px; }
 @media (min-width: 64rem) {
   .bande-scene__bouton { display: none; }
+}
+
+/* ==========================================================================
+   LENIS — renversement du 19/08/2026 (voir socle.ts). Le lissage RAF de
+   Lenis et le scroll-behavior: smooth natif se battent pour la même
+   position de défilement. VÉRIFIÉ EN RECETTE, pas supposé : un simple
+   window.scrollTo(0, 1700) pendant que .lenis-smooth (donc un geste actif)
+   n'était PAS encore posée atterrissait d'abord à un point sans rapport
+   avant de glisser, sur ~1 s, jusqu'à la bonne valeur — le navigateur
+   traitait l'appel comme un défilement natif lissé, et Lenis le corrigeait
+   par-dessus au même instant. `.lenis-smooth` (posée seulement PENDANT un
+   geste Lenis déjà lissé) ne couvre pas ce cas ; `.lenis` couvre TOUTE la
+   durée de vie de l'instance, molette comprise — c'est la classe qu'il
+   fallait. Jamais posée sous mouvement réduit ni sans script (Lenis n'y est
+   jamais instancié) : cette règle ne s'active donc jamais hors du cas
+   qu'elle corrige.
+   ========================================================================== */
+html.lenis {
+  scroll-behavior: auto;
+}
+
+/* ==========================================================================
+   LE RUBAN DES GESTES — accueil, remplace les trois bandeaux Créer /
+   Restaurer / Conseiller. Défaut (mobile ET sans script) : bande horizontale
+   au doigt, scroll-snap natif, hauteur naturelle — rien à charger pour être
+   lisible. À partir de 64 rem, SOUS html.js (voir detection-js.js) ET
+   mouvement permis, src/scripts/mouvement/effets-scroll.ts prend le relais :
+   la piste se translate en scrub au lieu de défiler nativement
+   ([data-ruban-pilote] neutralise alors le défilement natif, voir plus bas).
+
+   LA HAUTEUR RÉSERVE LE DÉFILEMENT, ET SEULEMENT SI UN SCRIPT LA JUSTIFIE :
+   340svh à partir de 64 rem, mais seulement sous html.js — recette DA du
+   19/08, qui a mesuré le défaut inverse (300svh posé SANS condition sur le
+   script : trois écrans vides pour qui n'a pas de JavaScript). :where()
+   neutralise la spécificité des sélecteurs html.js / html:not(.js)
+   ci-dessous, pour que le repli sous mouvement réduit (plus bas dans ce
+   fichier, unconditionnel) garde toujours la main par le seul ordre des
+   règles, quelle que soit la présence de la classe.
+   ========================================================================== */
+.ruban-gestes {
+  position: relative;
+}
+.ruban-gestes__fenetre {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: var(--color-breande-suie) transparent;
+  /* Barre système masquée (recette DA du 19/08 : peinte en clair, hors
+     palette, à 360 px) — jamais sans garder l'affordance : le débord du
+     panneau suivant (width < 100 % ci-dessous, sous 64 rem) montre qu'on
+     peut faire glisser, la barre n'était pas la seule preuve. */
+  scrollbar-width: none;
+}
+.ruban-gestes__fenetre::-webkit-scrollbar {
+  display: none;
+}
+.ruban-gestes__piste {
+  display: flex;
+  height: 100%;
+}
+.ruban-gestes__panneau {
+  position: relative;
+  flex: none;
+  /* 92 %, pas 100 % : le bord du panneau suivant déborde de 8 % dans la
+     fenêtre — l'affordance de glissement qui remplace la barre système
+     masquée ci-dessus (recette DA du 19/08 ; pourcentage choisi ici, non
+     donné par la mission — à ajuster si le DA préfère un débord différent). */
+  width: 92%;
+  scroll-snap-align: start;
+  /* HAUTEUR LIBRE sous 64 rem (recette du 19/08, second tour — corrige le
+     défaut mesuré : légende posée en absolu sur la photo, 7,9 % de sa zone
+     sous 4,5:1 à 360 px, un plancher malgré cinq réglages d'object-position
+     et un voile renforcé). Le ratio contraint (3/4) et le clip
+     (overflow: hidden) migrent sur .ruban-gestes__cadre, plus bas : c'est
+     lui qui porte le crop de la photo désormais, pas le panneau entier.
+     Fond nuit posé ici : la légende, qui suit la photo en flux normal sous
+     ce seuil (voir .ruban-gestes__legende, plus bas), s'y adosse —
+     --color-breande-paper sur --color-breande-night tient 15,86:1 par
+     construction (bloc @theme), garanti sans dépendre d'un fond hérité.
+     Les deux redeviennent ce qu'ils étaient à 64 rem (media query plus
+     bas, .ruban-gestes__panneau et .ruban-gestes__cadre) : RIEN N'Y
+     CHANGE. */
+  background-color: var(--color-breande-night);
+}
+.ruban-gestes__panneau + .ruban-gestes__panneau {
+  border-inline-start: 1px solid var(--color-breande-suie);
+}
+/* Le cadre porte désormais son PROPRE ratio (3/4, celui que portait le
+   panneau jusqu'ici) : sous 64 rem le panneau a une hauteur libre (voir
+   plus haut), c'est le cadre qui borne la photo. Redevient un calque
+   plein-panneau (position: absolute; inset: 0) à 64 rem, comme avant
+   (media query plus bas) — la légende y redevient un calque par-dessus la
+   photo, pas un bloc qui la suit. */
+.ruban-gestes__cadre {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+}
+/* L'image posée 32 % plus large que son cadre, centrée par défaut : la marge
+   de 16 % de chaque côté est ce que le parallax interne peut parcourir avant
+   de découvrir du vide (voir effets-scroll.ts, AMPLITUDE_IMAGE — relevé DA
+   du 19/08 : l'ancienne marge de 9 % donnait un déplacement sous le seuil de
+   perception). */
+.ruban-gestes__image-mouvement {
+  width: 132%;
+  height: 100%;
+  margin-inline-start: -16%;
+}
+.ruban-gestes__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* --------------------------------------------------------------------------
+   LE VOILE — refonte complète (recette DA du 19/08). L'ancien voile couvrait
+   tout le panneau (inset: 0, jusqu'à 100 % d'opacité) : aucun pixel de la
+   photo n'était jamais vu à pleine valeur, et 63,8 % de la zone du texte
+   mesurait sous 4,5:1 sur une capture réelle (voir
+   scripts/mesurer-contraste-capture.mjs). Le voile est maintenant un SOCLE
+   BORNÉ ancré en bas — jamais inset: 0 — dont la hauteur ne dépasse jamais
+   45 % de celle du panneau (--voile-image, --voile-image-ambiance : voir le
+   bloc :root plus haut). Au-dessus de ce socle, la photo est nue.
+
+   Chaque panneau porte sa température de lumière (--teinte-panneau,
+   ci-dessous, posée par [data-geste] — voir RubanGestes.astro) : le socle
+   est mélangé 92 % nuit / 8 % de cette teinte plutôt qu'une nuit neutre pour
+   les trois panneaux — Créer (4000 K, --color-breande-k4000), Restaurer
+   (3000 K, --color-breande-k3000), Conseiller (2700 K,
+   --color-breande-k2700) : les trois vraies températures de palier du site,
+   pas une couleur inventée pour l'occasion.
+
+   Le corps de légende passe de --color-breande-muted à --color-breande-paper
+   (voir .ruban-gestes__texte plus bas) : sur une photo, muted (L 0,4381)
+   exige un fond ≤ 37/255 pour tenir 7:1, paper (L 0,8444) autorise 77/255 —
+   2,1× plus de latitude au même plafond de voile.
+   -------------------------------------------------------------------------- */
+.ruban-gestes__panneau {
+  --teinte-panneau: var(--color-breande-night); /* repli neutre, aucun [data-geste] connu */
+}
+.ruban-gestes__panneau[data-geste='creer'] {
+  --teinte-panneau: color-mix(in srgb, var(--color-breande-night) 92%, var(--color-breande-k4000) 8%);
+}
+.ruban-gestes__panneau[data-geste='restaurer'] {
+  --teinte-panneau: color-mix(in srgb, var(--color-breande-night) 92%, var(--color-breande-k3000) 8%);
+}
+.ruban-gestes__panneau[data-geste='conseiller'] {
+  --teinte-panneau: color-mix(in srgb, var(--color-breande-night) 92%, var(--color-breande-k2700) 8%);
+}
+.ruban-gestes__voile {
+  /* Sans objet sous 64 rem (recette du 19/08, second tour) : la légende ne
+     recouvre plus la photo (elle la suit en flux normal, voir plus haut),
+     il n'y a donc plus rien à voiler. Réaffiché à 64 rem (media query plus
+     bas), où le socle reprend son rôle sous la légende redevenue un
+     calque par-dessus la photo. */
+  display: none;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  inset-inline: 0;
+  bottom: 0;
+  top: auto;
+  /* Mobile (< 64 rem) : légende plus haute (jusqu'à trois lignes sur un
+     panneau ratio 3/4), donc socle plus grand. Arrêts corrigés en recette du
+     19/08 (second tour) : la première version (58/52/46/24/0) dépassait le
+     plafond --voile-image (0,46, bloc :root) dès son premier arrêt — un
+     défaut relevé et non résolu au premier lot. Le plafond gagne : le
+     premier arrêt est maintenant 46 %, comme le plafond lui-même (même
+     geste que le palier desktop juste sous ce bloc). */
+  height: clamp(300px, 62%, 460px);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--teinte-panneau) 46%, transparent) 0%,
+    color-mix(in srgb, var(--teinte-panneau) 42%, transparent) 34%,
+    color-mix(in srgb, var(--teinte-panneau) 40%, transparent) 59%,
+    color-mix(in srgb, var(--teinte-panneau) 24%, transparent) 82%,
+    transparent 100%
+  );
+}
+/* Cadrage du panneau « Conseiller » sous 64 rem (recette du 19/08, second
+   tour) : en crop portrait 3/4, l'image (native ~3/2) est TOUJOURS contrainte
+   par sa hauteur — object-fit: cover la case exactement sur la hauteur du
+   panneau, sans AUCUN jeu vertical ; seul object-position en X a une prise.
+   MESURÉ, PAS SEULEMENT RAISONNÉ : à 360 px, le cadre ne montre que 66 % de
+   la largeur native de la photo (calcul + vérifié à la capture) — la fenêtre
+   éclairée est trop proche du centre pour qu'aucun décalage horizontal ne la
+   sorte entièrement de ce cadre large. Quatre réglages mesurés sur pixels
+   réels (0 %, 18 %, 35 %, 50 %, 100 %) donnent tous 9,2 à 9,9 % de la zone
+   titre + corps sous 4,5:1 — un plancher, pas une variable qu'on ajuste
+   jusqu'à la faire céder. 18 % (ce réglage) est le meilleur des cinq à
+   égalité avec le centrage par défaut, et déplace la fenêtre hors du centre
+   comme demandé : conservé pour ce qu'il vaut, mais IL NE SUFFIT PAS SEUL —
+   voir le rapport de chantier pour la mesure finale et la décision qui en
+   découle (recadrage par le graphiste, point 4 de la mission). */
+.ruban-gestes__panneau[data-geste='conseiller'] .ruban-gestes__image {
+  object-position: 18% center;
+}
+/* SOUS 64 REM : plus un calque par-dessus la photo — un bloc en flux
+   normal, juste après le cadre dans le DOM (voir RubanGestes.astro), posé
+   sur le fond nuit du panneau (voir plus haut). --air-bloc en tête : le
+   même jeton d'air que le reste du site entre deux blocs, pas une valeur
+   inventée pour l'occasion. Redevient un calque absolu par-dessus la
+   photo à 64 rem, comme avant (media query plus bas) : RIEN N'Y CHANGE. */
+.ruban-gestes__legende {
+  z-index: 2;
+  padding: var(--air-bloc) var(--marge-page) 2rem;
+}
+/* Ancrage en diagonale (recette DA du 19/08, ADR-002 : « l'ancrage des blocs
+   descend vers la droite au fil de la page ») : les trois légendes du ruban
+   partageaient la même ordonnée, une régularité qui n'était pas voulue.
+   Décalage horizontal croissant, en pourcentage de la largeur du panneau —
+   seul axe qui a un sens ici, une section pinée n'ayant pas de « hauteur de
+   page » propre : le ruban avance vers la gauche pendant que les blocs
+   décalent vers la droite. Desktop seulement (voir media query plus bas) :
+   à 92vw mobile, ce décalage écraserait le texte contre le bord. */
+.ruban-gestes__panneau[data-geste='restaurer'] .ruban-gestes__legende {
+  --decalage-legende: 18%;
+}
+.ruban-gestes__panneau[data-geste='conseiller'] .ruban-gestes__legende {
+  --decalage-legende: 36%;
+}
+.ruban-gestes__titre {
+  font-size: var(--t-piece);
+  color: var(--color-breande-paper);
+}
+.ruban-gestes__texte {
+  margin-top: 0.5rem;
+  max-width: var(--mesure);
+  color: var(--color-breande-paper);
+}
+.ruban-gestes__lien {
+  margin-top: 1rem;
+  display: inline-block;
+}
+
+/* LE REPÈRE DE PROGRESSION (important 6) — trois traits de laiton, jamais de
+   pastille ni de flèche (vocabulaire du site). Masqué par défaut : la bande
+   défilable au doigt (mobile, ou desktop sans script) n'a pas le problème
+   qu'il corrige — un en-tête et une hauteur de page ordinaires restent
+   visibles dans ces deux états, rien n'y donne l'illusion d'un blocage. */
+.ruban-gestes__reperes {
+  display: none;
+}
+.ruban-gestes__repere {
+  width: 1.5rem;
+  height: 2px;
+  background: var(--laiton-brosse);
+  opacity: 0.35;
+  transition: opacity var(--ms-etat) var(--ease-etat);
+}
+.ruban-gestes__repere--actif {
+  opacity: 1;
+}
+
+@media (min-width: 64rem) {
+  /* +500px (calc, pas une valeur svh) : le PALIER D'ENTRÉE (bloquant 3,
+     chantier bêta du 19/08) — la translation reste à 0 pendant les 500
+     premiers pixels de la course du déclencheur, voir SEUIL_PALIER_PX dans
+     effets-scroll.ts. Sans cet allongement, retarder la translation aurait
+     RACCOURCI d'autant la course utile du panneau « Conseiller », qui
+     n'avait déjà pas de marge à céder — la course s'allonge, elle ne se
+     redistribue pas. */
+  :where(html.js) .ruban-gestes {
+    height: calc(340svh + 500px);
+  }
+  :where(html.js) .ruban-gestes__fenetre {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
+  .ruban-gestes__piste {
+    transform: translate3d(var(--ruban-x, 0px), 0, 0);
+    will-change: transform;
+  }
+  .ruban-gestes__panneau {
+    /* 86vw et non 78vw (recette DA du 19/08) : le panneau redevient aussi
+       large, proportionnellement à la fenêtre, que la référence — ratio
+       mesuré à 0,98 px/px contre un ratio trop étroit auparavant. */
+    width: min(86vw, 1180px);
+    aspect-ratio: auto;
+    /* Repli du socle mobile (règle de base, plus haut) : ici la légende
+       redevient un calque par-dessus la photo, il faut donc retrouver le
+       clip et neutraliser le fond nuit posés pour la hauteur libre sous
+       64 rem — sinon rien ne bornerait plus la hauteur du panneau, et son
+       fond nuit débordait derrière la photo. */
+    overflow: hidden;
+    background-color: transparent;
+  }
+  /* Repli du calque plein-panneau (règle de base, plus haut) : à ce
+     palier c'est de nouveau la légende qui se pose par-dessus la photo,
+     pas l'inverse. */
+  .ruban-gestes__cadre {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+  }
+  :where(html:not(.js)) .ruban-gestes__panneau {
+    /* Repli desktop sans script : la fenêtre garde sa hauteur naturelle
+       (règle plus bas), il faut donc une source de hauteur de secours —
+       même recette que le repli sous mouvement réduit, juste après. */
+    aspect-ratio: 4 / 3;
+  }
+  :where(html:not(.js)) .ruban-gestes__fenetre {
+    position: static;
+    height: auto;
+  }
+  .ruban-gestes__image-mouvement {
+    transform: translate3d(var(--ruban-image-x, 0px), 0, 0);
+    will-change: transform;
+  }
+  /* Visible seulement sous html.js : c'est le script qui fait vivre l'index
+     actif (effets-scroll.ts) — sans lui, trois traits qui ne racontent rien
+     seraient un défaut de plus, pas une aide. */
+  :where(html.js) .ruban-gestes__reperes {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .ruban-gestes__legende {
+    /* Repli du bloc en flux (règle de base, plus haut) : à ce palier la
+       légende redevient un calque par-dessus la photo, comme avant. */
+    position: absolute;
+    bottom: 0;
+    background-color: transparent;
+    --decalage-legende: 0%;
+    inset-inline-start: var(--decalage-legende);
+    inset-inline-end: 0;
+    padding: var(--air-bloc) var(--marge-page) 2.5rem;
+  }
+  /* Le cadrage du panneau « Conseiller » (juste au-dessus, hors media query)
+     ne corrige QUE le défaut mobile : à ce format le panneau est bien plus
+     large (proche du ratio natif de la photo), la fenêtre éclairée ne tombe
+     plus sous le titre — cadrage centré, comme les deux autres panneaux. */
+  .ruban-gestes__panneau[data-geste='conseiller'] .ruban-gestes__image {
+    object-position: 50% center;
+  }
+  /* Socle desktop : légende plus courte (un panneau large et bas plutôt que
+     haut), donc voile plus discret. Le premier arrêt (46 %) EST le plafond
+     --voile-image : les 59 % du haut du panneau (100 − 41, la hauteur
+     maximale du socle) restent une photo nue, sans aucun voile. */
+  .ruban-gestes__voile {
+    /* Repli du masquage mobile (règle de base, plus haut) : à ce palier
+       le socle reprend son rôle sous la légende redevenue un calque. */
+    display: block;
+    height: clamp(260px, 41%, 380px);
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--teinte-panneau) calc(var(--voile-image) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--teinte-panneau) 42%, transparent) 34%,
+      color-mix(in srgb, var(--teinte-panneau) 40%, transparent) 59%,
+      color-mix(in srgb, var(--teinte-panneau) 22%, transparent) 82%,
+      transparent 100%
+    );
+  }
+  /* Une seule légende lisible à la fois (recette DA du 19/08) : le titre du
+     panneau qui n'a pas encore assez avancé se lisait coupé au milieu d'un
+     mot. Transition, jamais keyframes — interruptible si le visiteur hésite
+     pile sur le seuil (voir effets-scroll.ts, SEUIL_ENTREE_LEGENDE /
+     PLAGE_HYSTERESIS_LEGENDE). Seulement sous html.js ET mouvement permis :
+     c'est le SEUL cas où un script fait vivre --active ; sans lui, TOUTES
+     les légendes resteraient à opacité 0 pour toujours. */
+  @media (prefers-reduced-motion: no-preference) {
+    :where(html.js) .ruban-gestes__legende {
+      opacity: 0;
+      transition: opacity var(--ms-etat) var(--ease-etat);
+    }
+    :where(html.js) .ruban-gestes__legende--active {
+      opacity: 1;
+    }
+    /* Épinglé dans la fenêtre (sticky) pendant toute la traversée du ruban —
+       le seul repère qui survit à l'en-tête masqué (voir .entete--retire).
+       z-index au-dessus de la légende (2) : jamais recouvert par son propre
+       socle de voile. */
+    :where(html.js) .ruban-gestes__reperes {
+      position: absolute;
+      z-index: 3;
+      left: var(--marge-page);
+      bottom: 1.5rem;
+    }
+  }
+}
+
+/* effets-scroll.ts pose cet attribut dès qu'il pilote la piste : sans ce
+   doublage, glisser la bande au doigt entrerait en conflit avec le scrub —
+   deux systèmes de défilement actifs sur la même zone à la fois. */
+.ruban-gestes[data-ruban-pilote] .ruban-gestes__fenetre {
+  overflow: hidden;
+  scroll-snap-type: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ruban-gestes {
+    height: auto;
+  }
+  .ruban-gestes__fenetre {
+    position: static;
+    height: auto;
+  }
+}
+@media (min-width: 64rem) and (prefers-reduced-motion: reduce) {
+  /* L'ÉTAT DIGNE — bloquant 2, chantier bêta du 19/08. Mesuré : à ce
+     gabarit, sous mouvement réduit, la fenêtre restait scrollable
+     horizontalement (overflow-x: auto hérité de la règle mobile, jamais
+     neutralisé — [data-ruban-pilote] qui le fait est posé par
+     effets-scroll.ts, qui ne tourne JAMAIS sous mouvement réduit, voir son
+     en-tête) mais AUCUN geste ne pouvait plus l'actionner : ni Maj+molette,
+     ni molette horizontale, ni Tab — deux panneaux sur trois, et deux des
+     trois liens vers /services, inatteignables sans aucun signe. La bande
+     à défilement horizontal ne doit subsister QUE là où elle fonctionne
+     réellement au doigt (sous 64 rem, scroll-snap — juste au-dessus).
+     Ici, à ce palier, elle se change en simple empilement vertical, hauteur
+     naturelle : rien d'inatteignable, rien de caché. */
+  .ruban-gestes__fenetre {
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .ruban-gestes__piste {
+    flex-direction: column;
+    height: auto;
+  }
+  .ruban-gestes__panneau {
+    width: 100%;
+    /* Le palier desktop retire l'aspect-ratio mobile pour laisser 100svh
+       donner la hauteur ; sous mouvement réduit cette hauteur disparaît
+       (fenêtre non pinée), il faut donc une source de hauteur de secours —
+       même geste que le repli desktop sans script. */
+    aspect-ratio: 4 / 3;
+    scroll-snap-align: none;
+  }
+  /* Le filet entre panneaux marquait une frontière VERTICALE entre panneaux
+     côte à côte (border-inline-start) ; empilés, la frontière est
+     horizontale. */
+  .ruban-gestes__panneau + .ruban-gestes__panneau {
+    border-inline-start: none;
+    border-block-start: 1px solid var(--color-breande-suie);
+  }
+  /* L'ancrage en diagonale (ADR-002) n'a de sens que pour trois panneaux
+     côte à côte qui avancent ensemble vers la gauche ; empilés, un panneau
+     n'a plus de voisin à sa droite pour justifier le décalage — remis à 0
+     pour que le texte garde toute sa largeur. */
+  .ruban-gestes__legende {
+    --decalage-legende: 0%;
+  }
+  /* Le repère de progression (important 6) reste posé, à l'état statique
+     demandé par la mission : rien ne le pilote (effets-scroll.ts ne tourne
+     jamais sous mouvement réduit), donc pas de sticky, pas d'absolute — un
+     simple fil en bas de la pile, premier trait plein (l'état initial que
+     le script donnerait aussi, voir mesurer()/actualiserLegendes(0) dans
+     effets-scroll.ts). */
+  :where(html.js) .ruban-gestes__reperes {
+    position: static;
+    margin-top: 1.5rem;
+  }
+  .ruban-gestes__repere:first-child {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   LE TITRE DE CONTACT — le geste signature de cette page (recette DA du
+   19/08) : trois lignes montantes à l'entrée, en pure CSS (aucun script,
+   aucun octet de JS — même patron que .allumage plus haut). Sous mouvement
+   réduit, la règle globale qui écrase toute animation/transition à 0,01 ms
+   (voir @media (prefers-reduced-motion: reduce), tout en haut du fichier)
+   couvre celle-ci aussi : aucune exception à écrire ici.
+   ========================================================================== */
+.titre-contact__ligne {
+  display: inline-block;
+  animation: titre-contact-monte 620ms var(--ease-monte) both;
+}
+.titre-contact__ligne--2 {
+  animation-delay: 60ms;
+}
+.titre-contact__ligne--3 {
+  animation-delay: 120ms;
+}
+@keyframes titre-contact-monte {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

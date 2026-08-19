@@ -27,6 +27,8 @@ export const reperes: Repere[] = [
 
 export interface EntreeMetier {
   titre: string;
+  /** Une phrase, posée sous le titre du panneau du ruban. */
+  accroche: string;
   texte: string;
   lienTexte: string;
   lienHref: string;
@@ -36,6 +38,8 @@ export interface EntreeMetier {
 export const entreesMetier: EntreeMetier[] = [
   {
     titre: 'Créer',
+    accroche:
+      'On prête des ampoules d’essai : la teinte se choisit chez vous, le soir.',
     texte:
       'Tout commence par un relevé et un dessin à l’échelle 1 sur papier kraft. Vous choisissez la matière, la teinte de la lumière, la hauteur ; nous nous occupons du reste, jusqu’à l’essai en charge la veille du départ. Comptez six à dix semaines.',
     lienTexte: 'La création en détail',
@@ -43,6 +47,8 @@ export const entreesMetier: EntreeMetier[] = [
   },
   {
     titre: 'Restaurer',
+    accroche:
+      'Deux à trois semaines pour un circuit neuf sous une patine qu’on ne touche pas.',
     texte:
       'Une suspension d’atelier, un lustre de famille, une applique trouvée en brocante : le circuit se refait entièrement, la patine reste. Aucun câblage textile ancien ne ressort d’ici, même intact. Deux à trois semaines pour une remise aux normes.',
     lienTexte: 'La restauration en détail',
@@ -50,6 +56,8 @@ export const entreesMetier: EntreeMetier[] = [
   },
   {
     titre: 'Conseiller',
+    accroche:
+      'Parfois il n’y a rien à fabriquer, juste un plan avant de refermer les murs.',
     texte:
       'Avant d’acheter quoi que ce soit, il arrive qu’on ait surtout besoin d’un plan : combien de foyers, à quelle hauteur, à quelle température, sur quel variateur. La visite coûte 180 €, déduits si une commande suit.',
     lienTexte: 'Le conseil en détail',

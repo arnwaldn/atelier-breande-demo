@@ -1,0 +1,102 @@
+---
+/**
+ * RubanGestes.astro — le ruban horizontal des trois gestes de l'atelier
+ * (accueil), en remplacement des trois <Bandeau> empilés qu'il portait
+ * jusqu'ici. Geste transposé de la référence retenue par le client
+ * (qiqiglobal.com, voir docs/_invivo/references/qiqi-*.jpeg) : une piste plus
+ * large que l'écran, translatée en scrub pendant que la fenêtre reste
+ * épinglée — voir src/scripts/mouvement/effets-scroll.ts pour la mécanique.
+ *
+ * LA MISE EN PAGE NE DÉPEND JAMAIS DU SCRIPT. La hauteur qui réserve la
+ * place du défilement (300svh à partir de 64 rem) est posée en CSS pur ; le
+ * script ne fait que lire cette hauteur au défilement, jamais l'inverse
+ * (voir global.css, section RUBAN DES GESTES). Sans script, sous 64 rem, ou
+ * sous mouvement réduit : la piste reste une bande défilable au doigt,
+ * scroll-snap natif — les trois panneaux restent lisibles dans tous les cas.
+ *
+ * `jour` pose le même data-jour que <Bandeau> (voir ce composant) : le
+ * ruban participe à l'arc du variateur au même titre qu'une section
+ * ordinaire, même s'il ne consomme aucune des couleurs de jour lui-même.
+ */
+import type { ImageMetadata } from 'astro';
+import type { PalierJour } from './Bandeau.astro';
+import Visuel from './Visuel.astro';
+
+interface Geste {
+  titre: string;
+  /** Une phrase, affichée sur le panneau (voir --voile-image, global.css) —
+   *  le paragraphe plus long (`texte`) reste réservé aux pages de services. */
+  accroche: string;
+  texte: string;
+  lienTexte: string;
+  lienHref: string;
+  image: ImageMetadata;
+  alt: string;
+}
+
+interface Props {
+  gestes: Geste[];
+  jour?: PalierJour;
+  ariaLabel: string;
+}
+
+const { gestes, jour = 3, ariaLabel } = Astro.props;
+
+/** La température de lumière de chaque panneau (recette DA du 19/08) : le
+ *  socle du voile se teinte à 92 % nuit / 8 % de cette couleur (voir
+ *  .ruban-gestes__panneau[data-geste] dans global.css). Correspondance fixe
+ *  aux trois gestes de src/data/accueil.ts — pas de repli générique : un
+ *  quatrième geste sans entrée ici doit être un signal, pas un défaut
+ *  silencieux vers une teinte au hasard. */
+const TEMPERATURES: Record<string, 'creer' | 'restaurer' | 'conseiller'> = {
+  Créer: 'creer',
+  Restaurer: 'restaurer',
+  Conseiller: 'conseiller',
+};
+---
+
+<section class="ruban-gestes" data-ruban data-jour={jour} aria-label={ariaLabel}>
+  <div class="ruban-gestes__fenetre" data-ruban-fenetre tabindex="0">
+    <div class="ruban-gestes__piste" data-ruban-piste>
+      {
+        gestes.map((geste) => (
+          <article class="ruban-gestes__panneau" data-geste={TEMPERATURES[geste.titre]}>
+            <div class="ruban-gestes__cadre">
+              <div class="ruban-gestes__image-mouvement" data-ruban-image>
+                <Visuel
+                  src={geste.image}
+                  alt={geste.alt}
+                  sizes="(min-width: 64rem) 86vw, 100vw"
+                  class="ruban-gestes__image"
+                />
+              </div>
+            </div>
+            <div class="ruban-gestes__voile" aria-hidden="true" />
+            <div class="ruban-gestes__legende" data-ruban-legende>
+              <h2 class="ruban-gestes__titre">{geste.titre}</h2>
+              <p class="ruban-gestes__texte">{geste.accroche}</p>
+              <a href={geste.lienHref} class="etiquette ruban-gestes__lien">
+                {geste.lienTexte}
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+    {/* LE REPÈRE DE PROGRESSION — bloquant important 6, chantier bêta du
+        19/08. Pendant ~2 900 px, en-tête masqué et photo plein écran, sans
+        AUCUN repère : le testeur a cru la page bloquée. Le vocabulaire du
+        site est le filet de laiton (--laiton-brosse), pas la pastille ronde
+        ni la flèche — trois traits courts, celui du panneau actif plein,
+        les autres en filet (voir effets-scroll.ts, actualiserLegendes, et
+        .ruban-gestes__repere--actif, global.css). Décoratif (aria-hidden) :
+        un lecteur d'écran n'éprouve pas l'illusion de blocage propre au
+        défilement scrubbé qu'il ne perçoit pas comme un mouvement continu,
+        et chaque panneau porte déjà son propre <h2> — annoncer l'index actif
+        en direct ajouterait du bruit (interruptions à chaque frame de
+        scrub) sans lever une confusion qui ne se pose pas pour lui. */}
+    <div class="ruban-gestes__reperes" data-ruban-reperes aria-hidden="true">
+      {gestes.map(() => <span class="ruban-gestes__repere" data-ruban-repere />)}
+    </div>
+  </div>
+</section>

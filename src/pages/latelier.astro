@@ -139,25 +139,35 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
     <p class="mesure mt-6 text-breande-muted">{laLumiere.note}</p>
   </Bandeau>
 
-  {/* LA COUPE DE MATIÈRE — moment de bravoure n°3. Geste volontaire, pas de
-      ScrollTrigger : marche à l'identique sous mouvement réduit. */}
-  <Bandeau jour={4} ariaLabelledby="titre-coupe">
-    <TitreSection texte="La coupe de matière" id="titre-coupe" filet />
-    <p class="mesure mt-4 text-breande-muted">
-      D’un côté la pièce photographiée, de l’autre le dessin technique qui l’a précédée —
-      c’est le même objet, à deux moments du même geste.
-    </p>
-    <div class="mt-8" data-revelation>
-      <ComparateurCoupe
-        photo={coupePhoto}
-        photoAlt="Photo d’une suspension en laiton et verre soufflé, allumée"
-        dessin={coupeDessin}
-        dessinAlt="Dessin technique au trait de la même suspension, coté et annoté"
-      />
-      {/* C16 (recette DA du 19/08) : le dessin technique porte des lignes de
-          cote sans valeurs — l'image n'est pas modifiable dans ce chantier,
-          la légende donne donc les deux cotes réelles (fiche doucine). */}
-      <p class="etiquette mt-4">Ø 240 mm · verre soufflé — H 214 mm, monture laiton</p>
+  {/* LA COUPE DE MATIÈRE — moment de bravoure n°3, passé en plein-bord
+      (recette DA du 19/08 : 640 px dans une page de 1280, ~590 px de vide à
+      droite — le geste existait déjà, il lui manquait l'ampleur). Le
+      comparateur reste un geste VOLONTAIRE porté par le curseur natif ; le
+      seul ajout est un balayage D'ENTRÉE, une fois, qui rend ensuite la main
+      — voir demarrerComparateurCoupe() dans effets-scroll.ts. Pas de scrub :
+      le défilement fait la démonstration, il ne confisque pas le geste. */}
+  <Bandeau jour={4} pleinBord="droite" ariaLabelledby="titre-coupe">
+    <div class="coupe-travee">
+      <div>
+        <TitreSection texte="La coupe de matière" id="titre-coupe" filet />
+        <p class="mesure mt-4 text-breande-muted">
+          D’un côté la pièce photographiée, de l’autre le dessin technique qui l’a précédée —
+          c’est le même objet, à deux moments du même geste.
+        </p>
+      </div>
+      <div class="bandeau__deborde-droite" data-revelation>
+        <ComparateurCoupe
+          photo={coupePhoto}
+          photoAlt="Photo d’une suspension en laiton et verre soufflé, allumée"
+          dessin={coupeDessin}
+          dessinAlt="Dessin technique au trait de la même suspension, coté et annoté"
+          class="comparateur-coupe--large"
+        />
+        {/* C16 (recette DA du 19/08) : le dessin technique porte des lignes de
+            cote sans valeurs — l'image n'est pas modifiable dans ce chantier,
+            la légende donne donc les deux cotes réelles (fiche doucine). */}
+        <p class="etiquette mt-4">Ø 240 mm · verre soufflé — H 214 mm, monture laiton</p>
+      </div>
     </div>
   </Bandeau>
 

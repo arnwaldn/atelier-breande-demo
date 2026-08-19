@@ -75,10 +75,17 @@ const lignesCaracteristiques = [
     d.galerie.length > 0 && (
       <Bandeau jour={3} ariaLabelledby="titre-galerie">
         <TitreSection texte="En situation" id="titre-galerie" filet />
-        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+        {/* Le geste signature de cette fiche (recette DA du 19/08) — jamais
+            sur l'image de tête (LCP, prioritaire, immobile) : parallaxe à
+            plan unique sur la galerie, l'image de gauche monte, celle de
+            droite descend. Voir demarrerGaleriePiece() dans
+            effets-scroll.ts et .galerie-piece__mouvement dans global.css. */}
+        <div class="mt-8 grid gap-6 sm:grid-cols-2" data-galerie>
           {d.galerie.map((image, i) => (
             <div class="aspect-[4/3] overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]" data-revelation class:list={[`cascade-${i + 1}`]}>
-              <Visuel src={image.fichier} alt={image.alt} sizes="(min-width: 640px) 50vw, 100vw" class="h-full w-full object-cover" />
+              <div class="galerie-piece__mouvement" data-galerie-image data-galerie-sens={i % 2 === 0 ? 'haut' : 'bas'}>
+                <Visuel src={image.fichier} alt={image.alt} sizes="(min-width: 640px) 50vw, 100vw" class="h-full w-full object-cover" />
+              </div>
             </div>
           ))}
         </div>

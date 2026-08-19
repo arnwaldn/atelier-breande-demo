@@ -5,6 +5,7 @@ import TitreSection from '../components/TitreSection.astro';
 import Accordeon from '../components/Accordeon.astro';
 import ContactForm from '../components/ContactForm.astro';
 import {
+  titreContact,
   contactEnTete,
   autresMoyens,
   ceQuiSePasseEnsuite,
@@ -25,9 +26,18 @@ import { faqContact } from '../data/faq';
     d'acceptation testé). Deux sections empilées auraient ajouté un plein
     padding-block de trop entre le titre et le formulaire.
   */}
-  <Bandeau jour={2}>
+  <Bandeau jour={4}>
+    {/*
+      LE SEUL GESTE SIGNATURE DE CETTE PAGE (recette DA du 19/08) : trois
+      lignes montantes, décalées de 60 ms, sans script — voir
+      .titre-contact__ligne, global.css. Un <span> par ligne (nécessaire à
+      l'animation-delay individuel), <br /> entre elles pour le découpage
+      visuel : un seul <h1>, comme l'exige la garde de livrable.
+    */}
     <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">
-      {contactEnTete.titre}
+      <span class="titre-contact__ligne">{titreContact[0]}</span><br />
+      <span class="titre-contact__ligne titre-contact__ligne--2">{titreContact[1]}</span><br />
+      <span class="titre-contact__ligne titre-contact__ligne--3">{titreContact[2]}</span>
     </h1>
     <p class="mesure-large mt-4 text-breande-muted">{contactEnTete.chapo}</p>
 

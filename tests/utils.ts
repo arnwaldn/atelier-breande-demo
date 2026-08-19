@@ -152,6 +152,24 @@ export async function decrireFocus(page: Page): Promise<string | null> {
  *    (100 %, au-dessus de l'image). Le texte s'ancre là où le dégradé est le plus
  *    opaque : le contraste réel y est proche de celui, déjà mesuré, de
  *    breande-paper sur breande-night (15,86:1).
+ *  - `.ruban-gestes__voile` (ajouté chantier « geste signature », 2026-08-19 ;
+ *    refondu recette DA du même jour) : PLUS un palier couvrant tout le
+ *    panneau — c'est exactement cette première version qui a été mesurée en
+ *    échec (63,8 % de la zone du texte sous 4,5:1 sur une capture réelle,
+ *    quand un échantillon canvas isolé annonçait ≈ 7:1 : la preuve portait
+ *    sur autre chose que l'endroit où le texte est réellement posé — voir
+ *    scripts/mesurer-contraste-capture.mjs). Le voile est maintenant un
+ *    SOCLE BORNÉ ancré en bas (jamais plus de 62 % de la hauteur du panneau,
+ *    plafonné à --voile-image de plafond sous le texte — voir global.css),
+ *    au-dessus duquel la photo reste nue : axe reste mathématiquement
+ *    incapable de calculer un fond sur ce dégradé (« background color could
+ *    not be determined »), la nature du défaut ne change pas avec la
+ *    refonte. LA PREUVE A DÉMÉNAGÉ, PAS DISPARU : tests/contraste-ruban.spec.ts
+ *    mesure maintenant le contraste RÉEL sur les pixels d'une capture du
+ *    panneau le plus exposé (« Conseiller », légende la plus haute), à 360
+ *    ET 1440, et échoue si plus de 5 % de la zone du texte passe sous
+ *    4,5:1 — remplace la vérification manuelle ponctuelle par une garde
+ *    permanente, rejouée à chaque campagne.
  *  - `header` (ajouté vague A, chantier « coquille », 2026-08-19) : le filet de
  *    laiton qui scelle l'en-tête au défilement est un pseudo-élément `::after` sur
  *    <header class="entete"> (voir .entete::after, global.css) — même mécanique que
@@ -180,6 +198,7 @@ const CAUSES_CONTRASTE_CONNUES_ET_REVUES = [
   'header',
   '.carte-piece',
   '.seuil-secondaire__voile',
+  '.ruban-gestes__voile',
   // L'accent du logotype : glyphe decoratif aria-hidden (un e-accent
   // clippe, superpose au e lisible en papier). Le contraste ne porte
   // aucun sens : la lettre porteuse est deja mesuree, elle.

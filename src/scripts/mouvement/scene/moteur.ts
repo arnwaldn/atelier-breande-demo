@@ -316,7 +316,26 @@ async function monterScene(
       .copy(teinteEteinte)
       .lerp(teinteCourante, t);
     verreExterieur.opacity = 0.22 + t * 0.08;
-    (halo.material as SpriteMaterial).opacity = t * 0.4;
+    // LE REGLAGE DOIT SE VOIR — correction du 19/08/2026, sur signalement
+    // d'Arnaud (« aucun effet lorsque je bouge »). La teinte n'atteignait que
+    // la lumiere ponctuelle et le filament : un point de 20 px changeait de
+    // couleur, et rien d'autre. Sur un site qui annonce « la lumiere se
+    // regle », le geste ne se voyait pas.
+    //
+    // Deux surfaces recoivent desormais la teinte, choisies parce qu'elles
+    // sont larges et lues comme de la lumiere, pas comme de la matiere :
+    //   - le halo, dont la texture est peinte a 2 700 K ; la multiplier par la
+    //     teinte courante la deplace sur l'echelle (le bleu de la texture est
+    //     faible, il monte au froid et s'efface au chaud). L'opacite passe de
+    //     0,40 a 0,46 pour compenser l'assombrissement du produit ;
+    //   - le verre interieur, qui s'illumine de l'interieur — c'est ce que le
+    //     brief appelait « le globe devient translucide par l'interieur ».
+    //     `emissive` est un uniform : l'ecrire ne recompile aucun materiau,
+    //     la regle absolue de la boucle est respectee.
+    const materiauHalo = halo.material as SpriteMaterial;
+    materiauHalo.opacity = t * 0.5;
+    materiauHalo.color.copy(teinteCourante);
+    verreInterieur.emissive.copy(teinteCourante).multiplyScalar(t * 0.8);
     scene.environmentIntensity = 0.55 + t * 0.45;
   };
   appliquer();
@@ -341,10 +360,27 @@ async function monterScene(
     const detail = (e as CustomEvent<{ t: number }>).detail;
     if (!mainAuVisiteur) {
       mainAuVisiteur = true;
+      // Le defilement ne reprend plus la main : un reglage que le scroll
+      // referait defaire serait une main fantome.
       declencheur.kill();
-      hote.removeEventListener('breande-reglage', surReglage);
     }
-    allumage.valeur = detail.t;
+    // DEUX DEFAUTS CORRIGES ICI LE 19/08/2026, signales par Arnaud sur le
+    // rendu — le second est le retour d'un defaut deja paye le matin meme.
+    //
+    // 1. L'ECOUTEUR NE SE RETIRE PLUS. Il etait supprime au premier reglage,
+    //    en meme temps que le scrub : le premier geste passait, tous les
+    //    suivants etaient ignores. Tuer le declencheur de defilement, oui ;
+    //    tuer la molette, jamais — c'est le seul geste que le site demande.
+    //
+    // 2. LA MOLETTE REGLE UNE TEMPERATURE, PAS UNE INTENSITE. `allumage` etait
+    //    ecrase par la position de la molette, si bien que la teinte
+    //    (`temperature.valeur`, lue par appliquer()) ne bougeait jamais : la
+    //    lampe changeait de luminosite au lieu de changer de couleur, en
+    //    contradiction avec ce que la page annonce — « la lumiere se regle ».
+    //    Toucher la molette ALLUME (le visiteur veut voir), et deplace la
+    //    teinte entre 2 200 et 4 000 K sur la courbe du corps noir.
+    allumage.valeur = 1;
+    temperature.valeur = detail.t;
     appliquer();
   };
   hote.addEventListener('breande-reglage', surReglage);

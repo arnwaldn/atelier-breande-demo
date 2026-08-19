@@ -6,6 +6,16 @@
  * bas de casse par convention du projet) de le composer déjà en bas de
  * casse — ce composant ne force aucune transformation de casse en CSS, qui
  * romprait la citation exacte d'un nom propre.
+ *
+ * NOM ACCESSIBLE DU LIEN — aria-label explicite (finition 10, chantier bêta
+ * du 19/08). Sans lui, le nom accessible du lien concatène tout son contenu
+ * DANS L'ORDRE DU BALISAGE : l'alt de la photo (une phrase entière, voir
+ * Visuel.astro) PUIS les matières (EtiquetteTechnique) PUIS seulement le nom
+ * de la pièce — vérifié au navigateur (aria snapshot) : « Suspension de cage
+ * d'escalier : cinq verres… laiton patiné brun · verre soufflé… Traboule à
+ * partir de… ». Au clavier ou au lecteur d'écran, l'objet n'est identifié
+ * qu'après une phrase entière de matières. aria-label reprend la même
+ * information, réordonnée nom d'abord — rien n'est perdu, tout est repris.
  */
 import type { ImageMetadata } from 'astro';
 import Visuel from './Visuel.astro';
@@ -35,7 +45,11 @@ const {
 } = Astro.props;
 ---
 
-<a href={href} class="carte-piece">
+<a
+  href={href}
+  class="carte-piece"
+  aria-label={`${nom} — ${matieres.join(', ')} — à partir de ${prix}, ${delaiCourant}`}
+>
   <span class="carte-piece__cadre">
     <Visuel
       src={image}

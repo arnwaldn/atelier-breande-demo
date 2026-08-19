@@ -29,19 +29,26 @@ const LIBELLES: Record<string, string> = {
 /*
  * C9 (recette DA du 19/08) : la section qui héberge la pièce que l'on règle
  * (BandeScene, [data-scene]) porte data-jour="5" comme le reste de l'arc —
- * cohérent pour la teinte de la page, mais la molette qu'elle contient a sa
- * propre butée, FIXE, à 2 700 K (voir BandeScene.astro et l'ADR direction
- * artistique). Tant que cette section gouverne l'échelle, l'affichage doit
- * suivre la butée de la molette, pas le palier générique de la section — la
- * jauge et le geste que le visiteur a sous les yeux doivent raconter le même
- * chiffre.
+ * cohérent pour la teinte de la page. Mais la molette qu'elle contient a sa
+ * propre valeur, RÉGLABLE par le visiteur (voir molette.ts) : dès qu'il la
+ * touche, elle diverge de la valeur générique du palier, et deux kelvins
+ * affichés à la fois est le défaut relevé au chantier bêta du 19/08
+ * (finition importante 8). Tant que cette section gouverne la marge active,
+ * ce n'est donc plus À ELLE d'afficher une valeur — la molette est juste à
+ * côté et porte la sienne : la marge s'efface plutôt que d'en réafficher
+ * une seconde, potentiellement fausse (voir .echelle-kelvins--efface,
+ * global.css).
  */
-const LIBELLE_SCENE = '2 700 K';
+const CLASSE_EFFACE = 'echelle-kelvins--efface';
 
 function appliquerPalier(palier: string, estScene: boolean) {
   if (!echelle || !valeurEl || !PALIERS_CONNUS.has(palier)) return;
   echelle.setAttribute('data-palier', palier);
-  valeurEl.textContent = estScene ? LIBELLE_SCENE : LIBELLES[palier];
+  echelle.classList.toggle(CLASSE_EFFACE, estScene);
+  // Texte mis à jour même caché : au retour de la fenêtre sur la section
+  // gouvernée par ce palier, la valeur doit déjà être la bonne AVANT que la
+  // transition d'opacité ne la révèle — jamais un flash de l'ancien texte.
+  if (!estScene) valeurEl.textContent = LIBELLES[palier];
 }
 
 if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {

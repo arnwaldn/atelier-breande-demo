@@ -116,13 +116,21 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
     })
   }
 
-  {/* LES HUIT ÉTAPES, complètes, en frise. */}
+  {/* LES HUIT ÉTAPES, complètes, en frise — le geste signature de cette
+      page (recette DA du 19/08) : un filet de laiton vertical se tire au
+      défilement, chaque étape se révèle quand il l'atteint. Voir
+      demarrerFriseEtapes() dans src/scripts/mouvement/effets-scroll.ts et
+      .frise-etapes__filet dans global.css. Jamais data-revelation ici : ce
+      mécanisme-là suit une intersection simple, celui-ci suit la
+      progression du filet — deux déclencheurs différents pour deux gestes
+      différents. */}
   <Bandeau jour={4} id="etapes" ariaLabelledby="titre-etapes">
     <TitreSection texte="Comment ça se passe" id="titre-etapes" filet />
-    <div class="frise-etapes mt-10">
+    <div class="frise-etapes mt-10" data-frise-etapes>
+      <div class="frise-etapes__filet" aria-hidden="true" data-frise-filet />
       {
         etapesCommande.map((etape) => (
-          <div data-revelation>
+          <div class="frise-etape" data-frise-etape>
             <p class="frise-etape__numero">{String(etape.numero).padStart(2, '0')}</p>
             <p class="frise-etape__titre">{etape.titre}</p>
             <p class="frise-etape__texte">{etape.texte}</p>

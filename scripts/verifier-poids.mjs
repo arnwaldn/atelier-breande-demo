@@ -128,7 +128,13 @@ try {
     for (const m of html.matchAll(/<script\b[^>]*>/giu)) {
       const attributs = extraireAttributs(m[0]);
       const src = attributs.get('src');
-      if (!src || !src.startsWith('/_astro/') || !src.endsWith('.js')) continue;
+      // TOUT script local du chemin critique compte, pas seulement ceux
+      // qu'Astro empaquette dans /_astro/. Trou trouvé le 19/08/2026 : un
+      // fichier déposé dans public/ (detection-js.js) était référencé en
+      // synchrone dans le <head> et n'entrait dans AUCUN budget — la garde
+      // annonçait 3,24 Ko alors que le navigateur en téléchargeait plus.
+      // Un budget qui ne mesure qu'une origine sur deux ne protège de rien.
+      if (!src || !src.startsWith('/') || !src.endsWith('.js')) continue;
       referencesJs.add(join(DOSSIER_DIST, src));
     }
   }
