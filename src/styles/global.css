@@ -1180,8 +1180,12 @@ main > :last-child {
   z-index: 1;
   display: flex;
   flex-wrap: wrap;
+  /* Trois colonnes depuis le 20/08/2026 (la mention de fiction a rejoint les
+     deux autres) : space-between repartit desormais du contenu au lieu
+     d'etaler 674 px de gouttiere entre deux blocs. */
   justify-content: space-between;
-  gap: 2.5rem;
+  align-items: start;
+  gap: 2.5rem 4rem;
 }
 .pied-de-page__marque {
   font-family: var(--font-display);
@@ -2862,3 +2866,86 @@ html.lenis {
 [data-piece-photo='doucine'] { view-transition-name: piece-photo-doucine; }
 [data-piece-photo='encorbellement'] { view-transition-name: piece-photo-encorbellement; }
 [data-piece-photo='suspension-1930'] { view-transition-name: piece-photo-suspension-1930; }
+
+/* ==========================================================================
+   COMBLER LES TROUS (20/08/2026) — trois blocs qui laissaient la moitie droite
+   de l'ecran vide sur plusieurs ecrans d'affilee. Aucun texte invente : on
+   deplace du regard, on ne rajoute pas de discours.
+   ========================================================================== */
+
+/* /latelier — le dessin technique tient compagnie aux huit procedes. Colle
+   pendant la traversee : le dessin reste en face pendant qu'on descend la
+   frise, ce qui remplit 2 008 px de nuit vide sans une ligne de texte de plus. */
+.procedes-avec-dessin {
+  display: grid;
+  gap: 3rem;
+}
+@media (min-width: 64rem) {
+  .procedes-avec-dessin {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    align-items: start;
+  }
+  .procedes-dessin {
+    position: sticky;
+    top: 8rem;
+  }
+}
+.procedes-dessin {
+  display: none;
+}
+@media (min-width: 64rem) {
+  .procedes-dessin {
+    display: block;
+  }
+}
+.procedes-dessin svg {
+  width: 100%;
+  height: auto;
+  opacity: 0.72;
+}
+
+/* /services — la travee du bloc « Comment ca se passe », meme motif que les
+   trois services plus haut (service-travee) : image debordante d'un cote,
+   texte de l'autre. */
+.etapes-travee {
+  display: grid;
+  gap: 2.5rem;
+}
+@media (min-width: 56.25rem) {
+  .etapes-travee {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 3.5rem;
+  }
+}
+.etapes-travee__image {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: var(--recoit-lumiere);
+}
+@media (min-width: 56.25rem) {
+  .etapes-travee__image {
+    position: sticky;
+    top: 8rem;
+  }
+}
+
+/* /contact — la page ou l'on demande d'ecrire etait la seule sans image. */
+.contact-bloc__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 2px;
+  margin-bottom: 1.1rem;
+  box-shadow: var(--recoit-lumiere);
+}
+
+/* La mention de fiction, devenue colonne du pied, garde sa discretion : elle
+   informe, elle ne s'affiche pas. */
+.pied-de-page__colonnes .pied-de-page__fiction {
+  flex: 0 1 20rem;
+  margin: 0;
+  text-align: left;
+}

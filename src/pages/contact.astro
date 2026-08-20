@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
+import Visuel from '../components/Visuel.astro';
+import etabliContact from '../assets/atelier/etabli-large.jpg';
 import TitreSection from '../components/TitreSection.astro';
 import Accordeon from '../components/Accordeon.astro';
 import ContactForm from '../components/ContactForm.astro';
@@ -68,6 +70,20 @@ import { faqContact } from '../data/faq';
         </div>
 
         <div class="contact-bloc" data-revelation>
+          {/* Ajoutée le 20/08/2026 : la page où l'on demande d'écrire était la
+              seule du site sans une image — 2 833 px, zéro visuel, et un creux
+              mesuré à 16,9 % d'occupation juste ici. Le bloc raconte ce qu'on
+              voit en poussant la porte, et ne montrait rien.
+              `avance` et non `prioritaire` : le LCP de cette page est le titre,
+              et l'ADR interdit de concurrencer l'élément LCP de chaque page. */}
+          <Visuel
+            src={etabliContact}
+            alt="L’établi principal de l’atelier, vu de face, avec ses outils rangés à portée de main"
+            sizes="(min-width: 900px) 40vw, 100vw"
+            widths={[400, 700, 1100]}
+            avance
+            class="contact-bloc__image"
+          />
           <h2 class="contact-bloc__titre">{venirALAtelier.titre}</h2>
           <p class="contact-bloc__texte">{venirALAtelier.texte}</p>
         </div>

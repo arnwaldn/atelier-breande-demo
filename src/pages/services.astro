@@ -2,6 +2,7 @@
 import type { ImageMetadata } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
+import etabliEtapes from '../assets/atelier/etabli-large.jpg';
 import TitreSection from '../components/TitreSection.astro';
 import ChiffreCle from '../components/ChiffreCle.astro';
 import AppelAction from '../components/AppelAction.astro';
@@ -124,7 +125,23 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
       mécanisme-là suit une intersection simple, celui-ci suit la
       progression du filet — deux déclencheurs différents pour deux gestes
       différents. */}
-  <Bandeau jour={4} id="etapes" ariaLabelledby="titre-etapes">
+  {/* Plein-bord ajouté le 20/08/2026. De la fin du troisième service au pied de
+      page, la page comptait 5 483 px SANS UNE SEULE IMAGE — 45 % de sa hauteur,
+      trois écrans d'affilée à 11-12 % d'occupation avec toute la moitié droite
+      noire. Les huit gestes se font à cet établi : le sujet du texte est
+      exactement le sujet de l'image, et elle existe déjà dans le dépôt. */}
+  <Bandeau jour={4} id="etapes" pleinBord="droite" ariaLabelledby="titre-etapes">
+    <div class="etapes-travee">
+      <div class="etapes-travee__image bandeau__deborde-droite md:order-2">
+        <Visuel
+          src={etabliEtapes}
+          alt="L’établi principal de l’atelier, vu de face, avec ses outils rangés à portée de main"
+          sizes="(min-width: 900px) 45vw, 100vw"
+          widths={[480, 900, 1400]}
+          class="h-full w-full object-cover"
+        />
+      </div>
+      <div class="md:order-1">
     <TitreSection texte="Comment ça se passe" id="titre-etapes" filet />
     <div class="frise-etapes mt-10" data-frise-etapes>
       <div class="frise-etapes__filet" aria-hidden="true" data-frise-filet />
@@ -144,6 +161,8 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
           </div>
         ))
       }
+    </div>
+      </div>
     </div>
   </Bandeau>
 

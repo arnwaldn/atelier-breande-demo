@@ -2,6 +2,7 @@
 import type { ImageMetadata } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
+import dessinProcedes from '../assets/dessins-techniques/suspension.svg?raw';
 import TitreSection from '../components/TitreSection.astro';
 import AppelAction from '../components/AppelAction.astro';
 import Visuel from '../components/Visuel.astro';
@@ -103,7 +104,15 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
   <Bandeau jour={3} ariaLabelledby="titre-procedes">
     <TitreSection texte="Les procédés" id="titre-procedes" filet />
     <p class="mesure mt-4 text-breande-muted">{procedesIntro}</p>
-    <div class="frise-procedes mt-8" data-revelation>
+    {/* Le dessin reste en face pendant qu'on descend les huit gestes. Relevé du
+        20/08/2026 : ce bloc faisait 2 008 px sans une seule image, 14 à 16 %
+        d'occupation d'écran sur trois écrans d'affilée, avec toute la moitié
+        droite vide — le plus profond creux de la page la plus creuse du site.
+        Le dessin technique EST le sujet du texte (01 Dessin, 05 Dessin
+        d'exécution) et il existe déjà dans le dépôt : poids nul, trait de
+        laiton, aucune image à produire. */}
+    <div class="procedes-avec-dessin mt-8">
+      <div class="frise-procedes" data-revelation>
       {
         procedes.map((procede) => (
           <div class="frise-procede">
@@ -117,6 +126,8 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
           </div>
         ))
       }
+      </div>
+      <aside class="procedes-dessin" aria-hidden="true" set:html={dessinProcedes} />
     </div>
   </Bandeau>
 

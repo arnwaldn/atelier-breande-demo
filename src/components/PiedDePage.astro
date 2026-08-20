@@ -54,11 +54,18 @@ const liens = [
           <li><a href="/mentions-legales">mentions légales</a></li>
         </ul>
       </nav>
-    </div>
 
-    <p class="pied-de-page__fiction">
-      Site fictif de démonstration — conçu et réalisé par Arnaud Porcel. {annee}.
-    </p>
+      {/* Remontee en TROISIEME colonne le 20/08/2026. Le pied n'avait que deux
+          blocs en space-between sur 1 440 px : 674 px de gouttiere, un vide
+          mesure a 640 x 848 px, soit 41,9 % de l'ecran — identique sur les six
+          pages, et c'est la derniere image que le visiteur emporte. La mention
+          etait en note sous les colonnes ; elle devient une colonne. Elle n'a
+          pas bouge d'un mot, elle a change de place : rien n'est invente pour
+          remplir, et la garde de fiction la trouve toujours. */}
+      <p class="pied-de-page__fiction">
+        Site fictif de démonstration — conçu et réalisé par Arnaud Porcel. {annee}.
+      </p>
+    </div>
 
     <div class="pied-de-page__halo" aria-hidden="true"></div>
   </div>
