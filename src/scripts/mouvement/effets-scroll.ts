@@ -142,6 +142,15 @@ const SEUIL_PALIER_PX = 500;
  *  --ruban-image-x — jamais un attribut style="", toujours une propriété
  *  posée sur l'élément (voir installerPartDeJour dans socle.ts, même
  *  geste). */
+/*
+ * L'effacement de l'echelle pendant la traversee du ruban a ete retire le
+ * 20/08/2026. Il posait une classe .echelle-kelvins--efface qu'AUCUNE regle CSS
+ * n'exploitait plus : la regle est partie avec la depose de la scene 3D le matin
+ * meme, les quatre lignes de JS qui la posaient sont restees. Une depose
+ * incomplete laisse toujours le morceau le moins visible. L'echelle reste donc
+ * affichee pendant le ruban, et son interpolation y est bornee par les deux
+ * paliers reels — juge bon a l'ecran.
+ */
 function demarrerRuban(section: HTMLElement): (() => void) | void {
   const fenetre = section.querySelector<HTMLElement>(SELECTEUR_FENETRE);
   const piste = section.querySelector<HTMLElement>(SELECTEUR_PISTE);
@@ -281,20 +290,16 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
     onRefresh: mesurer,
     onEnter: () => {
       entete?.classList.add('entete--retire');
-      echelle?.classList.add('echelle-kelvins--efface');
     },
     onEnterBack: () => {
       entete?.classList.add('entete--retire');
-      echelle?.classList.add('echelle-kelvins--efface');
     },
     // Garde n°2 : retour dès la sortie du ruban, dans les DEUX sens.
     onLeave: () => {
       entete?.classList.remove('entete--retire');
-      echelle?.classList.remove('echelle-kelvins--efface');
     },
     onLeaveBack: () => {
       entete?.classList.remove('entete--retire');
-      echelle?.classList.remove('echelle-kelvins--efface');
     },
     onUpdate: (soi) => {
       // LE PALIER D'ENTRÉE (bloquant 3) — `soi.start`/`soi.end` plutôt que la

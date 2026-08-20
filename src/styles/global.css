@@ -1298,6 +1298,29 @@ html.mouvement [data-revele] {
     transform var(--ms-signature) var(--ease-etat);
 }
 
+/* LA CASCADE N'EXISTAIT PAS — mesure a l'ecran du 20/08/2026 : les quatre
+   reperes de l'accueil arrivaient RIGOUREUSEMENT ensemble (opacite
+   0,11/0,11/0,11/0,11 puis 0,32/0,32/0,32/0,32), et
+   getComputedStyle(el).transitionDelay valait "0s, 0s" sur tous, cascade-2, 3
+   et 4 comprises.
+   Cause : la propriete RACCOURCIE `transition` declaree juste au-dessus
+   (specificite 0-2-1) reinitialise transition-delay, et ecrase donc les
+   `.cascade-N` (0-1-0) — quel que soit leur ordre dans la feuille.
+   C'etait deja vrai AVANT le 20/08 : le commentaire des .cascade-N disait
+   « les quatre arrivaient ensemble », ce qui etait juste, mais l'attribuait a
+   un ecart de 60 ms trop court. La vraie cause etait une question de
+   specificite, et changer les valeurs ne pouvait donc rien y faire.
+   Ces trois regles rendent la cascade reelle. */
+html.mouvement [data-revele].cascade-2 {
+  transition-delay: 70ms;
+}
+html.mouvement [data-revele].cascade-3 {
+  transition-delay: 140ms;
+}
+html.mouvement [data-revele].cascade-4 {
+  transition-delay: 210ms;
+}
+
 /* Cascade — au plus quatre frères. Portée de 60 à 70 ms le 20/08/2026 :
    a 60 ms d'ecart pour une duree PERCUE de 230 ms, le quatrieme frere partait
    quand le premier avait deja fait 78 % de son chemin — les quatre arrivaient
@@ -2918,8 +2941,13 @@ html.lenis {
     gap: 3.5rem;
   }
 }
+/* Ratio 3/2 — celui de la photo. En 4/5 (portrait) le cadre coupait 46 % d'une
+   image paysage et forcait un agrandissement de 199 % : la source servie faisait
+   648 x 434 pour un affichage en 692 x 865, et exactement la meme source en
+   DPR 2. Sur le Samsung d'Arnaud, c'etait visiblement mou. Un cadre qui ment sur
+   le format de ce qu'il contient fait payer deux fois : en nettete et en octets. */
 .etapes-travee__image {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
   border-radius: 2px;
   box-shadow: var(--recoit-lumiere);
@@ -2932,10 +2960,14 @@ html.lenis {
 }
 
 /* /contact — la page ou l'on demande d'ecrire etait la seule sans image. */
+/* 16/9 et non 3/2 : en 3/2 l'image allongeait la colonne droite de 463 px sans
+   que la gauche suive, et le vide de 640 x 848 du pied se retrouvait deplace en
+   550 x 700 sous le formulaire. Combler un trou en en creusant un autre n'est
+   pas combler. */
 .contact-bloc__image {
   display: block;
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 2px;
   margin-bottom: 1.1rem;

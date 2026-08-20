@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
 import Visuel from '../components/Visuel.astro';
-import etabliContact from '../assets/atelier/etabli-large.jpg';
+import matiereContact from '../assets/atelier/matiere-laiton.jpg';
 import TitreSection from '../components/TitreSection.astro';
 import Accordeon from '../components/Accordeon.astro';
 import ContactForm from '../components/ContactForm.astro';
@@ -77,10 +77,10 @@ import { faqContact } from '../data/faq';
               `avance` et non `prioritaire` : le LCP de cette page est le titre,
               et l'ADR interdit de concurrencer l'élément LCP de chaque page. */}
           <Visuel
-            src={etabliContact}
-            alt="L’établi principal de l’atelier, vu de face, avec ses outils rangés à portée de main"
+            src={matiereContact}
+            alt="Chutes et barres de laiton rangées à l’atelier, patine et reflets chauds"
             sizes="(min-width: 900px) 40vw, 100vw"
-            widths={[400, 700, 1100]}
+            widths={[400, 700, 1100, 1400]}
             avance
             class="contact-bloc__image"
           />

@@ -127,7 +127,19 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
         ))
       }
       </div>
-      <aside class="procedes-dessin" aria-hidden="true" set:html={dessinProcedes} />
+      {/* data-dessin-technique n'est PAS decoratif : c'est lui que
+          demarrerDessinTechnique() cherche (effets-scroll.ts) pour poser
+          --dessin-progres. Sans lui, le CSS laisse stroke-dashoffset a sa
+          valeur de repli (1), soit un trait entierement decale : le SVG est
+          dans le DOM, visible, opacite 1... et ne trace AUCUN trait. Oubli du
+          20/08/2026, trouve a l'ecran : un tiers de la largeur reste noir sur
+          1 578 px de haut, et la page ne gagne pas un point d'occupation. */}
+      <aside
+        class="procedes-dessin"
+        aria-hidden="true"
+        data-dessin-technique
+        set:html={dessinProcedes}
+      />
     </div>
   </Bandeau>
 
