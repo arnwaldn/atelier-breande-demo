@@ -1447,6 +1447,18 @@ html.mouvement .grille-reperes > [data-revelation]:not([data-revele]) {
   line-height: 1.15;
   color: var(--color-breande-paper);
 }
+/* A partir de 64 rem, la phrase seule prend TOUTE la largeur — mesure du
+   20/08 : plafonnee a --mesure-large (704 px) dans une zone de 1 344, elle
+   laissait 674 px de noir a sa droite, l'un des plus grands vides de
+   l'accueil. Or c'est le seul bloc de la page dont le propos EST d'occuper
+   l'ecran a lui seul : le brider a la mesure d'un paragraphe le rendait
+   timide et vide a la fois. Sur deux lignes de grande casse, elle porte
+   enfin ce qu'elle annonce. */
+@media (min-width: 64rem) {
+  .phrase-seule {
+    max-width: none;
+  }
+}
 
 /* --------------------------------------------------------------------------
    LE CHANTIER RACONTÉ — accueil bloc 5.
@@ -2218,6 +2230,45 @@ html.mouvement
   transform: none;
 }
 
+/* --------------------------------------------------------------------------
+   L'APPEL FINAL — le meme bloc sur trois pages, et le meme trou sur trois
+   pages : un texte en colonne de 544 px, ses boutons DESSOUS, et 789 a 821 px
+   de noir a droite (mesure de verifier-composition.mjs, 20/08/2026). Le
+   dernier ecran d'une page est le pire endroit ou laisser un vide : c'est
+   celui ou l'on demande quelque chose au visiteur.
+   Texte a gauche, boutons a droite, alignes sur la meme ligne de base
+   optique. Sous 64 rem, l'empilement d'origine reprend — il n'y a plus de
+   marge a peupler.
+   -------------------------------------------------------------------------- */
+.appel-final {
+  border-top: 1px solid rgb(138 107 74 / 0.25);
+  padding-top: 2.5rem;
+}
+.appel-final__texte {
+  max-width: var(--mesure-large);
+  font-size: 1.125rem;
+  color: var(--color-breande-paper);
+}
+.appel-final__boutons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+@media (min-width: 64rem) {
+  .appel-final {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 4rem;
+    align-items: end;
+  }
+  .appel-final__boutons {
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+}
+
 /* L'intitule d'une colonne de marge — commun aux quatre gestes. */
 .marge-active__intitule {
   color: var(--color-breande-laiton-clair);
@@ -2240,6 +2291,16 @@ html.mouvement
   stroke: var(--color-breande-laiton-clair);
   opacity: 0;
   transition: opacity var(--ms-revele) var(--ease-monte);
+}
+/* LE DESSIN POSE — le meme trait, sans le geste. Reserve aux en-tetes de
+   page, ou l'ADR-002 interdit toute animation autour de l'element LCP : le
+   trait est complet des le premier rendu, les cotes avec. Aucun declencheur
+   GSAP ne le regarde (il ne porte pas data-dessin-technique). */
+.dessin-pose .dessin-technique__trait {
+  stroke-dashoffset: 0;
+}
+.dessin-pose .dessin-technique__cote {
+  opacity: 0.85;
 }
 [data-trait-trace] .dessin-technique__cote {
   opacity: 0.85;

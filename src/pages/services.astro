@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import MargeActive from '../components/MargeActive.astro';
 import CoteMarge from '../components/CoteMarge.astro';
 import dessinApplique from '../assets/dessins-techniques/applique.svg?raw';
+import dessinLampadaire from '../assets/dessins-techniques/lampadaire.svg?raw';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
 import etabliEtapes from '../assets/atelier/etabli-large.jpg';
@@ -49,12 +50,19 @@ const nomParPiece = new Map(
   title="Nos services — Atelier Bréande (site de démonstration)"
   description="Site de démonstration : Atelier Bréande est un atelier fictif. Création sur mesure, restauration de luminaires anciens et conseil en éclairage — prix, délais et huit étapes détaillées."
 >
-  <Bandeau jour={1}>
-    <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">
-      {servicesEnTete.titre}
-    </h1>
-    <p class="mesure-large mt-4 text-breande-muted">{servicesEnTete.chapo}</p>
-  </Bandeau>
+  {/* 656 px de vide mesurés à droite de l'en-tête. La marge reçoit
+      l'élévation du lampadaire — aucune animation ici : c'est le premier
+      bloc de la page, et l'ADR-002 interdit d'animer autour de l'élément
+      LCP page par page. Le dessin est simplement posé, trait complet. */}
+  <MargeActive>
+    <Bandeau jour={1}>
+      <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">
+        {servicesEnTete.titre}
+      </h1>
+      <p class="mesure-large mt-4 text-breande-muted">{servicesEnTete.chapo}</p>
+    </Bandeau>
+    <div slot="marge" class="dessin-pose" set:html={dessinLampadaire} />
+  </MargeActive>
 
   {
     services.map((service, i) => {
@@ -268,9 +276,9 @@ const nomParPiece = new Map(
 
   {/* APPEL FINAL */}
   <Bandeau jour={5} air="large">
-    <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
-      <p class="mesure text-lg text-breande-paper">{appelServices.texte}</p>
-      <div class="mt-6">
+    <div class="appel-final" data-revelation>
+      <p class="appel-final__texte">{appelServices.texte}</p>
+      <div class="appel-final__boutons">
         <AppelAction texte={appelServices.bouton} href={appelServices.href} variante="plein" />
       </div>
     </div>

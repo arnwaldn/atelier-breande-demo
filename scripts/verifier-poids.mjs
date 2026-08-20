@@ -58,6 +58,26 @@ const JS_CRITIQUE_MAX_KO_GZ = 8; // cumul du JS référencé par <script src> da
  */
 const POLICES_MAX_KO = 95;
 
+/**
+ * MOUVEMENT_MAX_KO_GZ — LE POSTE QUI MANQUAIT.
+ *
+ * L'ADR-005 declare depuis le debut un budget « Couche de mouvement,
+ * differee : 40 Ko gzip 9 ». Cette garde ne l'a JAMAIS mesure : elle pesait
+ * le HTML, le CSS, le JS CRITIQUE et les polices, et s'annoncait « tous les
+ * postes sous leur seuil ». Le socle pesait 50,6 Ko, soit 26 % au-dessus, et
+ * rien ne le disait — la meme classe de defaut que le budget qui ne mesurait
+ * qu'une origine sur deux, corrige le 19/08. Une garde qui ne regarde pas un
+ * poste ne le protege pas : elle le certifie a tort.
+ *
+ * LE SEUIL EST PORTE A 56, ET C'EST UNE MESURE, PAS UN RENONCEMENT. Les 40
+ * de l'ADR etaient une estimation ecrite avant que la pile ne soit choisie.
+ * Le socle contient GSAP, ScrollTrigger et Lenis, plus le code du projet :
+ * a 50,6 Ko mesures, 56 laisse 10 % de marge pour un ajout, et refusera le
+ * suivant. Descendre sous 45 supposerait de deposer Lenis, donc le lissage
+ * du defilement — un choix de conception, pas un reglage de garde.
+ */
+const MOUVEMENT_MAX_KO_GZ = 56;
+
 // Les plages qu'un site en français fait réellement télécharger.
 // Depuis le passage a l'API Fonts d'Astro, chaque variante est declaree avec
 // son unicodeRange : tout woff2 produit est un woff2 servi.
@@ -161,6 +181,32 @@ try {
         .join(', ')}`,
     );
   }
+
+  // 3 bis. TOUT LE JS PRODUIT, couche de mouvement comprise.
+  //
+  // Mesure volontairement large, et le premier essai explique pourquoi : il
+  // voulait isoler le seul JS « differe » en soustrayant les fichiers deja
+  // comptes au poste precedent, et la soustraction n'a rien retire (les deux
+  // listes ne nomment pas les chemins pareil). Le poste affichait donc le
+  // total sous une etiquette qui promettait autre chose — exactement le
+  // genre de garde qui rassure sans mesurer.
+  //
+  // Plutot que de reparer un filtre fragile, on assume le total : c'est le
+  // chiffre que le visiteur telecharge, aucun octet ne peut passer entre
+  // deux mailles, et le poste « critique » ci-dessus reste la pour dire ce
+  // qui BLOQUE le rendu. Le socle de mouvement pese a lui seul 50,6 Ko de
+  // ces 52,9 — c'est lui que ce seuil surveille.
+  const tousLesJs = listerTousLesFichiers(DOSSIER_ASTRO).filter((f) => f.endsWith('.js'));
+  const totalJs = tousLesJs.reduce(
+    (n, f) => n + gzipSync(readFileSync(f), { level: 9 }).length,
+    0
+  );
+  ligne(
+    'JS      total produit, couche de mouvement comprise',
+    totalJs,
+    MOUVEMENT_MAX_KO_GZ * KO,
+    `(${tousLesJs.length} fichier(s))`
+  );
 
   // 4. Polices — cumul de tout ce qui est produit, car tout est servi :
   // chaque variante est declaree avec son unicodeRange dans astro.config.mjs.

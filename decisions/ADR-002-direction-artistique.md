@@ -108,3 +108,49 @@ sur le même axe se battent.
 4. Note perf mobile accueil ≥ 96 avec 3D non chargée sur écran étroit.
 5. Comparaison côte à côte avec Vaubrune : AUCUN rapprochement possible.
 6. Le bloc 3D est beau avec WebGL désactivé — sinon on ne livre pas.
+
+## Amendement du 20/08/2026 — la 3D déposée, la marge devenue règle
+
+**Le variateur n'est plus un moment de bravoure.** La scène 3D et sa molette
+ont été retirées du site à la demande du client : « cette animation de
+variateur qui n'a jamais fonctionné, je ne la trouve pas jolie et elle
+n'apporte rien ». 131 Ko déposés, réinvestis dans le mouvement du reste. La
+recette n° 6 (« le bloc 3D est beau avec WebGL désactivé ») devient donc sans
+objet, et la n° 4 se lit désormais sans sa condition sur la 3D. Le variateur
+reste le CONCEPT du site — la température qui descend de 5000 K à 2200 K au
+défilement, pilotée par `--part-de-jour` — simplement il ne s'incarne plus
+dans un objet 3D.
+
+**La recette n° 2 devient une garde.** « À 1440 : aucune bande verticale vide
+de plus de 120 px hors marges » était écrite le 19/08 et n'a jamais été
+appliquée : le client a envoyé six captures de sections vides le lendemain. La
+règle est désormais outillée (`scripts/verifier-composition.mjs`, dans
+`npm run gardes`) et le patron de correction est généralisé : `MargeActive`
++ `.marge-active`, qui n'existaient que sur les fiches de pièce.
+
+**Quatre gestes de marge, et quatre seulement** — le vocabulaire fermé
+s'étend à la composition : le trait qui se trace, la cote qui s'écrit, le
+chiffre qui se lève, la vignette qui s'ouvre. Le chiffre qui se lève n'est
+PAS un compteur animé (toujours refusés) : la valeur est écrite dans le HTML
+dès le départ, seule sa surface peinte change.
+
+**Une quatrième couche de fond, et la dernière.** Une matière photographiée
+— un mur de plâtre gratté, choisi par le client parmi quatre pistes — s'insère
+SOUS la lueur de verrière et SOUS le grain. Centrée sur 128 (le point neutre
+du fondu doux), sinon elle éclaircirait ou assombrirait tout le site. Son
+opacité n'est pas un choix d'œil : c'est la valeur que la mesure de contraste
+sur capture réelle valide sur les six pages.
+
+**Régime de révélation, mesuré.** 1 800 ms, `--ease-etat`, 32 px, cascade
+70/140/210. Mesure du 20/08 au critère complet (opacité ET déplacement) :
+843 à 870 ms perçus, déclenchement à 73-78 % de la hauteur d'écran. Le
+déclenchement bas est VOULU : à cette hauteur et pour cette durée, le geste
+se déroule pendant que le bloc traverse la moitié du champ de vision. Le
+remonter le ferait finir en haut de l'écran, après le regard.
+
+**Les titres de section se révèlent aussi.** Aucun des 19 `TitreSection` ne
+portait `data-revelation` : le titre était posé quand le visiteur arrivait et
+le texte se révélait sous lui. Corrigé dans le composant, une fois. Exception :
+un titre qui peut être l'élément LCP de sa page (`revelation={false}`) — la
+règle « jamais d'animation sur le LCP » vaut page par page.
+

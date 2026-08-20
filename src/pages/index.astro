@@ -204,9 +204,9 @@ const piecesVedettes = await Promise.all(
   </MargeActive>
 
   <Bandeau jour={5} air="serie">
-    <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
-      <p class="mesure text-lg text-breande-paper">{appelFinal.texte}</p>
-      <div class="mt-6 flex flex-wrap items-center gap-4">
+    <div class="appel-final" data-revelation>
+      <p class="appel-final__texte">{appelFinal.texte}</p>
+      <div class="appel-final__boutons">
         <AppelAction texte={appelFinal.bouton} href={appelFinal.href} variante="plein" />
         <AppelAction texte={appelFinal.boutonSecondaire} href={appelFinal.hrefSecondaire} variante="filet" />
       </div>

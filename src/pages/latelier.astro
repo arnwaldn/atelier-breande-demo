@@ -161,8 +161,13 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
     </div>
   </Bandeau>
 
-  {/* B5 — LA LUMIÈRE */}
-  <Bandeau jour={3} ariaLabelledby="titre-lumiere">
+  {/* B5 — LA LUMIÈRE. 732 px de vide mesurés à droite du tableau : plutôt
+      que d'étirer un tableau de trois colonnes jusqu'à le rendre illisible,
+      la marge reçoit l'élévation de la verrière — le dessin créé pour
+      l'occasion, et le seul sujet qui ait sa place à côté d'un tableau de
+      températures. */}
+  <MargeActive>
+    <Bandeau jour={3} ariaLabelledby="titre-lumiere">
     <TitreSection texte={laLumiere.titre} id="titre-lumiere" filet />
     <div class="mesure mt-4 text-breande-muted" data-revelation>
       {laLumiere.texte.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
@@ -189,7 +194,9 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
       </tbody>
     </table>
     <p class="mesure mt-6 text-breande-muted">{laLumiere.note}</p>
-  </Bandeau>
+    </Bandeau>
+    <div slot="marge" data-dessin-technique set:html={dessinVerriere} />
+  </MargeActive>
 
   {/* LA COUPE DE MATIÈRE — moment de bravoure n°3, passé en plein-bord
       (recette DA du 19/08 : 640 px dans une page de 1280, ~590 px de vide à
@@ -255,9 +262,9 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
 
   {/* B8 — APPEL */}
   <Bandeau jour={5} air="large">
-    <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
-      <p class="mesure text-lg text-breande-paper">{appel.texte}</p>
-      <div class="mt-6">
+    <div class="appel-final" data-revelation>
+      <p class="appel-final__texte">{appel.texte}</p>
+      <div class="appel-final__boutons">
         <AppelAction texte={appel.bouton} href={appel.href} variante="plein" />
       </div>
     </div>

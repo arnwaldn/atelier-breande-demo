@@ -9,7 +9,7 @@
     "build:nu": "astro build",
     "preview": "astro preview --port 4341",
     "check": "astro check",
-    "gardes": "node scripts/verifier-livrable.mjs && node scripts/verifier-poids.mjs && node scripts/verifier-typographie.mjs && node scripts/verifier-fiction.mjs",
+    "gardes": "node scripts/verifier-livrable.mjs && node scripts/verifier-poids.mjs && node scripts/verifier-typographie.mjs && node scripts/verifier-fiction.mjs && node scripts/verifier-composition.mjs",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "verifier-notes": "node scripts/verifier-notes-lighthouse.mjs"

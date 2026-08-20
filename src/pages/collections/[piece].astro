@@ -127,7 +127,14 @@ const lignesCaracteristiques = [
             plan unique sur la galerie, l'image de gauche monte, celle de
             droite descend. Voir demarrerGaleriePiece() dans
             effets-scroll.ts et .galerie-piece__mouvement dans global.css. */}
-        <div class="mt-8 grid gap-6 sm:grid-cols-2" data-galerie>
+        {/* Deux colonnes seulement s'il y a deux images. `larmier` n'en a
+            qu'une (pas de vue d'ambiance) : la grille lui laissait 676 px de
+            noir a droite, mesures par verifier-composition.mjs le 20/08. Une
+            image seule occupe toute la largeur. */}
+        <div
+          class:list={['mt-8 grid gap-6', d.galerie.length > 1 && 'sm:grid-cols-2']}
+          data-galerie
+        >
           {d.galerie.map((image, i) => (
             <div class="aspect-[4/3] overflow-hidden rounded-sm shadow-[var(--recoit-lumiere)]" data-revelation class:list={[`cascade-${i + 1}`]}>
               <div class="galerie-piece__mouvement" data-galerie-image data-galerie-sens={i % 2 === 0 ? 'haut' : 'bas'}>

@@ -5,8 +5,6 @@ dist/
 
 .vercel
 
-.vercel
-
 # Atelier images : masters, essais, rebuts, journal de séance — hors dépôt public
 travaux-images/
 dist-verif/
@@ -16,3 +14,8 @@ dist-verif/
 # a chaque test et bloquaient les changements de branche.
 test-results/
 playwright-report/
+
+# Journal de recette et captures in vivo : utiles au poste, sans valeur pour
+# le livrable. 105 Mo pour 201 fichiers, soit l'essentiel du poids du depot.
+# Ils restent sur le disque, ils ne sont simplement plus suivis (20/08/2026).
+docs/_invivo/

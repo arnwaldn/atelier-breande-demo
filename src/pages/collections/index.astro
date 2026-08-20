@@ -7,6 +7,8 @@ import EtiquetteTechnique from '../../components/EtiquetteTechnique.astro';
 import AppelAction from '../../components/AppelAction.astro';
 import Visuel from '../../components/Visuel.astro';
 import { getCollection } from 'astro:content';
+import MargeActive from '../../components/MargeActive.astro';
+import dessinSuspension from '../../assets/dessins-techniques/suspension.svg?raw';
 import { collectionsEnTete, typologies, relance, passerelleServices } from '../../data/collections';
 
 const toutesLesPieces = await getCollection('pieces');
@@ -24,21 +26,28 @@ const grandeDroite = parSlug['suspension-1930'];
   title="Les pièces — Atelier Bréande (site de démonstration)"
   description="Site de démonstration : Atelier Bréande est un atelier fictif. Sept pièces sorties de l’atelier, avec leur prix et leur délai — suspensions, appliques, lampes et une restauration."
 >
-  <Bandeau jour={1}>
-    <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">
-      {collectionsEnTete.titre}
-    </h1>
-    <p class="mesure-large mt-4 text-breande-muted">{collectionsEnTete.chapo}</p>
-    <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2" aria-label="Typologies">
-      {
-        typologies.map((t) => (
-          <li>
-            <span class="etiquette">{t.libelle}</span>
-          </li>
-        ))
-      }
-    </ul>
-  </Bandeau>
+  {/* 628 px de vide mesurés à droite de l'en-tête (verifier-composition.mjs,
+      20/08). La marge reçoit l'élévation d'une suspension, POSÉE et non
+      tracée : c'est le premier bloc de la page, et l'ADR-002 interdit
+      d'animer autour de l'élément LCP, page par page. */}
+  <MargeActive>
+    <Bandeau jour={1}>
+      <h1 class="titre-wonk max-w-2xl text-breande-paper text-[length:var(--t-section)]">
+        {collectionsEnTete.titre}
+      </h1>
+      <p class="mesure-large mt-4 text-breande-muted">{collectionsEnTete.chapo}</p>
+      <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2" aria-label="Typologies">
+        {
+          typologies.map((t) => (
+            <li>
+              <span class="etiquette">{t.libelle}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </Bandeau>
+    <div slot="marge" class="dessin-pose" set:html={dessinSuspension} />
+  </MargeActive>
 
   <Bandeau jour={2}>
     <div class="grille-collections" data-grille-pieces>

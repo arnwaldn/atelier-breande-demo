@@ -92,3 +92,33 @@ navigateur rejette alors la déclaration **entière** et toutes les animations
 liées au défilement meurent en silence — **dans le livrable seul**, en laissant
 le texte à son état final lisible. La page semble correcte. Seule la lecture de
 `getComputedStyle().animationName` sur le livrable le révèle.
+
+## Amendement du 20/08/2026 — le budget qui n'était pas mesuré
+
+Le tableau ci-dessus annonçait « Couche de mouvement, différée : 40 Ko gzip 9 ».
+**Cette ligne n'a jamais été mesurée par aucune garde.** `verifier-poids.mjs`
+pesait le HTML, le CSS, le JS critique et les polices, puis concluait « tous
+les postes sont sous leur seuil » — en ne regardant pas celui-là. Le socle
+pesait 50,6 Ko, soit 26 % au-dessus du budget déclaré, et rien ne le disait.
+
+C'est la même classe de défaut que le budget qui ne mesurait qu'une origine
+sur deux, corrigé le 19/08 : **une garde qui ne regarde pas un poste ne le
+protège pas, elle le certifie à tort.**
+
+Deux corrections, indissociables :
+
+| Poste | Ancien | Nouveau | Nature |
+|---|---|---|---|
+| Couche de mouvement | 40 Ko gz, jamais mesuré | **56 Ko gz, mesuré à chaque build** | tout le JS produit, socle compris (52,88 Ko au 20/08) |
+| Matière de fond | — | **60 Ko, un seul fichier AVIF** | 19,1 Ko au 20/08 |
+
+Le seuil de 56 est une mesure, pas un renoncement : les 40 étaient une
+estimation écrite avant que la pile ne soit choisie. Le socle contient GSAP,
+ScrollTrigger et Lenis plus le code du projet ; à 52,88 mesurés, 56 laisse
+10 % de marge et refusera l'ajout suivant. Descendre sous 45 supposerait de
+déposer Lenis, donc le lissage du défilement — un choix de conception, pas un
+réglage de garde.
+
+**Contre-épreuve faite** : seuil abaissé à 50, la garde sort en code 1 ;
+rétabli à 56, code 0. Une garde jamais vue rouge n'est pas une garde.
+
