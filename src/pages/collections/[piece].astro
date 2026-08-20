@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Bandeau from '../../components/Bandeau.astro';
 import TitreSection from '../../components/TitreSection.astro';
 import EtiquetteTechnique from '../../components/EtiquetteTechnique.astro';
+import MargeActive from '../../components/MargeActive.astro';
 import FicheCaracteristiques from '../../components/FicheCaracteristiques.astro';
 import AppelAction from '../../components/AppelAction.astro';
 import Visuel from '../../components/Visuel.astro';
@@ -97,26 +98,25 @@ const lignesCaracteristiques = [
       mesurés à 1440) reçoit une élévation au trait, PAR FAMILLE, qui se
       trace au défilement, puis deux cotes qui se posent. Un seul wrapper à
       cheval sur les deux <Bandeau> : c'est ce qui permet à l'aside d'être
-      STICKY sur leur hauteur combinée plutôt que sur celle d'un seul —
-      voir .fiche-piece__marge-active, global.css. */}
-  <div class="fiche-piece__marge-active">
-    <Bandeau jour={2} class="fiche-piece__recit">
+      STICKY sur leur hauteur combinée plutôt que sur celle d'un seul.
+      Depuis le 20/08, ce patron n'est plus propre aux fiches de pièce :
+      voir MargeActive.astro et .marge-active, global.css. */}
+  <MargeActive>
+    <Bandeau jour={2}>
       <div class="mesure corps-piece text-breande-paper" data-revelation>
         <Content />
       </div>
     </Bandeau>
 
-    <Bandeau jour={3} ariaLabelledby="titre-caracteristiques" class="fiche-piece__caracteristiques">
+    <Bandeau jour={3} ariaLabelledby="titre-caracteristiques">
       <TitreSection texte="Caractéristiques" id="titre-caracteristiques" filet />
       <FicheCaracteristiques lignes={lignesCaracteristiques} class="mt-8 max-w-2xl" />
     </Bandeau>
 
-    {
-      dessinFamille && (
-        <aside class="fiche-piece__dessin" aria-hidden="true" data-dessin-technique set:html={dessinFamille} />
-      )
-    }
-  </div>
+    {dessinFamille && (
+      <div slot="marge" data-dessin-technique set:html={dessinFamille} />
+    )}
+  </MargeActive>
 
   {
     d.galerie.length > 0 && (

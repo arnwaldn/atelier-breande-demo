@@ -442,7 +442,7 @@ function demarrerComparateurCoupe(comparateur: HTMLElement): (() => void) | void
   };
 
   // Position de repos AVANT le geste : au DÉBUT de la course, pas au milieu
-  // — sans quoi le balayage 12 → 88 ne parcourrait que sa moitié utile.
+  // — sans quoi le balayage 12 → 50 partirait de son point d'arrivee.
   ecrire(COUPE_DEBUT);
 
   const declencheur = ScrollTrigger.create({
@@ -452,7 +452,7 @@ function demarrerComparateurCoupe(comparateur: HTMLElement): (() => void) | void
     onEnter: () => {
       comparateur.setAttribute(ETAT_BALAYAGE, '');
       ecrire(COUPE_FIN);
-      // La transition CSS (--ms-signature, --ease-deplace) porte le
+      // La transition CSS (--ms-balayage, --ease-deplace) porte le
       // mouvement ; ce minuteur ne fait que rendre la main une fois la
       // course terminée — 'left' est la propriété la plus simple à écouter
       // (un seul élément, une seule valeur), le trait et la photo finissent
@@ -771,7 +771,7 @@ export function demarrerEffetsScroll(): (() => void) | void {
     if (nettoyage) nettoyages.push(nettoyage);
   }
   // Le dessin technique ne vit que dans la marge active, qui n'existe qu'à
-  // partir de 64 rem (voir .fiche-piece__dessin, global.css : display:none
+  // partir de 64 rem (voir .marge-active__colonne, global.css : display:none
   // en dessous) — même seuil que le ruban, un déclencheur GSAP sur un
   // élément display:none n'a aucune géométrie sensée à mesurer.
   if (window.matchMedia(SEUIL_DESKTOP).matches) {

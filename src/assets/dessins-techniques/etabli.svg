@@ -1,0 +1,13 @@
+<svg viewBox="0 0 170 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M30,80 L142,80" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M48,80 L48,96 M50,96 L46,96 M46,96 L46,114 L50,114 L50,96" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M86,80 L86,92 M78,92 L94,92 L92,118 L80,118 Z" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M124,80 L124,102 M118,102 L130,102 L130,110 L118,110 Z" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M20,150 L150,150 L150,162 L20,162 Z" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M8,142 L30,142 L30,168 L8,168 Z M12,168 L12,178 M26,168 L26,178" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M34,162 L34,226 M42,162 L42,226 M34,226 L42,226" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M128,162 L128,226 M136,162 L136,226 M128,226 L136,226" />
+  <path class="dessin-technique__trait" pathLength="1" stroke-width="1.5" d="M42,204 L128,204 M42,212 L128,212" />
+  <path class="dessin-technique__cote" pathLength="1" stroke-width="1" d="M158,150 L162,150 M160,150 L160,226 M158,226 L162,226" />
+  <path class="dessin-technique__cote" pathLength="1" stroke-width="1" d="M20,236 L20,232 M20,234 L150,234 M150,236 L150,232" />
+</svg>

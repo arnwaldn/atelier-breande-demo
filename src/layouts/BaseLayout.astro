@@ -58,6 +58,13 @@ const {
         z-index 0 (comme le grain, qui reste au-dessus, à 1), l'ordre du
         DOM n'a pas d'incidence sur l'empilement, mais place le calque le
         plus « de fond » en premier reste le geste le plus lisible. */}
+    {/* LA MATIERE (20/08/2026, choix du client : un mur d'atelier en plâtre
+        gratté, pas un motif dessiné). Un seul calque, posé une fois ici,
+        SOUS la lueur et sous le grain. Il ne porte aucune information : un
+        fond qui raconte quelque chose est un fond qui dérange. Voir
+        .matiere-fond, global.css. */}
+    <div class="matiere-fond" aria-hidden="true"></div>
+
     <div class="lueur-verriere" aria-hidden="true"></div>
 
     {/* Hors flux, ne pousse jamais le contenu : voir global.css. */}

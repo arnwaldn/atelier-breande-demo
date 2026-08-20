@@ -376,6 +376,43 @@
     );
   }
 
+  /* --- LA MATIERE DE FOND (20/08/2026). Le client trouvait le site « vide
+     par endroits » et a demandé « un papier peint qui colle au thème » ; il a
+     choisi un mur d'atelier en plâtre gratté parmi quatre pistes.
+
+     QUATRIEME COUCHE, et elle s'insère SOUS les trois autres : fond du body
+     (piloté par --part-de-jour), puis cette matière, puis la lueur de
+     verrière (12 % au plus), puis le grain (3,5 %). Jamais au-dessus du
+     grain : c'est lui qui casse le banding sur Android, il doit rester le
+     dernier servi.
+
+     FONDU DOUX (soft-light) et non un simple aplat : c'est le seul mode qui
+     soit NEUTRE quand la source vaut 128, et l'image est centrée exactement
+     là (moyenne mesurée 127,2 — voir travaux-images/traiter-fond.mjs, qui
+     recentre en deux passes précisément pour cela). Un aplat, lui,
+     éclaircirait le fond de plusieurs niveaux sur tout le site et écraserait
+     le variateur.
+
+     L'OPACITE EST ELEVEE, ET C'EST NORMAL : sur un fond aussi sombre
+     (#141010, luminance 20/255), le fondu doux ne rend qu'une fraction de son
+     amplitude. Le chiffre juste est celui que la MESURE DE CONTRASTE sur
+     capture réelle valide (scripts/mesurer-contraste-capture.mjs) : texte
+     principal >= 7:1, secondaire >= 4,5:1, sur les six pages. Si un texte
+     descend sous le seuil, cette valeur baisse — jamais le seuil.
+
+     Servie en FICHIER, jamais en data: — img-src 'self' le refuse. */
+  .matiere-fond {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--matiere-fond, 0.3);
+    mix-blend-mode: soft-light;
+    background-image: url('/matiere-platre.avif');
+    background-size: cover;
+    background-position: center;
+  }
+
   /* --- La lueur de verrière. Deuxième consommateur du geste 0 : la SEULE
      couleur froide du site (--color-breande-verriere), plafonnée à 12 %
      d'opacité (le plafond de l'ADR), qui se retire jusqu'à 0 avec le jour.
@@ -1286,10 +1323,23 @@ html {
    d'ecran. Un fondu deguise, pas un mouvement.
 
    Trois changements, AUCUN jeton nouveau (le vocabulaire ferme de l'ADR-002
-   tient) : on passe a --ms-signature (le jeton long, porte de 900 a 1 400 ms),
-   on change de courbe pour --ease-deplace (90 % du parcours a 71 % du temps
-   au lieu de 33 %), et l'amplitude passe de 12 a 32 px. Duree percue
-   attendue : environ 780 ms au lieu de 230.
+   tient) : on passe a --ms-signature (le jeton long, porte de 900 a 1 800 ms),
+   on change de courbe (--ease-etat, qui n'a pas de temps mort au depart
+   contrairement a --ease-deplace, un ease-in-OUT dont la premiere moitie
+   coutait 267 ms de rien), et l'amplitude passe de 12 a 32 px.
+
+   MESURE du 20/08/2026 au soir, sur trois blocs et deux pages, au critere
+   complet (opacite >= 0,90 ET |translateY| <= 1,5 px), avec
+   scripts/mesurer-revelation.mjs :
+
+     latelier / tableau        declenche a 78 %    843 ms percus   1479 ms au total
+     services / liste tarifs   declenche a 77 %    850 ms percus   1497 ms au total
+     accueil  / phrase seule   declenche a 73 %    870 ms percus   1505 ms au total
+
+   Soit 3,7 fois la duree d'avant. Et le declenchement bas est VOULU : a
+   78 % de l'ecran pour 850 ms, le geste se deroule pendant que le bloc
+   traverse la moitie du champ de vision. Le remonter le ferait finir en
+   haut de l'ecran, apres le regard — c'est l'erreur inverse.
 
    L'etalon existait deja sur le site : le balayage clip-path des cadres
    plein-bord de /collections, 720 ms nominaux en --ease-deplace, 762 ms
@@ -1962,29 +2012,219 @@ html.mouvement .carte-piece-large[data-revele] .carte-piece-large__cadre {
    disparaît, jamais un déclencheur GSAP dessus (voir SEUIL_DESKTOP,
    effets-scroll.ts).
    -------------------------------------------------------------------------- */
-.fiche-piece__dessin {
+/* GENERALISE LE 20/08/2026. Ce patron n'existait qu'ici, sur les fiches de
+   piece, alors que le meme trou de 800 px se creuse dans HUIT autres
+   sections du site — le client l'a vu a l'oeil et envoye six captures. La
+   lecon est celle du 20/08 : une regle apprise dans la douleur est corrigee
+   a l'endroit de la douleur, et nulle part ailleurs. Le nom perd donc son
+   prefixe de page : .marge-active sert desormais tout le site, et la fiche
+   de piece n'est plus qu'un de ses usages. */
+.marge-active__colonne {
   display: none;
 }
 @media (min-width: 64rem) {
-  .fiche-piece__marge-active {
+  .marge-active {
     display: grid;
     grid-template-columns: 1fr 18rem;
     column-gap: 3rem;
     align-items: start;
   }
-  /* Les deux <Bandeau> gardent leur padding-inline (marge-page) du CÔTÉ
-     GAUCHE ; à droite, il ferait doublon avec column-gap ci-dessus. */
-  .fiche-piece__recit,
-  .fiche-piece__caracteristiques {
+  /* Tout ce qui n'est pas la colonne de marge occupe la colonne du recit,
+     dans son ordre d'ecriture : le composant accepte donc un ou plusieurs
+     <Bandeau> sans que le CSS ait a les nommer un par un. */
+  .marge-active > *:not(.marge-active__colonne) {
+    grid-column: 1;
+  }
+  /* Les <Bandeau> gardent leur padding-inline (marge-page) du COTE GAUCHE ;
+     a droite, il ferait doublon avec column-gap ci-dessus. */
+  .marge-active > .bandeau {
     padding-inline-end: 0;
   }
-  .fiche-piece__dessin {
+  .marge-active__colonne {
     display: block;
     grid-column: 2;
-    grid-row: 1 / 3;
+    /* La marge de page, que le <Bandeau> a perdue en passant a
+       padding-inline-end: 0. Sans elle, les traits de cote et les dessins
+       vont mourir sur le bord exact de la fenetre — vu en capture le
+       20/08, corrige le meme jour. */
+    padding-inline-end: var(--marge-page);
+    /* 1 / -1 et non 1 / 3 : la colonne tient sur la hauteur COMBINEE de
+       tous les bandeaux du groupe, qu'il y en ait un, deux ou quatre. */
+    grid-row: 1 / -1;
     position: sticky;
     top: 8rem;
   }
+}
+
+/* --------------------------------------------------------------------------
+   LES GESTES DE MARGE — quatre, et quatre seulement.
+   L'ADR-002 interdit de repeter un geste signature ; le client demande « des
+   animations differentes mais dans le meme esprit ». Chacun se declenche sur
+   le regime de revelation existant (data-revelation / data-revele), aucun
+   n'ajoute de jeton ni d'observateur.
+   -------------------------------------------------------------------------- */
+
+/* 1. LA COTE QUI S'ECRIT — un trait de rappel qui s'etire de gauche a
+      droite, puis sa valeur. Le trait est un pseudo-element : rien a
+      animer en JS, et la valeur reste du texte selectionnable. */
+.cote-marge {
+  display: grid;
+  gap: 0.35rem;
+  padding-block: 0.9rem;
+}
+/* Pas de border-top ici : le trait qui s'ecrit EST la separation. Les deux
+   ensemble donnaient un double filet, visible en capture. */
+.cote-marge__trait {
+  display: block;
+  height: 1px;
+  background: var(--color-breande-laiton-clair);
+  opacity: 0.55;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+html.mouvement [data-revele] .cote-marge__trait {
+  transform: scaleX(1);
+  transition: transform var(--ms-signature) var(--ease-etat);
+}
+.cote-marge__valeur {
+  color: var(--color-breande-paper);
+  font-size: var(--t-corps);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.cote-marge__legende {
+  color: var(--color-breande-laiton-clair);
+  font-size: var(--t-etiquette);
+}
+
+/* 2. LE CHIFFRE QUI SE LEVE — l'inverse exact du volet : la valeur se
+      devoile du BAS vers le haut, sous un masque. Ce n'est PAS un compteur
+      anime, que l'ADR-002 refuse : le chiffre est ecrit dans le HTML des le
+      depart, seule sa surface peinte change. */
+.chiffre-marge {
+  display: grid;
+  gap: 0.2rem;
+  padding-block: 1rem;
+}
+.chiffre-marge + .chiffre-marge {
+  border-top: 1px solid rgb(138 107 74 / 0.25);
+}
+.chiffre-marge__valeur {
+  display: block;
+  overflow: hidden;
+  color: var(--color-breande-paper);
+  font-family: var(--font-display);
+  /* --t-piece : le role d'echelle deja prevu pour un nom de piece. Huit
+     roles, pas un de plus (regle de l'echelle typographique). */
+  font-size: var(--t-piece);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+html.mouvement [data-revelation]:not([data-revele]) .chiffre-marge__valeur > span {
+  transform: translateY(100%);
+}
+html.mouvement [data-revele] .chiffre-marge__valeur > span {
+  transform: none;
+  transition: transform var(--ms-signature) var(--ease-etat);
+}
+.chiffre-marge__valeur > span {
+  display: block;
+}
+.chiffre-marge__legende {
+  color: var(--color-breande-laiton-clair);
+  font-size: var(--t-etiquette);
+}
+
+/* 3. LA LISTE QUI S'EGRENE — les items arrivent un par un, de gauche.
+      Quatre au plus : au-dela, le dernier partirait quand le premier a
+      fini, et ce ne serait plus une cascade mais un bloc (la lecon des
+      quatre reperes de l'accueil, 20/08). */
+.liste-marge {
+  display: grid;
+  gap: 0.55rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.liste-marge > li {
+  color: var(--color-breande-muted);
+  font-size: var(--t-corps);
+  padding-inline-start: 1.1rem;
+  position: relative;
+}
+.liste-marge > li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.7em;
+  width: 0.6rem;
+  height: 1px;
+  background: var(--color-breande-laiton-clair);
+  opacity: 0.6;
+}
+html.mouvement [data-revelation]:not([data-revele]) .liste-marge > li {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+html.mouvement [data-revele] .liste-marge > li {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--ms-revele) var(--ease-etat),
+    transform var(--ms-revele) var(--ease-etat);
+}
+html.mouvement [data-revele] .liste-marge > li:nth-child(2) {
+  transition-delay: 70ms;
+}
+html.mouvement [data-revele] .liste-marge > li:nth-child(3) {
+  transition-delay: 140ms;
+}
+html.mouvement [data-revele] .liste-marge > li:nth-child(4) {
+  transition-delay: 210ms;
+}
+
+/* 4. LA VIGNETTE QUI S'OUVRE — le volet existant, en petit format. Aucune
+      regle d'animation ici : .volet-image porte deja le geste. */
+.vignette-marge {
+  display: grid;
+  gap: 0.5rem;
+}
+.vignette-marge__cadre {
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: var(--recoit-lumiere);
+}
+.vignette-marge__cadre picture,
+.vignette-marge__cadre img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.vignette-marge__legende {
+  color: var(--color-breande-laiton-clair);
+  font-size: var(--t-etiquette);
+}
+
+/* Un conteneur de marge ne fait PAS le geste generique EN PLUS du sien : la
+   translation de 32 px du parent, superposee au trait qui s'etire ou au
+   chiffre qui monte, brouille les deux. Meme regle, meme raison que pour
+   .volet-image quelques centaines de lignes plus bas — c'est le fondu qui
+   reste, jamais le deplacement. */
+html.mouvement
+  [data-revelation]:is(:has(.cote-marge), :has(.chiffre-marge), :has(.liste-marge)):not(
+    [data-revele]
+  ) {
+  transform: none;
+}
+
+/* L'intitule d'une colonne de marge — commun aux quatre gestes. */
+.marge-active__intitule {
+  color: var(--color-breande-laiton-clair);
+  font-size: var(--t-etiquette);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.9rem;
 }
 /* Les <path> portent pathLength="1" (voir src/assets/dessins-techniques/) :
    la normalisation dispense de calculer la longueur réelle de chaque

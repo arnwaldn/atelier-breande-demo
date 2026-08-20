@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
+import MargeActive from '../components/MargeActive.astro';
+import dessinEtabli from '../assets/dessins-techniques/etabli.svg?raw';
 import TitreSection from '../components/TitreSection.astro';
 import ChiffreCle from '../components/ChiffreCle.astro';
 import CartePiece from '../components/CartePiece.astro';
@@ -20,6 +22,7 @@ import {
   bandeauBasculement,
   ouEtRythme,
   ceQueNousNeFaisonsPas,
+  etabli,
   appelFinal,
 } from '../data/accueil';
 import imageCreation from '../assets/services/creation.jpg';
@@ -171,17 +174,37 @@ const piecesVedettes = await Promise.all(
         ))
       }
     </div>
+  </Bandeau>
 
-    <div class="mesure mt-16" data-revelation>
-      <TitreSection texte={ceQueNousNeFaisonsPas.titre} />
-      <p class="mt-4 text-breande-muted">{ceQueNousNeFaisonsPas.texte}</p>
-    </div>
+  {/* 9 — LA MATIÈRE ET L'ÉTABLI, et ce que nous ne faisons pas.
+      Le bloc `etabli` était écrit dans data/accueil.ts depuis l'origine,
+      exporté, et JAMAIS importé par cette page : 480 signes sur les copeaux
+      de laiton et le tour à repousser, qui n'existaient nulle part. Il tient
+      ici sa place naturelle — la dernière chose qu'on raconte avant de
+      demander d'écrire. La marge reçoit LE TRAIT QUI SE TRACE : l'élévation
+      cotée de l'établi, dessin créé pour l'occasion. */}
+  <MargeActive intitule="l’établi">
+    <Bandeau jour={5} air="serie">
+      <div class="mesure" data-revelation>
+        <TitreSection texte={etabli.titre} />
+        <p class="mt-4 text-breande-muted">{etabli.texte}</p>
+        <p class="etiquette mt-5"><a href={etabli.lienHref}>{etabli.lienTexte}</a></p>
+      </div>
 
-    <div class="mesure mt-10 border-l-2 border-breande-brass/40 pl-5" data-revelation>
-      <p class="text-breande-muted">{ouEtRythme.texte}</p>
-    </div>
+      <div class="mesure mt-16" data-revelation>
+        <TitreSection texte={ceQueNousNeFaisonsPas.titre} />
+        <p class="mt-4 text-breande-muted">{ceQueNousNeFaisonsPas.texte}</p>
+      </div>
 
-    <div class="mt-16 border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
+      <div class="mesure mt-10 border-l-2 border-breande-brass/40 pl-5" data-revelation>
+        <p class="text-breande-muted">{ouEtRythme.texte}</p>
+      </div>
+    </Bandeau>
+    <div slot="marge" data-dessin-technique set:html={dessinEtabli} />
+  </MargeActive>
+
+  <Bandeau jour={5} air="serie">
+    <div class="border-t border-[rgb(138_107_74_/_0.25)] pt-10" data-revelation>
       <p class="mesure text-lg text-breande-paper">{appelFinal.texte}</p>
       <div class="mt-6 flex flex-wrap items-center gap-4">
         <AppelAction texte={appelFinal.bouton} href={appelFinal.href} variante="plein" />

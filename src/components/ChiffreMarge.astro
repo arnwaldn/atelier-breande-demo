@@ -1,0 +1,28 @@
+---
+/**
+ * ChiffreMarge.astro — LE CHIFFRE QUI SE LEVE.
+ *
+ * La valeur se devoile du BAS vers le haut sous un masque : l'inverse exact
+ * du volet, qui descend. Troisieme des quatre gestes de marge.
+ *
+ * CE N'EST PAS UN COMPTEUR ANIME — l'ADR-002 les refuse. Le chiffre est
+ * ecrit dans le HTML des le depart et ne change jamais ; seule la surface
+ * peinte varie. La difference n'est pas theorique : un compteur oblige a
+ * lire un nombre qui bouge, et personne ne lit un nombre qui bouge.
+ */
+interface Props {
+  chiffres: Array<{ valeur: string; legende: string }>;
+}
+const { chiffres } = Astro.props;
+---
+
+{
+  chiffres.map((chiffre) => (
+    <div class="chiffre-marge">
+      <span class="chiffre-marge__valeur">
+        <span>{chiffre.valeur}</span>
+      </span>
+      <span class="chiffre-marge__legende">{chiffre.legende}</span>
+    </div>
+  ))
+}

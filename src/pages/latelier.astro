@@ -3,6 +3,11 @@ import type { ImageMetadata } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
 import dessinProcedes from '../assets/dessins-techniques/suspension.svg?raw';
+import dessinVerriere from '../assets/dessins-techniques/verriere.svg?raw';
+import dessinRestauration from '../assets/dessins-techniques/restauration.svg?raw';
+import MargeActive from '../components/MargeActive.astro';
+import ChiffreMarge from '../components/ChiffreMarge.astro';
+import CoteMarge from '../components/CoteMarge.astro';
 import TitreSection from '../components/TitreSection.astro';
 import AppelAction from '../components/AppelAction.astro';
 import Visuel from '../components/Visuel.astro';
@@ -66,12 +71,25 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
     </div>
   </section>
 
-  {/* B2 — LE LIEU */}
-  <Bandeau jour={2}>
-    <div class="mesure text-breande-muted" data-revelation>
-      {leLieu.map((p) => <p class="mt-4 first:mt-0">{p}</p>)}
+  {/* B2 — LE LIEU. La marge recoit LE CHIFFRE QUI SE LEVE : trois dates et
+      un effectif, tous LUS dans les quatre paragraphes a gauche — la colonne
+      ne dit rien de neuf, elle souligne (voir MargeActive.astro). */}
+  <MargeActive intitule="l’atelier">
+    <Bandeau jour={2}>
+      <div class="mesure text-breande-muted" data-revelation>
+        {leLieu.map((p) => <p class="mt-4 first:mt-0">{p}</p>)}
+      </div>
+    </Bandeau>
+    <div slot="marge" data-revelation>
+      <ChiffreMarge
+        chiffres={[
+          { valeur: '2011', legende: 'installés dans l’ancienne imprimerie' },
+          { valeur: '2016', legende: 'le tour à repousser, acheté d’occasion' },
+          { valeur: 'trois', legende: 'personnes à l’atelier' },
+        ]}
+      />
     </div>
-  </Bandeau>
+  </MargeActive>
 
   {/* B3 — LES QUATRE FAMILLES DE MATIÈRES */}
   <Bandeau jour={2} ariaLabelledby="titre-matieres">
@@ -205,19 +223,35 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
     </div>
   </Bandeau>
 
-  {/* B6 — CE QUI SE FAIT AILLEURS */}
-  <Bandeau jour={4} ariaLabelledby="titre-ailleurs">
-    <TitreSection texte={ceQuOnNeFaitPasTitre} id="titre-ailleurs" filet />
-    <div class="mesure mt-4 text-breande-muted" data-revelation>
-      {ceQuOnNeFaitPas.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
-    </div>
-  </Bandeau>
+  {/* B6 — CE QUI SE FAIT AILLEURS. La marge recoit LE TRAIT QUI SE TRACE,
+      le geste que le client a explicitement aime sur les fiches de piece. */}
+  <MargeActive>
+    <Bandeau jour={4} ariaLabelledby="titre-ailleurs">
+      <TitreSection texte={ceQuOnNeFaitPasTitre} id="titre-ailleurs" filet />
+      <div class="mesure mt-4 text-breande-muted" data-revelation>
+        {ceQuOnNeFaitPas.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
+      </div>
+    </Bandeau>
+    <div slot="marge" data-dessin-technique set:html={dessinRestauration} />
+  </MargeActive>
 
-  {/* B7 — OÙ, ET QUAND */}
-  <Bandeau jour={5} ariaLabelledby="titre-ou-quand">
-    <TitreSection texte={ouEtQuand.titre} id="titre-ou-quand" filet />
-    <p class="mesure mt-4 text-breande-muted" data-revelation>{ouEtQuand.texte}</p>
-  </Bandeau>
+  {/* B7 — OÙ, ET QUAND. La marge recoit LA COTE QUI S'ECRIT : trois reperes
+      d'ouverture, tous presents dans la phrase a gauche. */}
+  <MargeActive intitule="ouverture">
+    <Bandeau jour={5} ariaLabelledby="titre-ou-quand">
+      <TitreSection texte={ouEtQuand.titre} id="titre-ou-quand" filet />
+      <p class="mesure mt-4 text-breande-muted" data-revelation>{ouEtQuand.texte}</p>
+    </Bandeau>
+    <div slot="marge" data-revelation>
+      <CoteMarge
+        cotes={[
+          { valeur: 'mardi — vendredi', legende: 'sur rendez-vous' },
+          { valeur: 'samedi matin', legende: 'quand c’est le seul créneau' },
+          { valeur: 'trois semaines', legende: 'fermeture d’août' },
+        ]}
+      />
+    </div>
+  </MargeActive>
 
   {/* B8 — APPEL */}
   <Bandeau jour={5} air="large">

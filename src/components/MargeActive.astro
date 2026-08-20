@@ -1,0 +1,48 @@
+---
+/**
+ * MargeActive.astro — le patron qui peuple les 800 px de vide.
+ *
+ * A 1440, la zone de contenu fait 1 344 px et .mesure en occupe 544 : le
+ * reste est noir sur toute la hauteur de la section. L'ADR-002 tranche
+ * depuis le 19/08 (« aucune bande verticale vide de plus de 120 px ») et
+ * dit comment : « on ne dilate pas la mesure, on PEUPLE la marge ».
+ *
+ * Le patron existait, mais seulement sur les fiches de piece. Il est
+ * generalise ici le 20/08/2026, apres que le client a envoye six captures
+ * de sections vides.
+ *
+ * REGLE DE CONTENU, non negociable : la colonne de marge est un ORNEMENT
+ * TECHNIQUE, jamais un porteur d'information unique. Deux raisons qui vont
+ * dans le meme sens :
+ *   - elle disparait sous 64 rem (aucune marge a peupler sur un telephone) ;
+ *   - elle est masquee a l'arbre d'accessibilite par defaut.
+ * Une information qui n'existerait QUE la serait donc invisible pour la
+ * moitie des visiteurs. Ce qui doit etre lu va dans le flux ; la marge
+ * commente, elle n'annonce pas.
+ *
+ * Les enfants passes en slot par defaut occupent la colonne du recit, dans
+ * leur ordre d'ecriture — un <Bandeau> ou plusieurs, le CSS ne les nomme
+ * pas un par un (voir .marge-active dans global.css).
+ */
+interface Props {
+  class?: string;
+  /** Intitule de la colonne, en petites capitales. Optionnel. */
+  intitule?: string;
+  /**
+   * A ne passer a false que si le contenu de la marge est reellement
+   * informatif ET repris ailleurs dans le flux pour les autres visiteurs.
+   * Par defaut, la marge est decorative et se tait.
+   */
+  expose?: boolean;
+}
+
+const { class: className, intitule, expose = false } = Astro.props;
+---
+
+<div class:list={['marge-active', className]}>
+  <slot />
+  <aside class="marge-active__colonne" aria-hidden={expose ? undefined : 'true'}>
+    {intitule && <p class="marge-active__intitule">{intitule}</p>}
+    <slot name="marge" />
+  </aside>
+</div>

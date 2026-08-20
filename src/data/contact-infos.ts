@@ -37,43 +37,15 @@ export const mentionsFormulaire = {
   libelleBouton: 'Envoi désactivé',
 };
 
-export interface ChampFormulaire {
-  id: string;
-  label: string;
-  /** Aide d’une ligne, affichée sous le champ. */
-  aide: string;
-  type: 'texte' | 'email' | 'telephone' | 'choix' | 'nombre' | 'message' | 'fichier' | 'case';
-  options?: string[];
-  facultatif: boolean;
-}
-
-export const champsFormulaire: ChampFormulaire[] = [
-  { id: 'nom', label: 'Nom', aide: 'Celui que nous mettrons sur le devis.', type: 'texte', facultatif: false },
-  { id: 'email', label: 'Adresse électronique', aide: 'Nous y répondons sous deux jours ouvrés.', type: 'email', facultatif: false },
-  { id: 'telephone', label: 'Téléphone', aide: 'Utile si le projet demande deux questions rapides.', type: 'telephone', facultatif: true },
-  {
-    id: 'projet',
-    label: 'Type de projet',
-    aide: 'Si vous hésitez, choisissez le plus proche, nous démêlerons.',
-    type: 'choix',
-    options: ['Création sur mesure', 'Restauration', 'Conseil éclairage', 'Autre'],
-    facultatif: false,
-  },
-  { id: 'piece', label: 'Pièce concernée', aide: 'Salon, salle à manger, couloir, cage d’escalier, salle de bains…', type: 'texte', facultatif: false },
-  { id: 'hauteur', label: 'Hauteur sous plafond', aide: 'En mètres, même approximative : elle change tout.', type: 'nombre', facultatif: true },
-  {
-    id: 'budget',
-    label: 'Budget envisagé',
-    aide: 'Une fourchette suffit ; elle oriente le dessin dès le premier croquis.',
-    type: 'choix',
-    options: ['moins de 500 €', '500 à 1 000 €', '1 000 à 2 500 €', '2 500 à 5 000 €', 'plus de 5 000 €', 'à définir'],
-    facultatif: false,
-  },
-  { id: 'echeance', label: 'Échéance souhaitée', aide: 'Une date de chantier, un emménagement, un repas de famille.', type: 'texte', facultatif: true },
-  { id: 'message', label: 'Votre projet', aide: 'Décrivez l’endroit : orientation, couleur des murs, ce que vous y faites le soir.', type: 'message', facultatif: false },
-  { id: 'photos', label: 'Photos', aide: 'Deux ou trois vues prises de jour valent mieux qu’un long texte.', type: 'fichier', facultatif: true },
-  { id: 'consentement', label: 'J’accepte que ces informations servent à répondre à ma demande.', aide: 'Elles ne servent qu’à cela et ne sont transmises à personne.', type: 'case', facultatif: false },
-];
+/* champsFormulaire (onze champs) et son interface ChampFormulaire ont ete
+   retires le 20/08/2026. Ils n'ont jamais ete lus : ContactForm.astro cable
+   trois champs a la main et explique pourquoi dans son en-tete — « ajouter
+   des champs supplementaires sans les cabler a sa logique de validation
+   aurait produit des champs inertes ». Ce n'etait donc pas un oubli mais une
+   decision, et la donnee qui restait derriere laissait croire l'inverse a
+   quiconque relisait ce fichier. Un formulaire de demonstration a trois
+   champs qui marchent vaut mieux qu'un formulaire de onze qui n'existe que
+   dans un tableau. */
 
 export const autresMoyens = {
   titre: 'Autrement qu’en écrivant',

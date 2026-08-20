@@ -11,12 +11,37 @@ interface Props {
   id?: string;
   filet?: boolean;
   class?: string;
+  /**
+   * Le titre se revele au defilement, comme le texte qu'il annonce.
+   * Pose par defaut le 20/08/2026, sur mesure : AUCUN des 19 titres de
+   * section du site ne portait data-revelation. Le titre etait donc deja
+   * en place quand le visiteur arrivait, et le texte se revelait apres —
+   * le geste n'avait pas d'annonce, et la section paraissait se remplir
+   * toute seule sous un titre immobile. C'est la moitie du reproche du
+   * client (« ca se declenche trop rapidement ») : le declencheur allait
+   * bien, c'est le titre qui ne partait jamais.
+   *
+   * A passer a false UNIQUEMENT quand le titre peut etre l'element LCP de
+   * sa page (premier bloc, au-dessus du pli) : l'ADR-002 interdit
+   * d'animer l'element LCP de CHAQUE page, pas seulement celui de
+   * l'accueil.
+   */
+  revelation?: boolean;
 }
 
-const { texte, id, filet = false, class: className } = Astro.props;
+const {
+  texte,
+  id,
+  filet = false,
+  class: className,
+  revelation = true,
+} = Astro.props;
 ---
 
-<div class:list={['titre-section', className]}>
+<div
+  class:list={['titre-section', className]}
+  data-revelation={revelation || undefined}
+>
   <h2 id={id}>{texte}</h2>
   {filet && <hr class="filet-laiton mt-4 max-w-32" aria-hidden="true" />}
 </div>

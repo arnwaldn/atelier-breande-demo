@@ -1,5 +1,9 @@
 ---
 import type { ImageMetadata } from 'astro';
+import { getCollection } from 'astro:content';
+import MargeActive from '../components/MargeActive.astro';
+import CoteMarge from '../components/CoteMarge.astro';
+import dessinApplique from '../assets/dessins-techniques/applique.svg?raw';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Bandeau from '../components/Bandeau.astro';
 import etabliEtapes from '../assets/atelier/etabli-large.jpg';
@@ -31,6 +35,15 @@ const imagesServices: Record<string, { image: ImageMetadata; alt: string }> = {
 // Un extrait court des huit étapes, dans chaque travée — la frise complète
 // suit plus bas, une seule fois (id="etapes").
 const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !== undefined);
+
+// LES PIÈCES RATTACHÉES À CHAQUE SERVICE. Le champ `piecesLiees` était
+// renseigné pour les trois services depuis l'écriture des données et n'était
+// lu NULLE PART : trois listes de slugs qui ne menaient à rien. Un service
+// qui ne montre aucune pièce de sa main demande au visiteur de le croire sur
+// parole, alors que les fiches existent à deux clics.
+const nomParPiece = new Map(
+  (await getCollection('pieces')).map((piece) => [piece.id, piece.data.nom])
+);
 ---
 <BaseLayout
   title="Nos services — Atelier Bréande (site de démonstration)"
@@ -72,7 +85,11 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
               <Visuel src={visuel.image} alt={visuel.alt} sizes="(min-width: 900px) 50vw, 100vw" prioritaire={i === 0} class="h-full w-full object-cover" />
             </div>
             <div class:list={[cote === 'droite' ? 'md:order-2' : 'md:order-1']} data-revelation>
-              <TitreSection texte={service.titre} id={`titre-${service.ancre}`} />
+              <TitreSection
+                texte={service.titre}
+                id={`titre-${service.ancre}`}
+                revelation={i !== 0}
+              />
               <p class="mesure mt-2 text-breande-laiton-clair">{service.accroche}</p>
               <div class="mesure-large mt-4 text-breande-muted">
                 {service.corps.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
@@ -116,6 +133,21 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
                   </li>
                 ))}
               </ol>
+
+              {service.piecesLiees && service.piecesLiees.length > 0 && (
+                <p class="mesure-large mt-8 text-breande-muted">
+                  <span class="text-breande-laiton-clair">Dans la collection :</span>{' '}
+                  {service.piecesLiees
+                    .filter((slug) => nomParPiece.has(slug))
+                    .map((slug, rang) => (
+                      <>
+                        {rang > 0 && ', '}
+                        <a href={`/collections/${slug}`}>{nomParPiece.get(slug)}</a>
+                      </>
+                    ))}
+                  .
+                </p>
+              )}
 
               <div class="mt-8">
                 <AppelAction texte={`Demander un devis — ${service.titre.toLowerCase()}`} href="/contact" variante="plein" />
@@ -192,21 +224,39 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
     </ul>
   </Bandeau>
 
-  {/* GARANTIES */}
-  <Bandeau jour={5} ariaLabelledby="titre-garanties">
-    <TitreSection texte="Garanties" id="titre-garanties" filet />
-    <div class="mesure mt-4 text-breande-muted" data-revelation>
-      {garanties.map((g) => <p class="mt-3 first:mt-0">{g}</p>)}
+  {/* GARANTIES. La marge recoit LA COTE QUI S'ECRIT : les trois durees sont
+      toutes ecrites dans les paragraphes a gauche — la colonne les met en
+      vis-a-vis, elle n'ajoute aucun engagement. */}
+  <MargeActive intitule="durées">
+    <Bandeau jour={5} ariaLabelledby="titre-garanties">
+      <TitreSection texte="Garanties" id="titre-garanties" filet />
+      <div class="mesure mt-4 text-breande-muted" data-revelation>
+        {garanties.map((g) => <p class="mt-3 first:mt-0">{g}</p>)}
+      </div>
+    </Bandeau>
+    <div slot="marge" data-revelation>
+      <CoteMarge
+        cotes={[
+          { valeur: '2 ans', legende: 'toute la partie électrique' },
+          { valeur: '5 ans', legende: 'structure et finitions' },
+          { valeur: '10 ans', legende: 'verres, douilles, câbles gardés' },
+          { valeur: '3 mois', legende: 'passage de réglage après la pose' },
+        ]}
+      />
     </div>
-  </Bandeau>
+  </MargeActive>
 
-  {/* TRAVAILLER AVEC UNE AGENCE */}
-  <Bandeau jour={5} ariaLabelledby="titre-architecte">
-    <TitreSection texte={avecUnArchitecte.titre} id="titre-architecte" filet />
-    <div class="mesure mt-4 text-breande-muted" data-revelation>
-      {avecUnArchitecte.texte.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
-    </div>
-  </Bandeau>
+  {/* TRAVAILLER AVEC UNE AGENCE. La marge recoit LE TRAIT QUI SE TRACE — une
+      elevation cotee, la piece qu'un plan d'agence appelle par sa reference. */}
+  <MargeActive>
+    <Bandeau jour={5} ariaLabelledby="titre-architecte">
+      <TitreSection texte={avecUnArchitecte.titre} id="titre-architecte" filet />
+      <div class="mesure mt-4 text-breande-muted" data-revelation>
+        {avecUnArchitecte.texte.map((p) => <p class="mt-3 first:mt-0">{p}</p>)}
+      </div>
+    </Bandeau>
+    <div slot="marge" data-dessin-technique set:html={dessinApplique} />
+  </MargeActive>
 
   {/* FAQ */}
   <Bandeau jour={5} ariaLabelledby="titre-faq" id="faq">

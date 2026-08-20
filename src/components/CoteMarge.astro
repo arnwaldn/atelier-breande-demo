@@ -1,0 +1,26 @@
+---
+/**
+ * CoteMarge.astro — LA COTE QUI S'ECRIT.
+ *
+ * Un trait de rappel qui s'etire de gauche a droite, puis sa valeur : le
+ * geste d'un dessinateur qui cote une elevation. Deuxieme des quatre gestes
+ * de marge (voir MargeActive.astro).
+ *
+ * REGLE : les valeurs sont TOUJOURS reprises du texte de la section, jamais
+ * inventees ni exclusives a la marge — celle-ci disparait sous 64 rem.
+ */
+interface Props {
+  cotes: Array<{ valeur: string; legende: string }>;
+}
+const { cotes } = Astro.props;
+---
+
+{
+  cotes.map((cote) => (
+    <div class="cote-marge">
+      <span class="cote-marge__trait" />
+      <span class="cote-marge__valeur">{cote.valeur}</span>
+      <span class="cote-marge__legende">{cote.legende}</span>
+    </div>
+  ))
+}

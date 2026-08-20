@@ -96,6 +96,14 @@ import { faqContact } from '../data/faq';
           <ul class="liste-zone">
             {zone.incluse.map((commune) => <li>{commune}</li>)}
           </ul>
+          {/* La couronne : elle etait ecrite dans les donnees depuis le
+              debut (zone.etendue) et n'etait rendue nulle part. Le texte
+              juste au-dessus annonce « une couronne de 60 km autour » et
+              ne la nommait pas — la promesse restait sans preuve. */}
+          <p class="etiquette mt-5">Dans la couronne</p>
+          <ul class="liste-zone mt-2">
+            {zone.etendue.map((commune) => <li>{commune}</li>)}
+          </ul>
           <p class="contact-bloc__texte mt-3">{zone.auDela}</p>
           <p class="contact-bloc__texte mt-2">{zone.deplacement}</p>
         </div>
