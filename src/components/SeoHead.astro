@@ -75,10 +75,22 @@ const ogImage = new URL('/images/og-default.jpg', Astro.site);
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
 
-<!-- Prechargement des deux fontes du site. Retire le 19/08 parce qu'il
-     « salissait la console » ; retabli le 20/08 ecrit correctement — l'alerte
-     de Chrome vient d'un preload sans crossorigin ou sans as, pas du preload
-     lui-meme. Sans lui, les fontes ne sont decouvertes qu'apres analyse d'une
-     feuille de 61 Ko : PageSpeed mesurait une chaine critique de 3 112 ms. -->
+<!-- Prechargement des deux fontes. Retire le 19/08 (b95a540) au motif qu'il
+     « salissait la console » : Chrome signalait « preloaded but not used within
+     a few seconds ». Retabli le 20/08 apres verification, et il faut etre
+     precis sur ce qui est prouve et ce qui ne l'est pas :
+
+     - L'hypothese « il manquait crossorigin » est FAUSSE : le preload retire
+       en portait deja un, identique a celui-ci. La cause de l'alerte de
+       l'epoque n'est pas etablie.
+     - Ce qui EST mesure aujourd'hui, au navigateur, sur le livrable : zero
+       message de console, et DEUX requetes de police — pas quatre. Il n'y a
+       donc ni alerte, ni double telechargement.
+     - Ce qui n'est PAS encore mesure : le gain. Sur localhost le reseau est
+       instantane, le preload ne peut rien y gagner de visible. Le motif du
+       retablissement est l'audit PageSpeed du 20/08, qui place
+       network-dependency-tree en echec sur les dix mesures avec une chaine
+       critique de 3 112 ms. A confirmer en production apres fusion : si le
+       gain est nul, ce preload doit repartir. -->
 <link rel="preload" href="/polices/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/polices/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
