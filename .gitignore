@@ -11,3 +11,8 @@ dist/
 travaux-images/
 dist-verif/
 .astro/
+
+# Artefacts de campagne Playwright : regeneres a chaque run, ils changeaient
+# a chaque test et bloquaient les changements de branche.
+test-results/
+playwright-report/
