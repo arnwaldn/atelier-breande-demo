@@ -27,28 +27,19 @@ const LIBELLES: Record<string, string> = {
 };
 
 /*
- * C9 (recette DA du 19/08) : la section qui héberge la pièce que l'on règle
- * (BandeScene, [data-scene]) porte data-jour="5" comme le reste de l'arc —
- * cohérent pour la teinte de la page. Mais la molette qu'elle contient a sa
- * propre valeur, RÉGLABLE par le visiteur (voir molette.ts) : dès qu'il la
- * touche, elle diverge de la valeur générique du palier, et deux kelvins
- * affichés à la fois est le défaut relevé au chantier bêta du 19/08
- * (finition importante 8). Tant que cette section gouverne la marge active,
- * ce n'est donc plus À ELLE d'afficher une valeur — la molette est juste à
- * côté et porte la sienne : la marge s'efface plutôt que d'en réafficher
- * une seconde, potentiellement fausse (voir .echelle-kelvins--efface,
- * global.css).
+ * La marge active affiche la temperature du palier gouvernant. Elle portait
+ * jusqu'au 20/08/2026 un cas particulier : la section de la piece que l'on
+ * regle contenait sa propre molette, avec sa propre valeur reglable, et deux
+ * temperatures affichees a la fois etait un defaut releve au beta-test du
+ * 19/08 — la marge s'effacait donc devant elle. La scene et sa molette sont
+ * deposees : il n'y a plus qu'un seul afficheur de temperature sur la page,
+ * et le cas particulier disparait avec lui.
  */
-const CLASSE_EFFACE = 'echelle-kelvins--efface';
 
-function appliquerPalier(palier: string, estScene: boolean) {
+function appliquerPalier(palier: string) {
   if (!echelle || !valeurEl || !PALIERS_CONNUS.has(palier)) return;
   echelle.setAttribute('data-palier', palier);
-  echelle.classList.toggle(CLASSE_EFFACE, estScene);
-  // Texte mis à jour même caché : au retour de la fenêtre sur la section
-  // gouvernée par ce palier, la valeur doit déjà être la bonne AVANT que la
-  // transition d'opacité ne la révèle — jamais un flash de l'ancien texte.
-  if (!estScene) valeurEl.textContent = LIBELLES[palier];
+  valeurEl.textContent = LIBELLES[palier];
 }
 
 if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {
@@ -57,7 +48,7 @@ if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {
       // La section la plus proche du centre du viewport gouverne la valeur
       // affichée : plusieurs sections peuvent être partiellement visibles à
       // la fois, une seule doit gouverner l'échelle à un instant donné.
-      let meilleure: { palier: string; distance: number; estScene: boolean } | null = null;
+      let meilleure: { palier: string; distance: number } | null = null;
       for (const entree of entrees) {
         if (!entree.isIntersecting) continue;
         const palier = entree.target.getAttribute('data-jour');
@@ -65,11 +56,10 @@ if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {
         const centre = entree.boundingClientRect.top + entree.boundingClientRect.height / 2;
         const distance = Math.abs(centre - window.innerHeight / 2);
         if (!meilleure || distance < meilleure.distance) {
-          const estScene = entree.target.querySelector('[data-scene]') !== null;
-          meilleure = { palier, distance, estScene };
+          meilleure = { palier, distance };
         }
       }
-      if (meilleure) appliquerPalier(meilleure.palier, meilleure.estScene);
+      if (meilleure) appliquerPalier(meilleure.palier);
     },
     { threshold: [0, 0.25, 0.5, 0.75, 1] }
   );

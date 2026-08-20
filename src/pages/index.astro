@@ -4,7 +4,6 @@ import Bandeau from '../components/Bandeau.astro';
 import TitreSection from '../components/TitreSection.astro';
 import ChiffreCle from '../components/ChiffreCle.astro';
 import CartePiece from '../components/CartePiece.astro';
-import BandeScene from '../components/BandeScene.astro';
 import AppelAction from '../components/AppelAction.astro';
 import Visuel from '../components/Visuel.astro';
 import RubanGestes from '../components/RubanGestes.astro';
@@ -27,7 +26,6 @@ import imageCreation from '../assets/services/creation.jpg';
 import imageRestauration from '../assets/services/restauration.jpg';
 import imageConseil from '../assets/services/conseil.jpg';
 import imageChantier from '../assets/pieces/cerce/ambiance.jpg';
-import imageRepli from '../assets/repli/luminaire-repli.jpg';
 import imageHero from '../assets/hero/hero-atelier.webp';
 
 const imagesGestes = {
@@ -141,28 +139,12 @@ const piecesVedettes = await Promise.all(
     </div>
   </Bandeau>
 
-  {/* 7 — LA PIÈCE QUE L'ON RÈGLE — à plus de 2 400 px sous la flottaison. */}
-  <Bandeau jour={5} air="large" ariaLabelledby="titre-variateur">
-    <div data-revelation>
-      <TitreSection texte="la lumière se règle" id="titre-variateur" />
-      <p class="mesure mt-3 text-breande-muted">
-        Faites glisser le cadran — ou réglez au clavier, flèches gauche et droite.
-      </p>
-      <div class="mt-8">
-        <BandeScene>
-          <Visuel
-            src={imageRepli}
-            alt="Une suspension en laiton et verre soufflé, allumée, présentée sur fond neutre"
-            sizes="(min-width: 900px) 60vw, 100vw"
-            avance
-          />
-        </BandeScene>
-      </div>
-    </div>
-  </Bandeau>
-
-  {/* 8 — PIÈCES MISES EN AVANT, ce que nous ne faisons pas, appel final. */}
-  <Bandeau jour={4} air="large" ariaLabelledby="titre-pieces-recentes">
+  {/* 8 — PIÈCES MISES EN AVANT, ce que nous ne faisons pas, appel final.
+      Corrige le 20/08/2026 : elle etait a jour={4}, donc la page REMONTAIT en
+      temperature juste avant l'appel a l'action, a l'exact oppose de l'ADR-002
+      (« il ne reste que 2 700 K au moment precis ou l'on demande d'ecrire »).
+      La section 7 portait le seul palier 5 de la page ; il lui revient. */}
+  <Bandeau jour={5} air="large" ariaLabelledby="titre-pieces-recentes">
     <TitreSection texte={titrePiecesRecentes} id="titre-pieces-recentes" filet />
     <div class="mt-10 grid gap-8 md:grid-cols-3" data-grille-pieces>
       {

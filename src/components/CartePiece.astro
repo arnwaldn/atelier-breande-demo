@@ -61,7 +61,14 @@ const slug = href.split('/').filter(Boolean).pop();
 <a
   href={href}
   class="carte-piece"
-  aria-label={`${nom} — ${matieres.join(', ')} — à partir de ${prix}, ${delaiCourant}`}
+  {/* PAS d'aria-label ici. Il en portait un jusqu'au 20/08/2026, pour placer
+      le nom de la piece avant ses matieres a l'oreille. Mais il reordonnait ET
+      reponctuait : les matieres s'affichent separees par « · » et l'aria-label
+      les listait avec des virgules. Le texte VISIBLE n'etait donc plus contenu
+      dans le nom accessible, et Lighthouse le signalait sur /collections
+      (label-content-name-mismatch) — c'est-a-dire qu'une commande vocale ne
+      pouvait pas designer la carte par ce qu'elle affiche. Le nom accessible
+      redevient le contenu reel de la carte. */}
   data-prioritaire={prioritaire || undefined}
 >
   <span class="carte-piece__cadre" data-piece-photo={slug}>

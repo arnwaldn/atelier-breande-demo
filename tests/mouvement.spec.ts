@@ -13,7 +13,7 @@ import { PAGES } from './utils';
  * 3. Régime normal : html.mouvement est posée, et tout ce qui est déjà dans
  *    le premier écran au chargement est déjà révélé (pas de clignotement).
  */
-const MOTIF_FRAGMENT_ANIME = /gsap|scrolltrigger|three/i;
+const MOTIF_FRAGMENT_ANIME = /gsap|scrolltrigger/i;
 
 test.describe('couche de mouvement', () => {
   test('scripts bloqués : aucun texte n’est masqué, sur les six pages', async ({ browser }) => {
@@ -43,7 +43,7 @@ test.describe('couche de mouvement', () => {
     await contexte.close();
   });
 
-  test('mouvement réduit : aucun fragment gsap ni three n’est demandé au réseau', async ({
+  test('mouvement réduit : aucun fragment gsap n’est demandé au réseau', async ({
     browser,
   }) => {
     const contexte = await browser.newContext({ reducedMotion: 'reduce' });

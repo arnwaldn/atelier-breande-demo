@@ -1076,17 +1076,6 @@ html.mouvement .grille-collections [data-revele] .carte-piece:not([data-priorita
 .echelle-kelvins__valeur {
   display: none;
 }
-/* La marge active porte la température liée au DÉFILEMENT ; la molette de
-   la bande-scène (BandeScene.astro) porte celle de la LAMPE, réglable par
-   le visiteur. Les deux ne coïncident qu'au repos — dès qu'on touche au
-   réglage, laisser les deux visibles affiche deux kelvins différents à
-   quelques centimètres l'un de l'autre (finition importante 8, chantier
-   bêta du 19/08). Une seule valeur de température visible à la fois : la
-   marge s'efface tant que le bloc de la lampe est à l'écran (voir
-   echelle-kelvins.ts, estScene), et réapparaît à la sortie. */
-.echelle-kelvins--efface {
-  opacity: 0;
-}
 
 @media (min-width: 1024px) {
   .echelle-kelvins {
@@ -1117,75 +1106,7 @@ html.mouvement .grille-collections [data-revele] .carte-piece:not([data-priorita
   }
 }
 
-/* ==========================================================================
-   BANDE-SCÈNE — l'hôte du futur bloc 3D. Doit rester beau sans WebGL :
-   critère de recette n°6 de l'ADR direction artistique.
-   ========================================================================== */
-.bande-scene {
-  position: relative;
-  display: grid;
-  gap: 2.5rem;
-  border-radius: 2px;
-  overflow: hidden;
-  background-color: var(--color-breande-coal);
-  box-shadow: var(--recoit-lumiere);
-}
 @media (min-width: 900px) {
-  .bande-scene {
-    grid-template-columns: 1.4fr 1fr;
-    align-items: center;
-  }
-}
-.bande-scene__repli {
-  position: relative;
-  line-height: 0;
-  min-height: 16rem;
-}
-.bande-scene__repli picture,
-.bande-scene__repli img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.bande-scene__reglage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 2rem;
-}
-.bande-scene__molette {
-  width: 100%;
-  max-width: 220px;
-  height: auto;
-}
-.bande-scene__arc,
-.bande-scene__graduations {
-  stroke: url(#bande-scene-laiton);
-}
-.bande-scene__curseur {
-  stroke: var(--color-breande-glow);
-}
-.bande-scene__curseur-point {
-  fill: var(--color-breande-glow);
-}
-.bande-scene__moyeu {
-  fill: var(--color-breande-brass);
-}
-.bande-scene__label {
-  fill: var(--color-breande-laiton-clair);
-  font-family: var(--font-body);
-  font-size: 9px;
-  font-variant-numeric: tabular-nums;
-}
-.bande-scene__label--actif {
-  fill: var(--color-breande-glow);
-  font-weight: 600;
-}
-.bande-scene__bouton {
-  width: 100%;
-  max-width: 16rem;
 }
 
 /* ==========================================================================
@@ -1687,11 +1608,6 @@ html.mouvement [data-revele] {
 }
 /* C11 (recette DA du 19/08) : appearance: none désactive le rendu natif du
    curseur — et avec lui l'anneau de focus natif du navigateur. Le même
-   traitement que la molette (bande-scene__molette:focus-visible). */
-.comparateur-coupe__curseur:focus-visible {
-  outline: 2px solid var(--color-breande-amber);
-  outline-offset: -3px;
-}
 .comparateur-coupe__curseur::-webkit-slider-runnable-track {
   width: 100%;
   height: 100%;
@@ -2327,42 +2243,8 @@ html.mouvement .frise-etape[data-filet-atteint] {
   font-variant-numeric: tabular-nums;
 }
 
-/* --- vague B : le variateur ------------------------------------------------
-   Quand le canevas 3D est monte, l'image de repli s'efface en 450 ms — la
-   substitution, jamais la coexistence : on ne montre pas deux lampes. Le
-   reglage (molette + bouton) reste au-dessus du canevas, qui est transparent
-   au pointeur. Le bouton n'existe que sous 1024 px : au-dela, la scene se
-   charge a l'approche et un bouton inerte serait un mensonge d'interface. */
-[data-scene] { position: relative; }
-[data-scene] canvas { z-index: 1; }
-.bande-scene__reglage { position: relative; z-index: 2; }
 /* CORRECTION DU 19/08/2026 — ne JAMAIS masquer le conteneur du repli.
-   Le moteur monte le canevas WebGL DANS .bande-scene__repli (moteur.ts :
-   « dans la zone du repli, jamais sur l'hote entier », sinon le canevas passe
-   par-dessus la molette sur mobile). Poser opacity:0 sur ce conteneur effacait
-   donc la scene 3D EN MEME TEMPS que l'image qu'elle remplace : le bloc restait
-   vide, molette seule — exactement ce qu'un visiteur a signale.
-   On efface l'IMAGE, pas son conteneur. */
-.bande-scene__repli > picture,
-.bande-scene__repli > img {
-  transition: opacity 450ms ease-out;
-}
-[data-scene][data-scene-active='oui'] .bande-scene__repli > picture,
-[data-scene][data-scene-active='oui'] .bande-scene__repli > img {
-  opacity: 0;
-}
-.bande-scene__molette {
-  cursor: ew-resize;
-  touch-action: none;
-  /* Le glissement selectionnait les libelles (poignees de selection sur
-     telephone, surlignage sur bureau) : un geste de reglage ne selectionne
-     jamais du texte. */
-  user-select: none;
-  -webkit-user-select: none;
-}
-.bande-scene__molette:focus-visible { outline: 2px solid var(--color-breande-amber); outline-offset: 6px; }
 @media (min-width: 64rem) {
-  .bande-scene__bouton { display: none; }
 }
 
 /* ==========================================================================

@@ -34,42 +34,5 @@ async function demarrer(): Promise<void> {
   // (symptôme : un défaut intermittent, donc le pire).
   const { demarrerSocle } = await import('./mouvement/socle');
   demarrerSocle();
-
-  // 3 — détaché, jamais attendu, avec son propre filet : une promesse rejetée
-  // sans capteur est un message de console, et la note « bonnes pratiques »
-  // les compte.
-  void chargerLaSceneQuandLHeureEstVenue().catch(() => {
-    // Le bloc garde son état peint — qui est le DÉFAUT, pas un secours.
-  });
 }
-
-async function chargerLaSceneQuandLHeureEstVenue(): Promise<void> {
-  const hote = document.querySelector<HTMLElement>('[data-scene]');
-  if (!hote) return;
-
-  const { quandLaPageEstChargee, quandLeFilEstLibre, quandLHoteApproche } =
-    await import('./mouvement/attente');
-
-  await quandLaPageEstChargee();
-  await quandLeFilEstLibre();
-
-  const etroit = window.matchMedia('(max-width: 63.99rem)').matches;
-  if (etroit) {
-    // Sur écran étroit la scène ne se charge JAMAIS d'elle-même : 140 Ko sur
-    // un forfait mobile pour un ornement ne se justifie pas devant quelqu'un
-    // qui n'a rien demandé. Le bouton du bloc est la seule porte.
-    const bouton = hote.querySelector<HTMLButtonElement>('[data-scene-bouton]');
-    if (!bouton) return;
-    await new Promise<void>((resoudre) => {
-      bouton.addEventListener('click', () => resoudre(), { once: true });
-    });
-  } else {
-    await quandLHoteApproche(hote, '320px');
-    await quandLeFilEstLibre(1200);
-  }
-
-  const { demarrerScene } = await import('./mouvement/scene/moteur');
-  await demarrerScene(hote);
-}
-
 void demarrer();

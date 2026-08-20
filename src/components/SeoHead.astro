@@ -92,4 +92,14 @@ const ogImage = new URL('/images/og-default.jpg', Astro.site);
        network-dependency-tree en echec sur les dix mesures avec une chaine
        critique de 3 112 ms. A confirmer en production apres fusion : si le
        gain est nul, ce preload doit repartir. -->
-<!-- TEST DU 20/08 : les deux preloads sont retires le temps d une mesure. -->
+<!-- PAS DE PRECHARGEMENT DES FONTES — verifie sur pieces, deux fois.
+     Retire une premiere fois le 19/08 (b95a540) au motif qu'il salissait la
+     console. Retabli le 20/08 en supposant que l'alerte venait d'un preload
+     mal ecrit : hypothese FAUSSE, celui de b95a540 portait deja crossorigin.
+     Mesure PageSpeed en production, trois tirages, avec puis sans :
+       accueil      avec 100 / LCP 1,5 s   sans 100 / LCP 1,3-1,5 s
+       collections  avec 100 / LCP 1,5 s   sans 100 / LCP 1,1-1,5 s
+     Le prechargement n'apporte RIEN : le gain de 99 a 100 vient entierement de
+     la suppression du script bloquant du <head>. La feuille de style est
+     bloquante et porte deja les @font-face — les fontes partent des le premier
+     texte peint. Ne pas remettre sans une mesure qui montre un gain. -->
