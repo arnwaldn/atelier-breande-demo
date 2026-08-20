@@ -772,21 +772,28 @@
   position: relative;
   display: inline-block;
 }
-.logotype__e {
-  color: var(--color-breande-paper);
-}
 /* C1 (recette DA) : la barre approximative flottait un cadratin trop haut et
    se lisait comme un eclat egare — le mot se lisait « Breande ». Le seul
-   accent juste est celui de la fonte : un « e accent » complet, superpose au
-   « e » nu, clippe pour ne montrer QUE l'accent. Meme chasse, meme dessin,
-   meme place, a toutes les tailles. */
-.logotype__accent {
+   accent juste est celui de la fonte : un « e accent » complet, superpose,
+   clippe pour ne montrer QUE l'accent. Meme chasse, meme dessin, meme place,
+   a toutes les tailles.
+
+   REECRIT le 20/08/2026 en pseudo-elements. La version precedente decoupait
+   le mot dans le DOM — un « e » nu plus un « é » en superposition — de sorte
+   que le texte VISIBLE se calculait « Atelier Bre é ande » et ne correspondait
+   plus au nom accessible « Atelier Bréande ». Lighthouse le signalait sur les
+   treize pages (label-content-name-mismatch) sans que la note de 100 bouge, et
+   une personne pilotant au clavier vocal ne pouvait pas dire « clique sur
+   Atelier Bréande ». Le mot est redevenu un mot ; l'accent ambre est peint
+   par-dessus, hors du flux de texte. Rendu strictement identique. */
+.logotype__e-hote::after {
+  content: 'é';
   position: absolute;
   inset: 0;
   color: var(--color-breande-amber);
   clip-path: inset(0 0 68% 0);
 }
-.logotype__accent::after {
+.logotype__e-hote::before {
   content: '';
   position: absolute;
   inset: -0.85em -1.05em;
@@ -802,8 +809,8 @@
   );
   transition: opacity var(--ms-survol) var(--ease-etat);
 }
-.logotype:hover .logotype__accent::after,
-.logotype:focus-visible .logotype__accent::after {
+.logotype:hover .logotype__e-hote::before,
+.logotype:focus-visible .logotype__e-hote::before {
   opacity: 1;
 }
 

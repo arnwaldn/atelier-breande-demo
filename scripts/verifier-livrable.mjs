@@ -110,6 +110,13 @@ function controlerFichier(cheminAbsolu) {
   for (const m of brut.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
     const attributs = extraireAttributs(m[1]);
     if (attributs.has('src')) continue;
+    // Un script de DONNEES n'est pas execute, donc script-src ne s'y applique
+    // pas : ni hash ni fichier separe a exiger. Seuls les scripts executables
+    // sont concernes. La liste est fermee a dessein — importmap et
+    // speculationrules, eux, SONT soumis a script-src et doivent rester
+    // soumis au controle.
+    const type = (attributs.get('type') || '').toLowerCase();
+    if (type === 'application/ld+json' || type === 'application/json') continue;
     trouveScriptEnLigne = true;
     const empreinte = createHash('sha256').update(m[2], 'utf8').digest('base64');
     if (hashesAutorises().has(empreinte)) {

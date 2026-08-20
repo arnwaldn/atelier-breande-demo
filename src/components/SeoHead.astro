@@ -5,7 +5,54 @@ interface Props {
 }
 const { title, description } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-const ogImage = new URL('/images/og-default.svg', Astro.site);
+
+// DONNEES STRUCTUREES — fil d'Ariane et identite du site uniquement.
+//
+// LocalBusiness est VOLONTAIREMENT absent, alors que c'est le balisage
+// standard d'un artisan local. Ce site decrit un atelier FICTIF et il est
+// indexable : declarer un commerce local reviendrait a affirmer aux moteurs
+// qu'une entreprise reelle existe a Lyon 7e, avec un telephone et des
+// horaires — au risque de la voir apparaitre dans des resultats locaux.
+// Etiqueter « fictif » dans le texte ne protege pas d'un balisage qui, lui,
+// affirme le contraire a la machine. Decision du 20/08/2026.
+const segments = Astro.url.pathname.split('/').filter(Boolean);
+const filDAriane = [
+  { nom: 'accueil', url: new URL('/', Astro.site).href },
+  ...segments.map((seg, i) => ({
+    nom: seg.replace(/-/g, ' '),
+    url: new URL('/' + segments.slice(0, i + 1).join('/'), Astro.site).href,
+  })),
+];
+const donneesStructurees = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': new URL('/#site', Astro.site).href,
+      url: new URL('/', Astro.site).href,
+      name: 'Atelier Bréande (site de démonstration)',
+      inLanguage: 'fr-FR',
+      description:
+        'Site de démonstration présentant un atelier de luminaires fictif. Aucune entreprise de ce nom n’existe.',
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: filDAriane.map((e, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: e.nom,
+        item: e.url,
+      })),
+    },
+  ],
+};
+// `<` est echappe : un JSON insere dans un <script> pourrait sinon en sortir.
+const jsonLd = JSON.stringify(donneesStructurees).replace(/</g, '\u003c');
+// Image de partage en JPEG, pas en SVG : Facebook, LinkedIn, X, WhatsApp et
+// Slack ignorent TOUS le SVG. Jusqu'au 20/08/2026 la carte de partage etait
+// donc vide a chaque fois que le lien de cette demonstration etait envoye.
+// 1200x630 est le format attendu (ratio 1.91:1).
+const ogImage = new URL('/images/og-default.jpg', Astro.site);
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,4 +66,19 @@ const ogImage = new URL('/images/og-default.svg', Astro.site);
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogImage} />
 <meta property="og:locale" content="fr_FR" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="L’établi de l’atelier le soir, une suspension allumée au-dessus du plan de travail" />
+<script type="application/ld+json" set:html={jsonLd} />
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<!-- Prechargement des deux fontes du site. Retire le 19/08 parce qu'il
+     « salissait la console » ; retabli le 20/08 ecrit correctement — l'alerte
+     de Chrome vient d'un preload sans crossorigin ou sans as, pas du preload
+     lui-meme. Sans lui, les fontes ne sont decouvertes qu'apres analyse d'une
+     feuille de 61 Ko : PageSpeed mesurait une chaine critique de 3 112 ms. -->
+<link rel="preload" href="/polices/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/polices/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
