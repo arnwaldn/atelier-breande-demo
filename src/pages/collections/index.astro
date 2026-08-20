@@ -46,6 +46,7 @@ const grandeDroite = parSlug['suspension-1930'];
         rangeeA.map((piece, i) => piece && (
           <div data-revelation class:list={[`cascade-${i + 1}`, i === 0 && 'sm:col-span-2']}>
             <CartePiece
+              sizes="(min-width: 640px) 31vw, 45vw"
               nom={piece.data.nom}
               href={`/collections/${piece.id}`}
               image={piece.data.image}
@@ -104,6 +105,7 @@ const grandeDroite = parSlug['suspension-1930'];
         rangeeB.map((piece, i) => piece && (
           <div data-revelation class:list={[`cascade-${i + 1}`]}>
             <CartePiece
+              sizes="(min-width: 640px) 31vw, 45vw"
               nom={piece.data.nom}
               href={`/collections/${piece.id}`}
               image={piece.data.image}

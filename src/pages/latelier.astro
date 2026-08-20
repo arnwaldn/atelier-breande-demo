@@ -38,8 +38,14 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
   description="Site de démonstration : Atelier Bréande est un atelier fictif. Les matières, les procédés et la lumière — comment une pièce naît, du dessin à l’essai en charge."
   heroPleinEcran
 >
-  {/* B1 — SEUIL COURT. Image plein-bord, 46svh, PAS prioritaire : ce n'est
-      pas le LCP du site (seul le hero de l'accueil l'est). */}
+  {/* B1 — SEUIL COURT. Image plein-bord, 46svh, PRIORITAIRE.
+      Corrigé le 20/08/2026 : le commentaire précédent disait « pas le LCP du
+      site (seul le hero de l'accueil l'est) ». Faux — le LCP se calcule PAR
+      PAGE. PageSpeed désigne cette image comme l'élément LCP de /latelier, et
+      la servir en lazy en faisait la page la plus lente du site (LCP 2,0 s
+      contre 1,2 s sur une fiche de pièce). Même erreur de portée que celle
+      déjà corrigée le 19/08 pour les animations : la règle avait été lue comme
+      ne visant que l'accueil. */}
   <section class="seuil-secondaire" data-jour="1">
     <div class="seuil-secondaire__image">
       <Visuel
@@ -47,6 +53,7 @@ const imagesFamilles: Record<string, { image: ImageMetadata; alt: string }> = {
         alt="L’établi principal de l’atelier, vu de face, avec ses outils rangés à portée de main"
         sizes="100vw"
         widths={[480, 900, 1400, 1920]}
+        prioritaire
       />
     </div>
     <div class="seuil-secondaire__voile" aria-hidden="true"></div>

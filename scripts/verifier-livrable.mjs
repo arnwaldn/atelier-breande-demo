@@ -35,6 +35,31 @@ import {
   verifierDistPresent,
 } from './_lib-dist.mjs';
 
+import { createHash } from 'node:crypto';
+
+/**
+ * Hashes de scripts autorises par la CSP de production (vercel.json).
+ * Lu une seule fois. Si le fichier devient illisible, l'ensemble reste vide :
+ * aucun script en ligne ne passe, ce qui est le bon sens de l'echec.
+ */
+let _hashesCsp = null;
+function hashesAutorises() {
+  if (_hashesCsp) return _hashesCsp;
+  _hashesCsp = new Set();
+  try {
+    const conf = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'));
+    for (const entree of conf.headers ?? []) {
+      for (const en of entree.headers ?? []) {
+        if (String(en.key).toLowerCase() !== 'content-security-policy') continue;
+        for (const m of String(en.value).matchAll(/'sha256-([A-Za-z0-9+/=]+)'/g)) _hashesCsp.add(m[1]);
+      }
+    }
+  } catch {
+    /* ensemble vide : on refuse tout script en ligne */
+  }
+  return _hashesCsp;
+}
+
 /** Oublis de rédaction qui n'ont rien à faire dans un site publié. */
 const CHAINES_INTERDITES = [
   { motif: /\bTODO\b/giu, nom: 'TODO' },
@@ -68,13 +93,34 @@ function controlerFichier(cheminAbsolu) {
   const relatif = cheminRelatif(cheminAbsolu);
   const brut = readFileSync(cheminAbsolu, 'utf8');
 
-  // 1. Scripts en ligne (sans `src`) — refusés par script-src 'self'.
+  // 1. Scripts en ligne (sans `src`).
+  //
+  // Refuses par defaut : script-src 'self' ne les autorise pas. UNE exception
+  // depuis le 20/08/2026 : un contenu en ligne dont le hash SHA-256 figure
+  // dans la CSP de vercel.json. Le fichier separe qu'il remplace
+  // (detection-js.js) coutait un aller-retour reseau BLOQUANT mesure a 451 ms
+  // chez PageSpeed, pour 120 octets utiles.
+  //
+  // La garde ne se contente pas de TOLERER les scripts en ligne : elle
+  // recalcule le hash du contenu reellement produit et exige qu'il soit
+  // declare. C'est le seul moyen d'attraper le piege de cette technique --
+  // retoucher le script d'un seul espace invalide le hash, et la page casse
+  // en production sans que rien ne le signale avant.
   let trouveScriptEnLigne = false;
-  for (const m of brut.matchAll(REGEX_SCRIPT_BLOC)) {
+  for (const m of brut.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
     const attributs = extraireAttributs(m[1]);
-    if (!attributs.has('src')) {
-      trouveScriptEnLigne = true;
-      echec(relatif, m.index, brut, 'script en ligne sans attribut src (refusé par script-src \'self\')');
+    if (attributs.has('src')) continue;
+    trouveScriptEnLigne = true;
+    const empreinte = createHash('sha256').update(m[2], 'utf8').digest('base64');
+    if (hashesAutorises().has(empreinte)) {
+      ok(`${relatif} — script en ligne autorisé par son hash CSP`);
+    } else {
+      echec(
+        relatif,
+        m.index,
+        brut,
+        `script en ligne dont le hash n'est pas déclaré dans la CSP de vercel.json — ajouter 'sha256-${empreinte}' à script-src, ou remettre ce script dans un fichier`
+      );
     }
   }
   if (!trouveScriptEnLigne) ok(`${relatif} — aucun script en ligne`);

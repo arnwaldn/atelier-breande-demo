@@ -58,7 +58,7 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
                   : 'md:order-2 bandeau__deborde-droite',
               ]}
             >
-              <Visuel src={visuel.image} alt={visuel.alt} sizes="(min-width: 900px) 50vw, 100vw" class="h-full w-full object-cover" />
+              <Visuel src={visuel.image} alt={visuel.alt} sizes="(min-width: 900px) 50vw, 100vw" prioritaire={i === 0} class="h-full w-full object-cover" />
             </div>
             <div class:list={[cote === 'droite' ? 'md:order-2' : 'md:order-1']} data-revelation>
               <TitreSection texte={service.titre} id={`titre-${service.ancre}`} />

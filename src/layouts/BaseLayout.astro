@@ -41,10 +41,14 @@ const {
       empaquette tout <script src="../scripts/…"> en module différé, ce qui
       arriverait ici APRÈS le premier rendu et produirait exactement le
       décalage de mise en page (CLS) que ce garde-fou doit éviter. is:inline
-      laisse la balise telle quelle — src reste conforme à la CSP
-      (script-src 'self', aucun contenu en ligne).
+      laisse la balise telle quelle. CONTENU EN LIGNE depuis le 20/08/2026 :
+      le fichier séparé coûtait un aller-retour réseau BLOQUANT mesuré à
+      451 ms chez PageSpeed pour 120 octets utiles. Le contenu est autorisé
+      par un hash dans la CSP (vercel.json, script-src). Le hash porte sur
+      les octets EXACTS entre les balises : toute retouche, même un espace,
+      impose de le recalculer avec openssl dgst -sha256 -binary | openssl base64
     */}
-    <script is:inline src="/detection-js.js"></script>
+    <script is:inline>document.documentElement.classList.add('js')</script>
   </head>
   <body class="grain">
     {/* LE VARIATEUR, branché (recette DA du 19/08 au soir) — un seul calque,

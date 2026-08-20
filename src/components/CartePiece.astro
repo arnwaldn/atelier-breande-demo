@@ -31,6 +31,12 @@ interface Props {
   prix: string;
   delaiCourant: string;
   prioritaire?: boolean;
+  /** Largeur rendue RÉELLE, qui dépend de la grille hôte. Codée en dur
+   *  jusqu'au 20/08/2026, elle annonçait 100vw en mobile ; sur /collections
+   *  la grille rend des cartes à 41 % de la largeur, d'où 78 Ko d'images
+   *  surdimensionnées mesurés par PageSpeed. Un composant partagé ne peut
+   *  pas deviner la grille qui l'accueille : c'est l'appelant qui sait. */
+  sizes?: string;
 }
 
 const {
@@ -42,6 +48,7 @@ const {
   prix,
   delaiCourant,
   prioritaire = false,
+  sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw',
 } = Astro.props;
 
 // Le slug de la fiche, tiré de l'URL plutôt qu'une prop de plus : href vaut
@@ -55,14 +62,14 @@ const slug = href.split('/').filter(Boolean).pop();
   href={href}
   class="carte-piece"
   aria-label={`${nom} — ${matieres.join(', ')} — à partir de ${prix}, ${delaiCourant}`}
-  data-prioritaire={prioritaire}
+  data-prioritaire={prioritaire || undefined}
 >
   <span class="carte-piece__cadre" data-piece-photo={slug}>
     <Visuel
       src={image}
       alt={imageAlt}
       prioritaire={prioritaire}
-      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+      sizes={sizes}
       class="carte-piece__image"
     />
   </span>
