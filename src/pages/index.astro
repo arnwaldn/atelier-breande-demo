@@ -151,7 +151,12 @@ const piecesVedettes = await Promise.all(
         piecesVedettes.map((piece, i) => piece && (
           <div
             data-revelation
-            class:list={[`cascade-${i + 1}`, i === 0 && 'md:col-span-2']}
+            {/* Le col-span-2 sur la premiere carte est retire le 20/08/2026 :
+                avec TROIS pieces, il laissait la seconde rangee avec une seule
+                carte de 420 px dans une rangee de 1 328 — un vide mesure a
+                960 x 800 px, l'un des plus grands de la page. Trois cartes
+                egales tiennent une rangee pleine. */}
+            class:list={[`cascade-${i + 1}`]}
           >
             <CartePiece
               nom={piece.data.nom}

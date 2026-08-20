@@ -32,7 +32,14 @@ const MARQUE = 'data-revele';
 
 /** Marge basse négative : un bloc ne se révèle qu'une fois REELLEMENT entré,
  *  pas quand son premier pixel effleure le bord. */
-const MARGE = '0px 0px -12% 0px';
+// Assouplis le 20/08/2026. Ils valaient -12 % et 0,25, et fabriquaient un trou :
+// releve sur /services a scrollY 6300, le titre « Comment ca se passe » etait a
+// 424 px du haut de l'ecran et les HUIT etapes deja dans le cadre, a opacite
+// 0,00 — 9,9 % d'occupation d'ecran. L'animation retenait un contenu deja entre.
+// Un seuil de 0,25 sur un grand bloc exige qu'un quart de sa hauteur depasse la
+// ligne de declenchement, elle-meme remontee de 12 % : sur un bloc plus haut que
+// l'ecran, cela n'arrive jamais avant qu'il l'ait largement traverse.
+const MARGE = '0px 0px -4% 0px';
 
 let observateur: IntersectionObserver | null = null;
 
@@ -103,7 +110,7 @@ function armer(): void {
         observateur?.unobserve(entree.target);
       }
     },
-    { rootMargin: MARGE, threshold: 0.25 }
+    { rootMargin: MARGE, threshold: 0.05 }
   );
 
   for (const element of elements) {
