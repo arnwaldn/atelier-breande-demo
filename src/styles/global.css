@@ -2981,3 +2981,35 @@ html.lenis {
   margin: 0;
   text-align: left;
 }
+
+/* ==========================================================================
+   LE VOLET — geste signature generalise (20/08/2026)
+   ==========================================================================
+   Un rideau se retire pour devoiler l'image, comme un store qui s'ouvre.
+   C'est le geste que la recette du 19/08 jugeait le seul reussi du site, et il
+   n'existait qu'a UN endroit : les deux cadres plein-bord de /collections. La
+   reference apportee par le client (Codrops, « On-Scroll SVG Mask Transitions
+   — Horizontal Blinds ») fait exactement cela, sur notre pile exacte et SANS
+   toucher au defilement — contrairement aux trois autres references de la meme
+   rafale, qui remplacent le defilement par une navigation section par section.
+
+   REGLE DE POSE, apprise a la recette du 19/08 et re-documentee ici : le
+   pilote (data-revelation) va sur le PARENT, jamais sur le cadre clippe. Un
+   element dont le clip-path reduit la surface peinte a zero n'est plus jamais
+   vu « intersectant » par l'IntersectionObserver de Chromium : data-revele ne
+   se poserait jamais et l'image resterait invisible pour toujours.
+
+   Et JAMAIS sur l'element LCP d'une page — l'ADR-002 l'interdit page par page,
+   pas seulement sur l'accueil. */
+html.mouvement [data-revelation]:not([data-revele]) .volet-image {
+  clip-path: inset(0 0 100% 0);
+}
+html.mouvement [data-revele] .volet-image {
+  clip-path: inset(0);
+  transition: clip-path var(--ms-signature) var(--ease-etat);
+}
+/* Le cadre du volet ne double pas la revelation generique : la translation du
+   parent suffit, un clip PLUS une translation brouille les deux gestes. */
+html.mouvement [data-revelation]:has(.volet-image):not([data-revele]) {
+  transform: none;
+}

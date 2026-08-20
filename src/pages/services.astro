@@ -50,10 +50,20 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
       const palier = (2 + Math.min(i, 2)) as 2 | 3 | 4;
       return (
         <Bandeau jour={palier} pleinBord={cote} ariaLabelledby={`titre-${service.ancre}`} id={service.ancre}>
-          <div class="service-travee">
+          {/* Le VOLET (20/08/2026, reference Codrops validee par le client) est
+              porte par la travee, jamais par le cadre lui-meme : un element
+              dont le clip-path reduit la surface peinte a zero n'est plus vu
+              « intersectant » par l'IntersectionObserver de Chromium, et
+              data-revele ne se poserait jamais. Piege deja paye en recette le
+              19/08 sur /collections — un seul ecrivain, un seul piege evite.
+              La PREMIERE travee en est exclue : son image est l'element LCP de
+              la page (mesure : 288 ms sur creation.avif), et l'ADR-002 interdit
+              d'animer l'element LCP de CHAQUE page. */}
+          <div class="service-travee" data-revelation={i === 0 ? undefined : true}>
             <div
               class:list={[
                 'aspect-[4/5] overflow-hidden rounded-[2px] shadow-[var(--recoit-lumiere)]',
+                i !== 0 && 'volet-image',
                 cote === 'droite'
                   ? 'md:order-1 bandeau__deborde-gauche'
                   : 'md:order-2 bandeau__deborde-droite',
@@ -131,8 +141,8 @@ const extraitEtapes = [0, 2, 5].map((i) => etapesCommande[i]).filter((e) => e !=
       noire. Les huit gestes se font à cet établi : le sujet du texte est
       exactement le sujet de l'image, et elle existe déjà dans le dépôt. */}
   <Bandeau jour={4} id="etapes" pleinBord="droite" ariaLabelledby="titre-etapes">
-    <div class="etapes-travee">
-      <div class="etapes-travee__image bandeau__deborde-droite md:order-2">
+    <div class="etapes-travee" data-revelation>
+      <div class="etapes-travee__image volet-image bandeau__deborde-droite md:order-2">
         <Visuel
           src={etabliEtapes}
           alt="L’établi principal de l’atelier, vu de face, avec ses outils rangés à portée de main"

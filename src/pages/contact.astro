@@ -76,6 +76,7 @@ import { faqContact } from '../data/faq';
               voit en poussant la porte, et ne montrait rien.
               `avance` et non `prioritaire` : le LCP de cette page est le titre,
               et l'ADR interdit de concurrencer l'élément LCP de chaque page. */}
+          <div class="volet-image contact-bloc__cadre">
           <Visuel
             src={matiereContact}
             alt="Chutes et barres de laiton rangées à l’atelier, patine et reflets chauds"
@@ -84,6 +85,7 @@ import { faqContact } from '../data/faq';
             avance
             class="contact-bloc__image"
           />
+          </div>
           <h2 class="contact-bloc__titre">{venirALAtelier.titre}</h2>
           <p class="contact-bloc__texte">{venirALAtelier.texte}</p>
         </div>
