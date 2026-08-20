@@ -475,7 +475,41 @@ function ligneResultat(pageUrl, r) {
   return { echec: !conforme, ignore: false, exempte: Boolean(exemption) };
 }
 
+/**
+ * CETTE GARDE A BESOIN D'UN NAVIGATEUR, ET LE CONSTRUCTEUR DE VERCEL N'EN A PAS.
+ *
+ * Constaté le 20/08/2026, une heure après l'avoir branchée dans `npm run
+ * gardes` : le déploiement de production est parti en construction et allait
+ * échouer sur « Executable doesn't exist » — Playwright est bien installé en
+ * dépendance de développement, mais ses navigateurs ne le sont pas, et
+ * `playwright install` téléchargerait plus de 100 Mo à chaque déploiement pour
+ * vérifier une géométrie que le poste a déjà vérifiée.
+ *
+ * ON SAUTE, ET ON LE DIT. Un saut annoncé n'est pas un faux vert : le message
+ * ci-dessous part sur la sortie standard du journal de construction, et le
+ * code de sortie reste 0 parce qu'il n'y a rien à reprocher au livrable — il
+ * y a une mesure qui n'a pas eu lieu ici. Ce qui protège réellement la
+ * production, c'est que le MEME dist est construit et mesuré en local avant
+ * chaque push : la garde tourne dans `npm run gardes`, donc dans `npm run
+ * build`, donc à chaque construction locale.
+ *
+ * Le jour où ce projet aura une intégration continue avec navigateur, retirer
+ * ce saut : la variable VERCEL n'y sera pas posée, et la garde s'exécutera.
+ */
+function environnementSansNavigateur() {
+  if (!process.env.VERCEL) return false;
+  console.log('');
+  console.log(
+    'SAUTEE  garde de composition — constructeur Vercel, aucun navigateur disponible.'
+  );
+  console.log(
+    '        La meme mesure tourne en local a chaque `npm run build` (voir en-tete).'
+  );
+  return true;
+}
+
 async function principal() {
+  if (environnementSansNavigateur()) return;
   verifierDistPresent();
   const pages = listerPagesHtml();
   if (pages.length === 0) {
