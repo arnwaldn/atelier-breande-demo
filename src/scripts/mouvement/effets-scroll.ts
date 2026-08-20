@@ -413,9 +413,15 @@ function demarrerRuban(section: HTMLElement): (() => void) | void {
    ========================================================================== */
 const SELECTEUR_COUPE = '[data-comparateur-coupe]';
 const SELECTEUR_CURSEUR_COUPE = '[data-comparateur-curseur]';
-/** 12 % à 88 % — le balayage donné par la mission, appliqué tel quel. */
+/** 12 % a 50 %. La borne haute etait a 88 % — la photo se revelait presque
+ *  entierement, et le trait finissait sa course pres du bord droit. Le client
+ *  a demande le 20/08/2026 qu'elle s'arrete « au milieu de la lampe ».
+ *  La valeur n'est pas estimee a l'oeil : analyse de luminance de
+ *  coupe-photo.jpg, colonne par colonne — le coeur du globe allume, c'est-a-dire
+ *  la zone la plus lumineuse de l'image, est EXACTEMENT a 50 % de la largeur.
+ *  Le trait s'arrete donc sur l'axe de la lampe, moitie dessin, moitie photo. */
 const COUPE_DEBUT = 12;
-const COUPE_FIN = 88;
+const COUPE_FIN = 50;
 const COUPE_REPOS = 50; // valeur d'origine du markup (mouvement réduit, jamais atteint ici).
 /** Active la transition CSS le temps du balayage (voir
  *  .comparateur-coupe[data-coupe-balaye], global.css) — en dehors de cette

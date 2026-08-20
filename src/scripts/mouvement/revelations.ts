@@ -39,7 +39,7 @@ const MARQUE = 'data-revele';
 // Un seuil de 0,25 sur un grand bloc exige qu'un quart de sa hauteur depasse la
 // ligne de declenchement, elle-meme remontee de 12 % : sur un bloc plus haut que
 // l'ecran, cela n'arrive jamais avant qu'il l'ait largement traverse.
-const MARGE = '0px 0px -4% 0px';
+const MARGE = '0px 0px -18% 0px';
 
 let observateur: IntersectionObserver | null = null;
 
@@ -110,7 +110,7 @@ function armer(): void {
         observateur?.unobserve(entree.target);
       }
     },
-    { rootMargin: MARGE, threshold: 0.05 }
+    { rootMargin: MARGE, threshold: 0.01 }
   );
 
   for (const element of elements) {

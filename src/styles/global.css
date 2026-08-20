@@ -85,6 +85,10 @@
   /* --- Métal et accent. ------------------------------------------------ */
   --color-breande-amber: #f0c179;         /* accent d'interface — 11,18:1 */
   --color-breande-glow: #d99a4e;          /* état actif, focus — 7,70:1 */
+  /* Le CUIVRE — demande du client le 20/08/2026 pour le pouce du comparateur,
+     reste bleu parce que la regle qui devait le peindre etait avalee par un
+     commentaire non referme. Plus rouge que le laiton, meme famille chaude. */
+  --color-breande-cuivre: #b87333;
   --color-breande-brass: #8a6b4a;         /* MATIÈRE seulement, jamais de texte */
   --color-breande-laiton-clair: #b08d63;  /* filets, texte technique ≥ 14 px — 6,06:1 */
   --color-breande-laiton-sombre: #6a4f35; /* creux du dégradé de laiton */
@@ -123,7 +127,11 @@
   --ms-etat: 200ms;
   --ms-survol: 240ms;
   --ms-revele: 620ms;
-  --ms-signature: 1400ms;
+  --ms-signature: 1800ms;
+  /* Le balayage de la coupe de matiere a SA duree : il partageait
+     --ms-signature, que sept autres gestes utilisent, et le ralentir aurait
+     ralenti le lever de lampe de l'accueil. */
+  --ms-balayage: 2600ms;
 
   --ease-monte: cubic-bezier(0.16, 1, 0.3, 1);    /* révélations */
   --ease-etat: cubic-bezier(0.23, 1, 0.32, 1);    /* états, survols */
@@ -1690,6 +1698,24 @@ html.mouvement .grille-reperes > [data-revelation]:not([data-revele]) {
 }
 /* C11 (recette DA du 19/08) : appearance: none désactive le rendu natif du
    curseur — et avec lui l'anneau de focus natif du navigateur. Le même
+   anneau est redessiné à la main plus bas ; la piste et le pouce sont
+   repeints ici.
+
+   CE COMMENTAIRE N'ÉTAIT PAS REFERMÉ, du 19/08/2026 au 20/08/2026 au soir. Sa
+   fermeture se trouvait 42 lignes plus bas : les CINQ règles qui suivent —
+   piste WebKit, piste Firefox, pouce WebKit, pouce Firefox et légende —
+   n'ont donc JAMAIS été appliquées. Le pouce retombait sur le rendu natif du
+   système : un rond bleu de Windows au milieu d'un site nuit et laiton.
+
+   Rien ne pouvait l'attraper. Un commentaire non refermé reste du CSS
+   parfaitement valide : aucune erreur de construction, aucun test rouge,
+   aucune note dégradée — et le minifieur supprime les commentaires du
+   livrable, donc le défaut y était invisible aussi. C'est le client qui l'a
+   vu, à l'œil, sur une capture. D'où le contrôle ajouté le même jour, qui
+   inspecte la SOURCE et non le livrable, à la machine à états.
+
+   (Leçon payée dans la foulée : la séquence de fermeture ne peut pas être
+   citée à l'intérieur d'un commentaire — elle le ferme pour de bon.) */
 .comparateur-coupe__curseur::-webkit-slider-runnable-track {
   width: 100%;
   height: 100%;
@@ -1704,10 +1730,13 @@ html.mouvement .grille-reperes > [data-revelation]:not([data-revele]) {
   appearance: none;
   width: 2.75rem;
   height: 2.75rem;
-  margin-top: 0;
+  /* Pas de margin-top: 0 — il collait le pouce en HAUT de la piste. Sans lui,
+     WebKit le centre verticalement dans une piste de hauteur pleine, ce qui est
+     la position qu'il occupait quand le navigateur le peignait lui-meme. On
+     change sa couleur, pas sa place. */
   border-radius: 2px;
-  background: var(--laiton-brosse);
-  box-shadow: var(--ombre-contact);
+  background: transparent;
+  box-shadow: none;
   cursor: ew-resize;
 }
 .comparateur-coupe__curseur::-moz-range-thumb {
@@ -1715,10 +1744,38 @@ html.mouvement .grille-reperes > [data-revelation]:not([data-revele]) {
   height: 2.75rem;
   border: 0;
   border-radius: 2px;
-  background: var(--laiton-brosse);
-  box-shadow: var(--ombre-contact);
+  background: transparent;
+  box-shadow: none;
   cursor: ew-resize;
 }
+/* LA POIGNÉE est dessinée sur le TRAIT, pas sur le pouce natif.
+   Le pouce d'un input range se place en HAUT d'une piste de hauteur pleine, et
+   aucune propriété ne le recentre de façon portable — WebKit et Firefox ne
+   répondent pas aux mêmes leviers. Le pouce natif devient donc une zone de
+   saisie transparente (il garde le clavier, le glissement et la zone de clic
+   sur toute la hauteur), et la poignée VISIBLE est un pseudo-élément du trait :
+   sa position, sa taille et sa couleur sont alors exactement celles qu'on veut.
+   Cuivre, demandé par le client le 20/08/2026 — le pouce était resté bleu
+   parce que la règle qui devait le peindre était avalée par un commentaire. */
+.comparateur-coupe__trait::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  transform: translate(-50%, -50%);
+  border-radius: 2px;
+  background: var(--color-breande-cuivre);
+  box-shadow: var(--ombre-contact);
+}
+/* :has() et non le combinateur frere : le trait PRECEDE l'input dans le DOM
+   (ComparateurCoupe.astro l.34 puis l.35), donc « ~ » ne peut pas l'atteindre. */
+.comparateur-coupe:has(.comparateur-coupe__curseur:focus-visible) .comparateur-coupe__trait::after {
+  outline: 2px solid var(--color-breande-amber);
+  outline-offset: 3px;
+}
+
 .comparateur-coupe__legende {
   margin-top: 1rem;
   color: var(--color-breande-muted);
@@ -1732,10 +1789,10 @@ html.mouvement .grille-reperes > [data-revelation]:not([data-revele]) {
    le temps du balayage (effets-scroll.ts) : en dehors de cette fenêtre, un
    glissement manuel du curseur reste instantané, jamais amorti. */
 .comparateur-coupe[data-coupe-balaye] .comparateur-coupe__photo {
-  transition: clip-path var(--ms-signature) var(--ease-deplace);
+  transition: clip-path var(--ms-balayage) var(--ease-deplace);
 }
 .comparateur-coupe[data-coupe-balaye] .comparateur-coupe__trait {
-  transition: left var(--ms-signature) var(--ease-deplace);
+  transition: left var(--ms-balayage) var(--ease-deplace);
 }
 /* Passage en plein-bord (L'atelier, recette DA du 19/08) : le comparateur
    mesurait 640 px dans une page de 1280 — plafond de largeur donné par la
@@ -2325,9 +2382,6 @@ html.mouvement .frise-etape[data-filet-atteint] {
   font-variant-numeric: tabular-nums;
 }
 
-/* CORRECTION DU 19/08/2026 — ne JAMAIS masquer le conteneur du repli.
-@media (min-width: 64rem) {
-}
 
 /* ==========================================================================
    LENIS — renversement du 19/08/2026 (voir socle.ts). Le lissage RAF de

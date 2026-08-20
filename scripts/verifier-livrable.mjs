@@ -23,13 +23,15 @@
  * Usage : node scripts/verifier-livrable.mjs (chaîné dans `npm run gardes`).
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   EchecDeGarde,
   cheminRelatif,
   extrait,
   extraireAttributs,
   listerPagesHtml,
+  RACINE,
   neutraliserBlocs,
   numeroDeLigne,
   verifierDistPresent,
@@ -216,6 +218,91 @@ function controlerFichier(cheminAbsolu) {
   }
 }
 
+/**
+ * 9. Aucun commentaire CSS n'avale de regles.
+ *
+ * Ne pas confondre avec « les commentaires sont bien fermes » : ce n'est PAS
+ * le meme controle, et la difference a coute deux tentatives.
+ *
+ * LE DEFAUT, vecu une journee en production : global.css ouvrait un commentaire
+ * ligne 1691 sans le refermer. Les 42 lignes suivantes — cinq regles, dont
+ * celle qui peint le pouce du comparateur — n'ont jamais ete appliquees ; le
+ * pouce retombait sur le rendu natif du systeme, un rond bleu au milieu d'un
+ * site nuit et laiton. Rien ne pouvait l'attraper : un commentaire non referme
+ * reste du CSS parfaitement VALIDE.
+ *
+ * DEUX FAUSSES PISTES, ecrites ici pour qu'on ne les reprenne pas :
+ *   1. Inspecter dist/ — inutile, le minifieur SUPPRIME les commentaires : la
+ *      garde certifiait un fichier qui n'en contenait aucun.
+ *   2. Verifier qu'aucun commentaire ne reste ouvert en fin de fichier — ne
+ *      detecte rien. Un commentaire non referme est « ferme » par la fermeture
+ *      du commentaire SUIVANT : la machine a etats se resynchronise et ne voit
+ *      aucune anomalie. C'est precisement ce qui s'est passe le 19/08.
+ *
+ * LE SIGNAL JUSTE est l'EFFET, pas la forme : un commentaire qui CONTIENT une
+ * regle CSS. Un commentaire legitime cite parfois un selecteur ; il ne contient
+ * jamais deux declarations « propriete: valeur; » apres une accolade ouvrante.
+ * Mesure sur ce depot : 0 detection sur les 188 commentaires du fichier sain,
+ * et 24 declarations avalees detectees sur le defaut d'origine reproduit.
+ */
+const DECLARATION_CSS = /^\s*[-a-z]+\s*:\s*[^;{}]+;/gm;
+
+function controlerCommentairesCssSource() {
+  const dossier = join(RACINE, 'src', 'styles');
+  let feuilles;
+  try {
+    feuilles = readdirSync(dossier)
+      .filter((f) => f.endsWith('.css'))
+      .map((f) => join(dossier, f));
+  } catch {
+    echec('src/styles/', null, '', 'dossier des feuilles de style introuvable');
+    return;
+  }
+  if (feuilles.length === 0) {
+    echec('src/styles/', null, '', 'aucune feuille de style source trouvée');
+    return;
+  }
+  for (const feuille of feuilles) {
+    const relatif = cheminRelatif(feuille);
+    const css = readFileSync(feuille, 'utf8');
+    let avaleurs = 0;
+    let i = 0;
+    let debut = -1;
+    while (i < css.length - 1) {
+      if (debut < 0 && css[i] === '/' && css[i + 1] === '*') {
+        debut = i;
+        i += 2;
+        continue;
+      }
+      if (debut >= 0 && css[i] === '*' && css[i + 1] === '/') {
+        const contenu = css.slice(debut, i + 2);
+        const accolade = contenu.indexOf('{');
+        if (accolade >= 0) {
+          const declarations = contenu.slice(accolade).match(DECLARATION_CSS)?.length ?? 0;
+          if (declarations >= 2) {
+            avaleurs += 1;
+            echec(
+              relatif,
+              debut,
+              css,
+              `commentaire contenant ${declarations} déclaration(s) CSS — il avale des règles qui ne seront jamais appliquées (fermeture manquante ?)`
+            );
+          }
+        }
+        debut = -1;
+        i += 2;
+        continue;
+      }
+      i += 1;
+    }
+    if (debut >= 0) {
+      avaleurs += 1;
+      echec(relatif, debut, css, 'commentaire ouvert et jamais refermé jusqu’à la fin du fichier');
+    }
+    if (avaleurs === 0) ok(`${relatif} — aucun commentaire n’avale de règle`);
+  }
+}
+
 try {
   verifierDistPresent();
   const pages = listerPagesHtml();
@@ -223,6 +310,7 @@ try {
     throw new EchecDeGarde(['ÉCHEC — aucune page HTML trouvée sous dist/.']);
   }
   for (const page of pages) controlerFichier(page);
+  controlerCommentairesCssSource();
 
   console.log('');
   if (echecsCount > 0) {
