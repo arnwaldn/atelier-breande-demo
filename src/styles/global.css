@@ -123,7 +123,7 @@
   --ms-etat: 200ms;
   --ms-survol: 240ms;
   --ms-revele: 620ms;
-  --ms-signature: 1100ms;
+  --ms-signature: 1400ms;
 
   --ease-monte: cubic-bezier(0.16, 1, 0.3, 1);    /* révélations */
   --ease-etat: cubic-bezier(0.23, 1, 0.32, 1);    /* états, survols */
@@ -974,20 +974,29 @@
    qui donne déjà loading="eager" à sa photo. -------------------------- */
 .grille-collections .carte-piece:not([data-prioritaire]) .carte-piece__image {
   filter: saturate(0.55) brightness(0.82);
-  transition: filter var(--ms-signature) var(--ease-monte);
+  /* MEME COURBE ET MEME RETARD QUE LA REVELATION QUI LE PORTE — corrige le
+     20/08/2026, apres avoir casse ce geste le matin meme. En passant la
+     revelation de --ease-monte a une autre courbe sans toucher a cette ligne,
+     les deux proprietes du meme geste se sont desynchronisees : mesure image
+     par image, quand la carte franchissait 50 % d'opacite, le rechauffement
+     etait deja fait a 98,7 %. Le geste se jouait entierement dans la partie
+     invisible du fondu — repare le matin, eteint l'apres-midi.
+     Le retard de 150 ms fait demarrer la couleur quand la carte est deja a
+     ~20 % : on voit la piece s'allumer, au lieu de la decouvrir allumee. */
+  transition: filter var(--ms-signature) var(--ease-etat) 150ms;
 }
 html.mouvement .grille-collections [data-revele] .carte-piece:not([data-prioritaire]) .carte-piece__image,
 .grille-collections .carte-piece[data-prioritaire] .carte-piece__image {
   filter: saturate(1) brightness(1);
 }
 .grille-collections .cascade-2 .carte-piece__image {
-  transition-delay: 110ms;
+  transition-delay: 70ms;
 }
 .grille-collections .cascade-3 .carte-piece__image {
-  transition-delay: 220ms;
+  transition-delay: 140ms;
 }
 .grille-collections .cascade-4 .carte-piece__image {
-  transition-delay: 330ms;
+  transition-delay: 210ms;
 }
 html.mouvement .grille-collections [data-revele] .carte-piece:not([data-prioritaire])::after {
   opacity: 1;
@@ -1265,7 +1274,7 @@ html {
    d'ecran. Un fondu deguise, pas un mouvement.
 
    Trois changements, AUCUN jeton nouveau (le vocabulaire ferme de l'ADR-002
-   tient) : on passe a --ms-signature (le jeton long, porte de 900 a 1100 ms),
+   tient) : on passe a --ms-signature (le jeton long, porte de 900 a 1 400 ms),
    on change de courbe pour --ease-deplace (90 % du parcours a 71 % du temps
    au lieu de 33 %), et l'amplitude passe de 12 a 32 px. Duree percue
    attendue : environ 780 ms au lieu de 230.
@@ -1281,28 +1290,35 @@ html.mouvement [data-revele] {
   opacity: 1;
   transform: none;
   transition:
-    opacity var(--ms-signature) var(--ease-deplace),
-    transform var(--ms-signature) var(--ease-deplace);
+    opacity var(--ms-signature) var(--ease-etat),
+    transform var(--ms-signature) var(--ease-etat);
 }
 
-/* Cascade — au plus quatre frères. Portée de 60 à 110 ms le 20/08/2026 :
+/* Cascade — au plus quatre frères. Portée de 60 à 70 ms le 20/08/2026 :
    a 60 ms d'ecart pour une duree PERCUE de 230 ms, le quatrieme frere partait
    quand le premier avait deja fait 78 % de son chemin — les quatre arrivaient
    ensemble. Ce n'etait pas une cascade, c'etait un bloc. Posée en classe utilitaire
    à côté de data-revelation ; ne fait rien tant que html.mouvement n'est pas
    posée (le délai ne joue que sur une transition qui, elle, n'existe que
    sous cette classe). */
+/* Les petits blocs repetes se deplacent PROPORTIONNELLEMENT a eux-memes. Les
+   quatre reperes de l'accueil font 86 px de haut : 32 px, c'etait 37 % de leur
+   propre hauteur — un saut, pas une arrivee. 14 px les ramene a 16 %. */
+html.mouvement .grille-reperes > [data-revelation]:not([data-revele]) {
+  transform: translateY(14px);
+}
+
 .cascade-1 {
   transition-delay: 0ms;
 }
 .cascade-2 {
-  transition-delay: 110ms;
+  transition-delay: 70ms;
 }
 .cascade-3 {
-  transition-delay: 220ms;
+  transition-delay: 140ms;
 }
 .cascade-4 {
-  transition-delay: 330ms;
+  transition-delay: 210ms;
 }
 
 /* --------------------------------------------------------------------------

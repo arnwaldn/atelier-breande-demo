@@ -38,30 +38,76 @@ const LIBELLES: Record<string, string> = {
 
 function appliquerPalier(palier: string) {
   if (!echelle || !valeurEl || !PALIERS_CONNUS.has(palier)) return;
+  if (echelle.getAttribute('data-palier') === palier) return;
   echelle.setAttribute('data-palier', palier);
   valeurEl.textContent = LIBELLES[palier];
 }
 
-if (echelle && sections.length > 0 && 'IntersectionObserver' in window) {
-  const observateur = new IntersectionObserver(
-    (entrees) => {
-      // La section la plus proche du centre du viewport gouverne la valeur
-      // affichée : plusieurs sections peuvent être partiellement visibles à
-      // la fois, une seule doit gouverner l'échelle à un instant donné.
-      let meilleure: { palier: string; distance: number } | null = null;
-      for (const entree of entrees) {
-        if (!entree.isIntersecting) continue;
-        const palier = entree.target.getAttribute('data-jour');
-        if (!palier) continue;
-        const centre = entree.boundingClientRect.top + entree.boundingClientRect.height / 2;
-        const distance = Math.abs(centre - window.innerHeight / 2);
-        if (!meilleure || distance < meilleure.distance) {
-          meilleure = { palier, distance };
-        }
-      }
-      if (meilleure) appliquerPalier(meilleure.palier);
-    },
-    { threshold: [0, 0.25, 0.5, 0.75, 1] }
-  );
-  sections.forEach((section) => observateur.observe(section));
+/*
+ * REECRIT LE 20/08/2026 — l'echelle MENTAIT, et c'est le seul organe qui
+ * matérialise le concept fondateur de l'ADR-002 (« le jour s'en va pendant
+ * qu'on descend »).
+ *
+ * Releve du directeur artistique en defilement continu, en production :
+ * 4 remontees d'affichage sur l'accueil, 6 sur /services, 7 sur /latelier. Et
+ * pire qu'un scintillement : sur /services, de y=490 a y=1737 elle affichait
+ * 5 000 K alors que la section gouvernante disait 4 000 K — 1 250 px de valeur
+ * fausse. La valeur dependait meme du CHEMIN : 3 000 K au meme scrollY apres un
+ * defilement pas-a-pas, 4 000 K apres un saut direct.
+ *
+ * CAUSE : le callback d'IntersectionObserver ne recoit que les sections qui
+ * viennent de FRANCHIR un seuil, jamais l'ensemble des sections visibles. Entre
+ * deux franchissements — soit des milliers de pixels sur des sections de 2 000 px
+ * — rien n'etait recalcule, et la derniere section a avoir franchi un seuil
+ * pouvait etre celle qui SORT de l'ecran. --part-de-jour, lui, etait monotone :
+ * ce n'etait pas le systeme qui etait faux, c'etait son afficheur.
+ *
+ * PARADE : on balaie TOUTES les sections, une fois par frame au plus, et
+ * seulement quand la position a bouge. L'observateur ne sert plus qu'a savoir
+ * s'il y a lieu de travailler. Cout : une lecture de geometrie par section
+ * visible et par frame de defilement (moins de dix sections par page), jamais
+ * quand la page est immobile.
+ *
+ * Ce fichier reste AUTONOME, hors de la couche de mouvement : l'echelle doit
+ * afficher juste meme sous prefers-reduced-motion, ou aucune animation ne
+ * tourne.
+ */
+function sectionGouvernante(): string | null {
+  const milieu = window.innerHeight / 2;
+  let palier: string | null = null;
+  let plusProche = Infinity;
+  for (const section of sections) {
+    const r = section.getBoundingClientRect();
+    if (r.bottom <= 0 || r.top >= window.innerHeight) continue; // hors champ
+    const p = section.getAttribute('data-jour');
+    if (!p) continue;
+    const distance = Math.abs(r.top + r.height / 2 - milieu);
+    if (distance < plusProche) {
+      plusProche = distance;
+      palier = p;
+    }
+  }
+  return palier;
+}
+
+if (echelle && sections.length > 0) {
+  let derniereY = -1;
+  let planifie = false;
+
+  const recalculer = () => {
+    planifie = false;
+    derniereY = window.scrollY;
+    const palier = sectionGouvernante();
+    if (palier) appliquerPalier(palier);
+  };
+
+  const auDefilement = () => {
+    if (planifie || window.scrollY === derniereY) return;
+    planifie = true;
+    requestAnimationFrame(recalculer);
+  };
+
+  window.addEventListener('scroll', auDefilement, { passive: true });
+  window.addEventListener('resize', auDefilement, { passive: true });
+  recalculer(); // etat juste des le premier rendu, sans attendre un geste
 }
