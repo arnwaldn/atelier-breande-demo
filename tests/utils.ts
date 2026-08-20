@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import type { AxeResults } from 'axe-core';
 
@@ -73,8 +74,21 @@ export async function attendreImmobilite(page: Page, delaiMaxMs = 5000): Promise
  * l'en-tête par interception de route (voir appliquerCSP) pour que la campagne locale
  * exerce réellement la CSP annoncée, plutôt que de faire semblant de la vérifier.
  */
-export const CSP_VERCEL =
-  "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'; frame-src 'none'; media-src 'self'; manifest-src 'self'; worker-src 'none'; upgrade-insecure-requests";
+export const CSP_VERCEL: string = (() => {
+  // LUE DEPUIS vercel.json, jamais recopiee. Elle etait codee en dur ici
+  // jusqu'au 20/08/2026 : le jour ou un hash de script a ete ajoute a la
+  // politique de production, cette constante est restee en arriere et VINGT-SIX
+  // tests ont echoue — le harnais exercait une politique qui n'existait plus
+  // nulle part. Deux sources de verite pour une meme regle finissent toujours
+  // par diverger ; celle qui compte est celle qui est SERVIE.
+  const conf = JSON.parse(readFileSync(new URL('../vercel.json', import.meta.url), 'utf8'));
+  for (const entree of conf.headers ?? []) {
+    for (const en of entree.headers ?? []) {
+      if (String(en.key).toLowerCase() === 'content-security-policy') return String(en.value);
+    }
+  }
+  throw new Error('vercel.json : aucun en-tete Content-Security-Policy trouve');
+})();
 
 /**
  * Injecte l'en-tête Content-Security-Policy de vercel.json sur la réponse du document
@@ -244,7 +258,19 @@ const CAUSES_CONTRASTE_CONNUES_ET_REVUES = [
   // L'accent du logotype : glyphe decoratif aria-hidden (un e-accent
   // clippe, superpose au e lisible en papier). Le contraste ne porte
   // aucun sens : la lettre porteuse est deja mesuree, elle.
-  '.logotype__accent',
+  // RENOMMEE le 20/08/2026. L'exception visait .logotype__accent, un <span> qui
+  // portait un « é » ambre superpose au « e » papier. Ce decoupage cassait la
+  // commande vocale (le texte visible se calculait « Atelier Bre é ande » et ne
+  // correspondait plus au nom accessible), il a donc ete remplace par un mot
+  // entier plus un pseudo-element. La classe visee n'existait plus : QUATORZE
+  // tests d'accessibilite echouaient, sur les six pages et les deux profils,
+  // pour une exception devenue orpheline.
+  //
+  // Elle reste legitime : la lettre elle-meme est en papier plein contraste
+  // (15,86:1), mais l'accent peint par-dessus empeche axe de determiner le fond
+  // — il classe donc en « incertain », pas en violation. On exclut l'incertitude,
+  // jamais un vrai defaut de lisibilite.
+  '.logotype__e-hote',
 ];
 
 export function violationsAxeAExiger(resultats: AxeResults) {
